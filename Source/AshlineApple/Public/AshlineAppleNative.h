@@ -1,9 +1,14 @@
 #pragma once
 
-#include "CoreMinimal.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-bool AshlineApple_ProbeMetalFXFramework();
+bool AshlineApple_ProbeMetalFXFramework(void);
+bool AshlineApple_HasGameController(void);
+void AshlineApple_PulseHaptics(float Intensity);
+void AshlineApple_SetAdaptiveTriggers(int WeaponClass);
 
-extern "C" bool AshlineApple_HasGameController();
-extern "C" void AshlineApple_PulseHaptics(float Intensity);
-extern "C" void AshlineApple_SetAdaptiveTriggers(int32 WeaponClass);
+#ifdef __cplusplus
+}
+#endif

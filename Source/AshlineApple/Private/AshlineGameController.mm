@@ -1,4 +1,4 @@
-#include "AshlineApple.h"
+#include "AshlineAppleNative.h"
 
 #if ASHLINE_APPLE_NATIVE
 
@@ -6,27 +6,18 @@
 #import <GameController/GameController.h>
 #import <CoreHaptics/CoreHaptics.h>
 
-#if __has_include(<MetalFX/MetalFX.h>)
-#import <MetalFX/MetalFX.h>
-#define ASHLINE_HAS_METALFX_HEADER 1
-#else
-#define ASHLINE_HAS_METALFX_HEADER 0
-#endif
-
-bool AshlineApple_ProbeMetalFXFramework()
+bool AshlineApple_ProbeMetalFXFramework(void)
 {
-#if ASHLINE_HAS_METALFX_HEADER
 	if (@available(macOS 13.0, iOS 16.0, *))
 	{
 		Class Spatial = NSClassFromString(@"MTLFXSpatialScalerDescriptor");
 		Class Temporal = NSClassFromString(@"MTLFXTemporalScalerDescriptor");
 		return Spatial != nil || Temporal != nil;
 	}
-#endif
 	return false;
 }
 
-static GCController* AshlineFindDualSense()
+static GCController* AshlineFindDualSense(void)
 {
 	for (GCController* Controller in GCController.controllers)
 	{
@@ -46,12 +37,12 @@ static GCController* AshlineFindDualSense()
 	return nil;
 }
 
-extern "C" bool AshlineApple_HasGameController()
+bool AshlineApple_HasGameController(void)
 {
 	return AshlineFindDualSense() != nil || GCController.controllers.count > 0;
 }
 
-extern "C" void AshlineApple_PulseHaptics(float Intensity)
+void AshlineApple_PulseHaptics(float Intensity)
 {
 	GCController* Controller = AshlineFindDualSense();
 	if (!Controller)
@@ -61,7 +52,7 @@ extern "C" void AshlineApple_PulseHaptics(float Intensity)
 
 	if (@available(macOS 11.0, iOS 14.0, *))
 	{
-		id<GCDeviceHaptics> Haptics = Controller.haptics;
+		GCDeviceHaptics* Haptics = Controller.haptics;
 		if (!Haptics)
 		{
 			return;
@@ -75,11 +66,19 @@ extern "C" void AshlineApple_PulseHaptics(float Intensity)
 		[Engine startAndReturnError:&Error];
 		if (Error)
 		{
-			UE_LOG(LogAshlineApple, Verbose, TEXT("Haptic engine start failed."));
 			return;
 		}
 
-		const float Clamped = FMath::Clamp(Intensity, 0.05f, 1.f);
+		float Clamped = Intensity;
+		if (Clamped < 0.05f)
+		{
+			Clamped = 0.05f;
+		}
+		if (Clamped > 1.f)
+		{
+			Clamped = 1.f;
+		}
+
 		CHHapticEventParameter* IntensityParam = [[CHHapticEventParameter alloc]
 			initWithParameterID:CHHapticEventParameterIDHapticIntensity
 						  value:Clamped];
@@ -96,7 +95,7 @@ extern "C" void AshlineApple_PulseHaptics(float Intensity)
 	}
 }
 
-extern "C" void AshlineApple_SetAdaptiveTriggers(int32 WeaponClass)
+void AshlineApple_SetAdaptiveTriggers(int WeaponClass)
 {
 	GCController* Controller = AshlineFindDualSense();
 	if (!Controller)
@@ -109,31 +108,23 @@ extern "C" void AshlineApple_SetAdaptiveTriggers(int32 WeaponClass)
 		if ([Controller.extendedGamepad isKindOfClass:[GCDualSenseGamepad class]])
 		{
 			GCDualSenseGamepad* Dual = (GCDualSenseGamepad*)Controller.extendedGamepad;
-			// Resistance maps: AR/LMG heavier right trigger, SMG/pistol lighter.
 			float Start = 0.15f;
 			float End = 0.55f;
 			float Strength = 0.35f;
 			switch (WeaponClass)
 			{
-			case 1: Strength = 0.2f; break;  // SMG
-			case 2: Strength = 0.7f; Start = 0.4f; break; // Sniper
-			case 3: Strength = 0.85f; Start = 0.25f; break; // Shotgun
-			case 4: Strength = 0.18f; break; // Sidearm
-			case 5: Strength = 0.45f; break; // DMR
-			case 6: Strength = 0.6f; End = 0.8f; break; // LMG
+			case 1: Strength = 0.2f; break;
+			case 2: Strength = 0.7f; Start = 0.4f; break;
+			case 3: Strength = 0.85f; Start = 0.25f; break;
+			case 4: Strength = 0.18f; break;
+			case 5: Strength = 0.45f; break;
+			case 6: Strength = 0.6f; End = 0.8f; break;
 			default: break;
 			}
 			[Dual.rightTrigger setModeFeedbackWithStartPosition:Start resistiveStrength:Strength];
 			[Dual.leftTrigger setModeWeaponWithStartPosition:0.1f endPosition:End resistiveStrength:Strength * 0.5f];
 		}
 	}
-}
-
-#else
-
-bool AshlineApple_ProbeMetalFXFramework()
-{
-	return false;
 }
 
 #endif

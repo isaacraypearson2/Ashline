@@ -1,23 +1,23 @@
-#include "AshlineApple.h"
+#include "AshlineAppleNative.h"
 
 #if !ASHLINE_APPLE_NATIVE
 
-bool AshlineApple_ProbeMetalFXFramework()
+bool AshlineApple_ProbeMetalFXFramework(void)
 {
 	return false;
 }
 
-extern "C" bool AshlineApple_HasGameController()
+bool AshlineApple_HasGameController(void)
 {
 	return false;
 }
 
-extern "C" void AshlineApple_PulseHaptics(float Intensity)
+void AshlineApple_PulseHaptics(float Intensity)
 {
 	(void)Intensity;
 }
 
-extern "C" void AshlineApple_SetAdaptiveTriggers(int32 WeaponClass)
+void AshlineApple_SetAdaptiveTriggers(int WeaponClass)
 {
 	(void)WeaponClass;
 }

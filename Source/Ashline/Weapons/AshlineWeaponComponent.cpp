@@ -147,7 +147,7 @@ void UAshlineWeaponComponent::FireShot()
 
 	if (UAshlineDualSense* DualSense = GEngine ? GEngine->GetEngineSubsystem<UAshlineDualSense>() : nullptr)
 	{
-		DualSense->TriggerWeaponFeedback(Active.Definition.Class, Active.Stats.RecoilPitch);
+		DualSense->TriggerWeaponFeedback(static_cast<uint8>(Active.Definition.Class), Active.Stats.RecoilPitch);
 	}
 
 	UE_LOG(LogAshline, Verbose, TEXT("Fired %s mag=%d reserve=%d"), *Active.Definition.WeaponId.ToString(), Active.AmmoInMag, Active.Reserve);

@@ -42,6 +42,8 @@ UE58="$HOME/Epic Games/UE_5.8/Engine/Build/BatchFiles/Mac/Build.sh"
 
 After a successful `AshlineEditor` build, open `Ashline.uproject` again. Check `Saved/Logs/` if it still fails.
 
+**Mac UE 5.8.2 compile is verified** on Apple Silicon after: `PCHUsageMode.NoPCHs` on AshlineApple (avoids FVector vs CarbonCore/Foundation), `PublicFrameworks` for GameController/CoreHaptics, a plain-C `AshlineAppleNative.h`, and an ObjC++ Game Controller file that does not include Unreal headers.
+
 ## Mac
 
 - Target: **arm64**, macOS **14+**, Metal SM5/SM6 (`Config/Mac/MacEngine.ini`).

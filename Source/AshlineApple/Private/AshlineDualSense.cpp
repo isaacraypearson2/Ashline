@@ -55,7 +55,7 @@ void UAshlineDualSense::Pulse(EAshlineDualSenseEvent Event, float Intensity)
 void UAshlineDualSense::SetAdaptiveTriggersForWeapon(uint8 WeaponClass)
 {
 #if ASHLINE_APPLE_NATIVE
-	AshlineApple_SetAdaptiveTriggers(static_cast<int32>(WeaponClass));
+	AshlineApple_SetAdaptiveTriggers(static_cast<int>(WeaponClass));
 #else
 	(void)WeaponClass;
 #endif

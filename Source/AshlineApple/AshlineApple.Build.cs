@@ -5,7 +5,9 @@ public class AshlineApple : ModuleRules
 {
 	public AshlineApple(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		// UE PCH + Foundation/CarbonCore collide on FVector. This module mixes
+		// ObjC++ and must compile without engine PCHs.
+		PCHUsage = PCHUsageMode.NoPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
@@ -27,9 +29,9 @@ public class AshlineApple : ModuleRules
 		{
 			PublicDefinitions.Add("ASHLINE_APPLE_NATIVE=1");
 
-			// Keep these private so they do not leak into every module that
-			// depends on AshlineApple (the editor target includes Ashline).
-			PrivateFrameworks.AddRange(new string[]
+			// UBT 5.8 has no PrivateFrameworks on ModuleRules — PublicFrameworks
+			// is the supported list for GameController / CoreHaptics.
+			PublicFrameworks.AddRange(new string[]
 			{
 				"GameController",
 				"CoreHaptics"
