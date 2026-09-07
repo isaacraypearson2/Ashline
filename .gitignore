@@ -1,0 +1,61 @@
+# Unreal Engine 5 — Ashline
+# Ignore generated, intermediate, and user-local artifacts.
+
+# Binaries / build
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+Build/
+FileOpenOrder/
+
+# Compiled / packaged
+*.exe
+*.dll
+*.lib
+*.pdb
+*.so
+*.dylib
+*.app
+*.ipa
+*.dSYM/
+
+# Local editor / user
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+.vs/
+.vsconfig
+.idea/
+*.xcodeproj
+*.xcworkspace
+*.code-workspace
+
+# Encrypted / local
+*.uasset.encryption
+
+# Crash / logs (keep Config)
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Python / tooling
+__pycache__/
+*.pyc
+.venv/
+
+# Keep Content placeholders; ignore cooked and collected
+Content/**/Collections/
+Content/**/Developers/
+
+# Local secrets
+.env
+*.pem
+*.p12
+*.mobileprovision

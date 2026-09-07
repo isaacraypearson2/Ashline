@@ -1,0 +1,5 @@
+# ASH-02 — DustMarket
+
+Graybox map target: `/Game/Ashline/Maps/Campaign/ASH02_DustMarket`
+
+Create this level in UE 5.5+, set GameMode to `AAshlineGameMode`, and assign `ActiveMission` to the matching enum. Place `AAshlineObjectiveTrigger` volumes using the objective ids from `UAshlineMissionCatalog` / `Content/Ashline/Data/Campaign.json`.

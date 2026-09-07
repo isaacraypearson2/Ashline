@@ -1,0 +1,27 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "AshlineTypes.h"
+#include "AshlineWeaponCatalog.generated.h"
+
+UCLASS()
+class ASHLINE_API UAshlineWeaponCatalog : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
+	static TArray<FAshlineWeaponDefinition> BuildRoster();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
+	static TArray<FAshlineAttachmentDefinition> BuildAttachments();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
+	static bool FindWeapon(FName WeaponId, FAshlineWeaponDefinition& OutWeapon);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
+	static bool FindAttachment(FName AttachmentId, FAshlineAttachmentDefinition& OutAttachment);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
+	static FAshlineWeaponStats ComposeStats(const FAshlineWeaponDefinition& Weapon, const TMap<EAshlineAttachmentSlot, FName>& Attachments);
+};

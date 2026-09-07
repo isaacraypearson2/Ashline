@@ -1,0 +1,12 @@
+{
+  "roster": [
+    { "id": "WPN_AR_ASH16", "name": "ASH-16 Service Rifle", "class": "AssaultRifle", "unlock": 1 },
+    { "id": "WPN_SMG_C9", "name": "C9 Compact", "class": "SMG", "unlock": 2 },
+    { "id": "WPN_SNP_G28L", "name": "G28-L Marksman", "class": "Sniper", "unlock": 8 },
+    { "id": "WPN_SHG_M870K", "name": "M870-K Breacher", "class": "Shotgun", "unlock": 4 },
+    { "id": "WPN_PIS_M17A", "name": "M17-A Sidearm", "class": "Sidearm", "unlock": 1 },
+    { "id": "WPN_DMR_SASS", "name": "SASS-7 DMR", "class": "DMR", "unlock": 6 },
+    { "id": "WPN_LMG_M250", "name": "M250 SAW", "class": "LMG", "unlock": 10 }
+  ],
+  "attachmentSlots": ["Optic", "Muzzle", "Underbarrel", "Magazine", "Stock", "Laser"]
+}

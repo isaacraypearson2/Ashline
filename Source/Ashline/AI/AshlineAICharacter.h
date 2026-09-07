@@ -1,0 +1,33 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Character.h"
+#include "AshlineTypes.h"
+#include "AshlineAICharacter.generated.h"
+
+UCLASS()
+class ASHLINE_API AAshlineAICharacter : public ACharacter
+{
+	GENERATED_BODY()
+
+public:
+	AAshlineAICharacter();
+
+	virtual void BeginPlay() override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|AI")
+	void ApplyArchetype(EAshlineAIArchetype InArchetype, EAshlineDifficulty Difficulty);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	EAshlineAIArchetype Archetype = EAshlineAIArchetype::Rifleman;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|AI")
+	FAshlineAIArchetypeDef ArchetypeDef;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|AI")
+	float Health = 100.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|AI")
+	bool bDead = false;
+};

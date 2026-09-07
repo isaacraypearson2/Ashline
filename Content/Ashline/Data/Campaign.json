@@ -1,0 +1,89 @@
+{
+  "campaign": "Ashline",
+  "missions": [
+    {
+      "id": "ASH-01",
+      "title": "Wire Cut",
+      "theme": "Night raid / comms sabotage",
+      "map": "/Game/Ashline/Maps/Campaign/ASH01_WireCut",
+      "objectives": ["Infiltrate the relay", "Sever the trunk fiber", "Extract west", "Ghost protocol (optional)"]
+    },
+    {
+      "id": "ASH-02",
+      "title": "Dust Market",
+      "theme": "Urban recon / HVT intercept",
+      "map": "/Game/Ashline/Maps/Campaign/ASH02_DustMarket",
+      "objectives": ["Confirm the broker", "Secure the case", "Van extract", "No civilian casualties (optional)"]
+    },
+    {
+      "id": "ASH-03",
+      "title": "Holdfast",
+      "theme": "Firebase defense / last stand",
+      "map": "/Game/Ashline/Maps/Campaign/ASH03_Holdfast",
+      "objectives": ["Hold the berm", "Keep the pit online", "Link with relief", "No sector collapse (optional)"]
+    },
+    {
+      "id": "ASH-04",
+      "title": "Night Glass",
+      "theme": "Low-vis overwatch / counter-sniper",
+      "map": "/Game/Ashline/Maps/Campaign/ASH04_NightGlass",
+      "objectives": ["Clear nest Alpha", "Clear nest Bravo", "Own the glass", "No unsuppressed fire (optional)"]
+    },
+    {
+      "id": "ASH-05",
+      "title": "Convoy Ghost",
+      "theme": "Ambush / mobile assault",
+      "map": "/Game/Ashline/Maps/Campaign/ASH05_ConvoyGhost",
+      "objectives": ["Kill the lead vehicle", "Destroy the tankers", "Stop the command wagon", "Ghost extract (optional)"]
+    },
+    {
+      "id": "ASH-06",
+      "title": "Ash Harbor",
+      "theme": "Port assault / shipboard",
+      "map": "/Game/Ashline/Maps/Campaign/ASH06_AshHarbor",
+      "objectives": ["Seize crane control", "Board the freighter", "Recover sealed cargo", "Free the dock crew (optional)"]
+    },
+    {
+      "id": "ASH-07",
+      "title": "Whiteout",
+      "theme": "Arctic storm / navigation",
+      "map": "/Game/Ashline/Maps/Campaign/ASH07_Whiteout",
+      "objectives": ["Follow the wire", "Restore the beacon", "Extract the crew", "No lost operators (optional)"]
+    },
+    {
+      "id": "ASH-08",
+      "title": "Catacomb",
+      "theme": "Subterranean CQB / intel",
+      "map": "/Game/Ashline/Maps/Campaign/ASH08_Catacomb",
+      "objectives": ["Push the metro", "Dump the racks", "Collapse the tunnel", "Full dump (optional)"]
+    },
+    {
+      "id": "ASH-09",
+      "title": "Ridge Wire",
+      "theme": "Mountain EW / overwatch",
+      "map": "/Game/Ashline/Maps/Campaign/ASH09_RidgeWire",
+      "objectives": ["Reach the mast", "Plant the counter-wire", "Hold the ridge", "Kill the drone nest (optional)"]
+    },
+    {
+      "id": "ASH-10",
+      "title": "False Flag",
+      "theme": "Deception / urban night",
+      "map": "/Game/Ashline/Maps/Campaign/ASH10_FalseFlag",
+      "objectives": ["Enter as staff", "Swap the packet", "Walk out", "No bodies on camera (optional)"]
+    },
+    {
+      "id": "ASH-11",
+      "title": "Last Train",
+      "theme": "Rail extract / running fight",
+      "map": "/Game/Ashline/Maps/Campaign/ASH11_LastTrain",
+      "objectives": ["Clear the platform", "Hold the consist", "Keep the engine alive", "Protect the witnesses (optional)"]
+    },
+    {
+      "id": "ASH-12",
+      "title": "Ashline",
+      "theme": "Finale / decisive strike",
+      "map": "/Game/Ashline/Maps/Campaign/ASH12_Ashline",
+      "objectives": ["Breach the terminus", "Cut the ashline", "Collapse the facility", "No one walks the line (optional)"]
+    }
+  ]
+}
