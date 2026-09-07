@@ -1,0 +1,4 @@
+{
+	"name": "Ashline",
+	"install": "python3 --version && clang++ --version | head -n1 && python3 Tools/ashline_check.py"
+}
