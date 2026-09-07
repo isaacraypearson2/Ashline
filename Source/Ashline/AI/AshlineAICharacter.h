@@ -7,6 +7,7 @@
 #include "AshlineAICharacter.generated.h"
 
 class UStaticMeshComponent;
+class USkeletalMesh;
 
 UCLASS()
 class ASHLINE_API AAshlineAICharacter : public ACharacter
@@ -36,4 +37,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|AI")
 	TObjectPtr<UStaticMeshComponent> GrayboxBody;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	TSoftObjectPtr<USkeletalMesh> BodyMeshOverride;
+
+protected:
+	void ApplyPresentationMesh();
 };

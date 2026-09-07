@@ -10,6 +10,7 @@
 #include "InputCoreTypes.h"
 #include "InputMappingContext.h"
 #include "Kismet/GameplayStatics.h"
+#include "Settings/AshlineGraphicsSettings.h"
 #include "UI/AshlineTouchHUD.h"
 
 AAshlinePlayerController::AAshlinePlayerController()
@@ -82,7 +83,7 @@ void AAshlinePlayerController::ApplyPlatformMappings()
 			{
 				Subsystem->AddMappingContext(KeyboardMouseContext, 0);
 			}
-#if PLATFORM_MAC || PLATFORM_IOS
+#if PLATFORM_WINDOWS || PLATFORM_MAC || PLATFORM_IOS
 			if (GamepadContext)
 			{
 				Subsystem->AddMappingContext(GamepadContext, 1);
@@ -206,5 +207,27 @@ void AAshlinePlayerController::AshFrontend()
 	if (AAshlineGameMode* GameMode = Cast<AAshlineGameMode>(UGameplayStatics::GetGameMode(this)))
 	{
 		GameMode->ReturnToFrontend();
+	}
+}
+
+void AAshlinePlayerController::AshPCUltra()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->ApplyPreset(EAshlineGraphicsPreset::PC_Ultra);
+		}
+	}
+}
+
+void AAshlinePlayerController::AshPCBalanced()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->ApplyPreset(EAshlineGraphicsPreset::PC_Balanced);
+		}
 	}
 }

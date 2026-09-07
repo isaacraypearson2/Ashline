@@ -5,6 +5,12 @@
 #include "AshlineTypes.h"
 #include "AshlineWeaponComponent.generated.h"
 
+class UStaticMeshComponent;
+class UPointLightComponent;
+class UAshlineWeaponVisual;
+class UMaterialInterface;
+class USoundBase;
+
 USTRUCT(BlueprintType)
 struct FAshlineRuntimeWeapon
 {
@@ -34,6 +40,7 @@ class ASHLINE_API UAshlineWeaponComponent : public UActorComponent
 public:
 	UAshlineWeaponComponent();
 
+	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
@@ -60,17 +67,51 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
 	bool IsFiring() const { return bWantsFire; }
 
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
+	void RefreshVisuals();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	float TraceDistance = 20000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	TEnumAsByte<ECollisionChannel> TraceChannel = ECC_Visibility;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Weapons")
+	TObjectPtr<UStaticMeshComponent> WeaponMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Weapons")
+	TObjectPtr<UStaticMeshComponent> BarrelMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Weapons")
+	TObjectPtr<UStaticMeshComponent> StockMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Weapons")
+	TObjectPtr<UStaticMeshComponent> MagMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Weapons")
+	TObjectPtr<UPointLightComponent> MuzzleLight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	TSoftObjectPtr<UAshlineWeaponVisual> VisualOverride;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float ImpactDecalSize = 12.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float MuzzleFlashSeconds = 0.045f;
+
 private:
 	void FireShot();
 	void ApplyRecoil();
 	FVector GetMuzzleLocation() const;
 	FRotator GetAimRotation() const;
+	void SpawnMuzzleFX();
+	void SpawnImpact(const FHitResult& Hit);
+	void AttachVisuals();
+	void BuildCompoundPlaceholder();
+	void ApplyVisualAsset(UAshlineWeaponVisual* Visual);
+	void PlayFireAudio();
+	void PlayReloadAudio();
 
 	UPROPERTY()
 	FAshlineRuntimeWeapon PrimaryWeapon;
@@ -84,4 +125,5 @@ private:
 	bool bReloading = false;
 	float FireCooldown = 0.f;
 	float ReloadRemaining = 0.f;
+	float MuzzleFlashRemaining = 0.f;
 };

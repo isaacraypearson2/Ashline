@@ -1,9 +1,14 @@
 # Plugins
 
-Ashline enables engine plugins from `Ashline.uproject`:
+Enabled from `Ashline.uproject`:
 
 - **EnhancedInput** — all gameplay binds
-- **GameplayStateTree** / **GameplayBehaviors** — optional AI expansion in editor
-- **ModelingToolsEditorMode** — graybox modeling in editor only
+- **ModelingToolsEditorMode** — editor blockout only
 
-No third-party marketplace plugins are required. Ads/IAP would plug into `UAshlineMonetizationHooks` later; do not add an ads plugin until that stub is replaced on purpose.
+Recommended on the Windows machine (not vendored — missing plugin must not be required to open the project):
+
+- **AMD FSR for UE 5.8** from [GPUOpen](https://gpuopen.com/learn/amd-fsr-plugin-updated-for-unreal-engine-58/) — `Docs/FAB_PACKS.md`
+- **MetaHuman** plugin — only when importing Creator characters
+- **Niagara** — engine module, already a game-module dependency
+
+TSR is the built-in fallback if FSR is absent. Ads/IAP stay out (`UAshlineMonetizationHooks`).

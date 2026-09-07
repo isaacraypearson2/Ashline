@@ -1,9 +1,8 @@
-# Campaign maps (graybox)
+# Campaign maps
 
 **Playable now without .umap files.** `AAshlineGrayboxBuilder` spawns a unique
-layout for ASH-01…ASH-12 at runtime (floors, walls, cover, lights, AI, objective
-volumes, PlayerStart). Completing a mission saves via `UAshlineProgressionSubsystem`
-and unlocks the next in the in-game campaign select.
+themed blockout for ASH-01…ASH-12 (floors, walls, cover, Sky Atmosphere, fog,
+post-process, practicals, foliage, vehicles, AI, objective volumes, PlayerStart).
 
 Authored levels are optional. If you later save a `.umap` at the catalog path
 (` /Game/Ashline/Maps/Campaign/ASH01_WireCut`, …), `TravelToMission` will open it;

@@ -1,0 +1,28 @@
+{
+  "heroMesh": "/Game/Ashline/Characters/Hero/SK_AshlineHero",
+  "metaHumanRoot": "/Game/Ashline/Characters/MetaHuman",
+  "weapons": [
+    "WPN_AR_ASH16",
+    "WPN_SMG_C9",
+    "WPN_SNP_G28L",
+    "WPN_SHG_M870K",
+    "WPN_PIS_M17A",
+    "WPN_DMR_SASS",
+    "WPN_LMG_M250"
+  ],
+  "kits": [
+    "ASH01_WireCut",
+    "ASH02_DustMarket",
+    "ASH03_Holdfast",
+    "ASH04_NightGlass",
+    "ASH05_ConvoyGhost",
+    "ASH06_AshHarbor",
+    "ASH07_Whiteout",
+    "ASH08_Catacomb",
+    "ASH09_RidgeWire",
+    "ASH10_FalseFlag",
+    "ASH11_LastTrain",
+    "ASH12_Ashline"
+  ],
+  "note": "Binaries are not in git. Paths are resolved by UAshlineContentManifest."
+}

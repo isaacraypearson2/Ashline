@@ -2,7 +2,7 @@
 	"FileVersion": 3,
 	"EngineAssociation": "5.8",
 	"Category": "Games",
-	"Description": "Ashline — Apple-first single-player military FPS/TPS campaign (UE 5.8.2, Metal).",
+	"Description": "Ashline — Windows-first single-player military FPS/TPS campaign (UE 5.8.2, DX12 / SM6). Mac and iOS modules still compile.",
 	"Modules": [
 		{
 			"Name": "Ashline",
@@ -11,7 +11,8 @@
 			"AdditionalDependencies": [
 				"Engine",
 				"AIModule",
-				"UMG"
+				"UMG",
+				"Niagara"
 			]
 		},
 		{
@@ -37,6 +38,7 @@
 		}
 	],
 	"TargetPlatforms": [
+		"Win64",
 		"Mac",
 		"IOS"
 	]

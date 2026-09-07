@@ -20,6 +20,7 @@ public class Ashline : ModuleRules
 			"SlateCore",
 			"GameplayTags",
 			"DeveloperSettings",
+			"Niagara",
 			"AshlineApple"
 		});
 

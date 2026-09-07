@@ -99,7 +99,11 @@ enum class EAshlineGraphicsPreset : uint8
 	Medium,
 	High,
 	Epic,
-	Cinematic
+	Cinematic,
+	/** 1440p high-refresh on Radeon 9070-class (FSR3 Balanced + cheaper Lumen). */
+	PC_Balanced UMETA(DisplayName = "Ashline_PC_Balanced"),
+	/** Default Windows target: 1440p Ultra, Nanite/Lumen/VSM, HW RT when supported. */
+	PC_Ultra UMETA(DisplayName = "Ashline_PC_Ultra")
 };
 
 UENUM(BlueprintType)
@@ -117,7 +121,29 @@ enum class EAshlineUpscaler : uint8
 {
 	Off,
 	MetalFXSpatial,
-	MetalFXTemporal
+	MetalFXTemporal,
+	/** AMD FidelityFX Super Resolution 3 (primary Windows path). */
+	FSR3,
+	/** Unreal Temporal Super Resolution — always available fallback. */
+	TSR,
+	/** NVIDIA DLSS — optional, never required. */
+	DLSS
+};
+
+UENUM(BlueprintType)
+enum class EAshlineSurface : uint8
+{
+	Auto,
+	Ground,
+	Concrete,
+	Metal,
+	Wood,
+	Sand,
+	Snow,
+	Water,
+	Foliage,
+	Emissive,
+	Plastic
 };
 
 USTRUCT(BlueprintType)

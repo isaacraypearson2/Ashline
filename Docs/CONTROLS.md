@@ -14,6 +14,7 @@ Console cheats (Output Log or `~` if enabled):
 
 - `AshUnlockAll` — every mission becomes playable
 - `AshDeploy 3` — jump to ASH-03 (also unlocks all)
+- `AshPCUltra` / `AshPCBalanced` — named 1440p presets for the 9070 GRE
 - `AshComplete` — finish the active mission and grant XP
 - `AshFrontend` — abort back to campaign select
 

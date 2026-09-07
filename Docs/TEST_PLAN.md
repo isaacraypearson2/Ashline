@@ -1,0 +1,52 @@
+# Test plan — Windows UE 5.8.2 (9070 GRE class)
+
+Primary playtest machine: **Windows 11 `X3D_AMD`**, Ryzen 5 7500X3D, ~32 GB, **AMD Radeon RX 9070 GRE**, **1440p**, UE 5.8.2 already installed.
+
+This VM / CI environment does **not** run Unreal Editor. Execute this list on the Windows PC.
+
+## Install
+
+- [ ] UE 5.8.2 + VS 2022 C++ workload
+- [ ] `Ashline.uproject` opens and compiles `AshlineEditor` (Win64 Development)
+- [ ] Missing `ASH_Playable` dialog (if any) can be dismissed; Play still works
+- [ ] Optional: Starter Content pack
+- [ ] Optional: AMD FSR3 plugin from Fab (TSR must still work without it)
+
+## Graphics
+
+- [ ] PIE HUD shows **Ashline_PC_Ultra** and an RHI name containing **D3D12**
+- [ ] `stat fps` at 1440p — high-refresh capable (VSync off)
+- [ ] `r.RayTracing` / `r.Lumen.HardwareRayTracing` are 1 if the driver reports HW RT
+- [ ] `AshPCBalanced` drops screen percentage / Lumen cost; `AshPCUltra` restores
+- [ ] Nanite/Lumen/VSM do not spam fatal logs
+- [ ] DLSS is **not** required; game looks correct with FSR3 or TSR only
+
+## Campaign loop (do not break)
+
+- [ ] PIE opens campaign select (not an empty void)
+- [ ] WASD / mouse / jump / crouch / fire / aim / reload / swap / V toggle
+- [ ] ASH-01 INFIL → CUT → EXFIL awards XP and unlocks ASH-02
+- [ ] Difficulty Left/Right changes AI pressure (Veteran/Extreme extra bots)
+- [ ] Esc pause → Enter resume; Esc twice aborts to select
+- [ ] `AshUnlockAll` then `AshDeploy 12` reaches the finale
+- [ ] After ASH-12, **ASHLINE CUT** and save slot `AshlineCampaign` persists
+- [ ] Ads stay off
+
+## Presentation (Phase 1 bar)
+
+- [ ] Each of ASH-01…12 has a **distinct** lighting/fog mood (night vs desert vs snow vs red finale)
+- [ ] Surfaces are not a single flat gray — materials tint / StarterContent / Engine PBR
+- [ ] Practical lights on objectives; fog + post-process visible
+- [ ] FPS weapon is a **compound rifle-like mesh**, not a lone cube
+- [ ] Firing shows a muzzle flash light; impacts spawn a decal when the engine decal material exists
+- [ ] AI is a humanoid mesh when a mannequin/MetaHuman path resolves; otherwise a tinted body (not an invisible capsule)
+- [ ] Audio is silent unless cues were imported — no crash when slots are empty
+
+## Plugins / input
+
+- [ ] Enhanced Input (runtime IMC still works with no `.uasset` IA files)
+- [ ] Keyboard/mouse first-class; DualSense/XInput gamepad mapping is active on Windows
+
+## Honest failures
+
+If Quixel/Fab/MetaHuman folders are empty, that is **not** a test failure. Phase 2 import is documented in `Docs/CONTENT_PIPELINE.md`.

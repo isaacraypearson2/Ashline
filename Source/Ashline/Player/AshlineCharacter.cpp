@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Engine/GameInstance.h"
+#include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
 #include "Game/AshlineGameMode.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -22,6 +23,10 @@
 #include "Materials/MaterialInterface.h"
 #include "Player/AshlinePlayerController.h"
 #include "Progression/AshlineProgressionSubsystem.h"
+#include "Presentation/AshlineAudioDirector.h"
+#include "Presentation/AshlineCharacterPresentation.h"
+#include "Presentation/AshlinePresentationLibrary.h"
+#include "Presentation/AshlinePresentationSettings.h"
 #include "Weapons/AshlineWeaponComponent.h"
 
 AAshlineCharacter::AAshlineCharacter()
@@ -105,6 +110,7 @@ void AAshlineCharacter::BeginPlay()
 	}
 
 	EnsureDefaultLoadout();
+	ApplyPresentationMesh();
 	ApplyGrayboxMeshes();
 	Health = MaxHealth;
 	SetCameraMode(CameraMode);
@@ -115,6 +121,7 @@ void AAshlineCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	const float Target = bIsAiming ? 430.f * AimWalkMul : 430.f;
 	GetCharacterMovement()->MaxWalkSpeed = Target;
+	TickFootsteps(DeltaSeconds);
 }
 
 void AAshlineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -468,32 +475,108 @@ void AAshlineCharacter::EnsureDefaultLoadout()
 	WeaponComponent->LoadFromLoadout(Primary, Secondary, 0, 0);
 }
 
+void AAshlineCharacter::ApplyPresentationMesh()
+{
+	USkeletalMesh* Hero = nullptr;
+	FVector RelLoc(0.f, 0.f, -96.f);
+	FRotator RelRot(0.f, -90.f, 0.f);
+	FVector RelScale = FVector::OneVector;
+
+	if (!HeroMeshOverride.IsNull())
+	{
+		Hero = HeroMeshOverride.LoadSynchronous();
+	}
+	if (!Hero)
+	{
+		if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
+		{
+			Hero = Settings->DefaultHeroMesh.LoadSynchronous();
+			if (!Hero && Settings->HeroPresentation.IsValid())
+			{
+				if (UAshlineCharacterPresentation* Pres = Settings->HeroPresentation.LoadSynchronous())
+				{
+					Hero = Pres->BodyMesh.LoadSynchronous();
+					RelLoc = Pres->MeshRelativeLocation;
+					RelRot = Pres->MeshRelativeRotation;
+					RelScale = Pres->MeshScale;
+				}
+			}
+		}
+	}
+	if (!Hero)
+	{
+		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(true, EAshlineAIArchetype::Rifleman))
+		{
+			Hero = Pres->BodyMesh.LoadSynchronous();
+			RelLoc = Pres->MeshRelativeLocation;
+			RelRot = Pres->MeshRelativeRotation;
+			RelScale = Pres->MeshScale;
+		}
+	}
+	if (!Hero)
+	{
+		Hero = UAshlinePresentationLibrary::ResolveHumanoidMesh();
+	}
+
+	if (Hero && GetMesh())
+	{
+		GetMesh()->SetSkeletalMeshAsset(Hero);
+		GetMesh()->SetRelativeLocation(RelLoc);
+		GetMesh()->SetRelativeRotation(RelRot);
+		GetMesh()->SetRelativeScale3D(RelScale);
+		GetMesh()->SetVisibility(true);
+		GetMesh()->SetCastShadow(true);
+		if (GrayboxBody)
+		{
+			GrayboxBody->SetVisibility(false);
+		}
+	}
+}
+
+void AAshlineCharacter::TickFootsteps(float DeltaSeconds)
+{
+	const float Speed = GetVelocity().Size2D();
+	if (Speed < 40.f || !GetCharacterMovement() || GetCharacterMovement()->IsFalling())
+	{
+		FootstepAccumulator = 0.f;
+		return;
+	}
+	FootstepAccumulator += DeltaSeconds * (Speed / 280.f);
+	if (FootstepAccumulator >= 1.f)
+	{
+		FootstepAccumulator = 0.f;
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (UAshlineAudioDirector* Audio = GI->GetSubsystem<UAshlineAudioDirector>())
+			{
+				Audio->PlayFootstep(this, GetActorLocation());
+			}
+		}
+	}
+}
+
 void AAshlineCharacter::ApplyGrayboxMeshes()
 {
-	UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
-	UMaterialInterface* Shape = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
-	if (GrayboxBody && Cube)
+	const bool bHasHeroMesh = GetMesh() && GetMesh()->GetSkeletalMeshAsset() != nullptr;
+	if (GrayboxBody)
 	{
-		GrayboxBody->SetStaticMesh(Cube);
-		if (Shape)
-		{
-			if (UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Shape, this))
-			{
-				MID->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.25f, 0.32f, 0.22f));
-				GrayboxBody->SetMaterial(0, MID);
-			}
-		}
+		GrayboxBody->SetVisibility(!bHasHeroMesh);
 	}
-	if (GrayboxWeapon && Cube)
+
+	// Weapon visuals live on UAshlineWeaponComponent. Hide the old single-cube prop when present.
+	if (GrayboxWeapon)
 	{
-		GrayboxWeapon->SetStaticMesh(Cube);
-		if (Shape)
-		{
-			if (UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Shape, this))
-			{
-				MID->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.12f, 0.12f, 0.12f));
-				GrayboxWeapon->SetMaterial(0, MID);
-			}
-		}
+		GrayboxWeapon->SetVisibility(false);
 	}
+
+	if (bHasHeroMesh)
+	{
+		return;
+	}
+
+	if (GrayboxBody)
+	{
+		GrayboxBody->SetVisibility(false);
+	}
+	UAshlinePresentationLibrary::ApplyHumanoidBlockout(this, FLinearColor(0.18f, 0.24f, 0.16f));
 }

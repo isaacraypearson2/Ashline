@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Player/AshlineCharacter.h"
 #include "Progression/AshlineProgressionSubsystem.h"
+#include "Settings/AshlineGraphicsSettings.h"
 #include "Weapons/AshlineWeaponComponent.h"
 
 namespace
@@ -86,7 +87,7 @@ void AAshlineHUD::DrawHUD()
 void AAshlineHUD::DrawFrontend(AAshlineGameMode* GameMode, UAshlineSaveGame* Save)
 {
 	DrawTextLine(TEXT("ASHLINE"), 48.f, 36.f, FLinearColor(0.95f, 0.86f, 0.55f));
-	DrawTextLine(TEXT("Campaign select  —  graybox playtest"), 48.f, 64.f, FLinearColor(0.75f, 0.75f, 0.7f));
+	DrawTextLine(TEXT("Campaign select  —  Windows-first AAA blockout"), 48.f, 64.f, FLinearColor(0.75f, 0.75f, 0.7f));
 
 	const TArray<FAshlineMissionDefinition> Campaign = UAshlineMissionCatalog::BuildCampaign();
 	for (int32 i = 0; i < Campaign.Num(); ++i)
@@ -123,7 +124,21 @@ void AAshlineHUD::DrawFrontend(AAshlineGameMode* GameMode, UAshlineSaveGame* Sav
 	DrawTextLine(FString::Printf(TEXT("Difficulty: < %s >     Rank %d  XP %d  Crates %d"), DifficultyName(Difficulty), Rank, XP, Tokens),
 		48.f, Canvas->SizeY - 92.f, FLinearColor(0.8f, 0.85f, 0.7f));
 	DrawTextLine(TEXT("Up/Down select   Enter deploy   Left/Right difficulty   Esc unused here"), 48.f, Canvas->SizeY - 68.f, FLinearColor(0.65f, 0.65f, 0.6f));
-	DrawTextLine(TEXT("Bug-test console: AshUnlockAll  |  AshDeploy 3  |  AshComplete  |  AshFrontend"), 48.f, Canvas->SizeY - 44.f, FLinearColor(0.5f, 0.55f, 0.5f));
+	FString PresetLine = TEXT("Graphics: Ashline_PC_Ultra (console: AshPCUltra / AshPCBalanced)");
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			const FAshlineGraphicsState State = Graphics->GetState();
+			PresetLine = FString::Printf(TEXT("Graphics: %s   RHI %s   RT %s   FSR3 %s"),
+				*UAshlineGraphicsSettings::GetPresetDisplayName(State.Preset),
+				*State.RHIName,
+				State.bRayTracingEnabled ? TEXT("ON") : TEXT("off"),
+				State.bFSR3Available ? TEXT("ready") : TEXT("TSR fallback"));
+		}
+	}
+	DrawTextLine(PresetLine, 48.f, Canvas->SizeY - 44.f, FLinearColor(0.5f, 0.62f, 0.55f));
+	DrawTextLine(TEXT("Console: AshUnlockAll  |  AshDeploy 3  |  AshComplete  |  AshFrontend  |  AshPCUltra"), 48.f, Canvas->SizeY - 24.f, FLinearColor(0.45f, 0.5f, 0.45f));
 }
 
 void AAshlineHUD::DrawCombat(AAshlineGameMode* GameMode)

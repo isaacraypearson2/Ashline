@@ -34,6 +34,12 @@ public:
 	UFUNCTION(Exec)
 	void AshFrontend();
 
+	UFUNCTION(Exec)
+	void AshPCUltra();
+
+	UFUNCTION(Exec)
+	void AshPCBalanced();
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
 	TObjectPtr<UInputMappingContext> KeyboardMouseContext;
 

@@ -13,6 +13,7 @@
 #include "Player/AshlinePlayerController.h"
 #include "Progression/AshlineProgressionSubsystem.h"
 #include "UI/AshlineHUD.h"
+#include "Presentation/AshlineAudioDirector.h"
 #include "World/AshlineGrayboxBuilder.h"
 
 AAshlineGameMode::AAshlineGameMode()
@@ -124,6 +125,14 @@ void AAshlineGameMode::DeployMission(EAshlineMissionId MissionId)
 		ApplyMissionView(PC);
 		RestartPlayer(PC);
 	});
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineAudioDirector* Audio = GI->GetSubsystem<UAshlineAudioDirector>())
+		{
+			Audio->StartMusicBed(this, MissionId);
+		}
+	}
 }
 
 void AAshlineGameMode::ReturnToFrontend()
@@ -148,6 +157,15 @@ void AAshlineGameMode::ReturnToFrontend()
 		PC->StartSpectatingOnly();
 		ApplyFrontendView(PC);
 	});
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineAudioDirector* Audio = GI->GetSubsystem<UAshlineAudioDirector>())
+		{
+			Audio->StopMusicBed();
+			Audio->StartMusicBed(this, EAshlineMissionId::None);
+		}
+	}
 }
 
 void AAshlineGameMode::CompleteActiveMission(int32 Stars, bool bOptionalComplete)
