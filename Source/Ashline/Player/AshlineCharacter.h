@@ -9,6 +9,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 class UAshlineWeaponComponent;
+class UStaticMeshComponent;
 struct FInputActionValue;
 
 UCLASS()
@@ -47,6 +48,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Combat")
 	void SwapWeapon();
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Camera")
 	TObjectPtr<USpringArmComponent> ThirdPersonArm;
 
@@ -58,6 +61,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Combat")
 	TObjectPtr<UAshlineWeaponComponent> WeaponComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Mesh")
+	TObjectPtr<UStaticMeshComponent> GrayboxBody;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Mesh")
+	TObjectPtr<UStaticMeshComponent> GrayboxWeapon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
 	TObjectPtr<UInputAction> MoveAction;
@@ -89,6 +98,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Movement")
 	float AimWalkMul = 0.55f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Combat")
+	float MaxHealth = 100.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Combat")
+	float Health = 100.f;
+
 protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -96,6 +111,16 @@ protected:
 	void StopAim();
 	void StartCrouch();
 	void StopCrouch();
+	void ApplyRuntimeInputActions();
+	void BindLegacyKeys(UInputComponent* PlayerInputComponent);
+	void LegacyMoveForward(float Value);
+	void LegacyMoveRight(float Value);
+	void LegacyMoveBack(float Value);
+	void LegacyMoveLeft(float Value);
+	void LegacyLookYaw(float Value);
+	void LegacyLookPitch(float Value);
+	void EnsureDefaultLoadout();
+	void ApplyGrayboxMeshes();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Camera")
 	EAshlineCameraMode CameraMode = EAshlineCameraMode::FirstPerson;

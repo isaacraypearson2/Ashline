@@ -106,6 +106,7 @@ public:
 
 	void SeedNewCampaign();
 	FAshlineMissionProgress* FindMissionProgress(EAshlineMissionId MissionId);
+	const FAshlineMissionProgress* FindMissionProgress(EAshlineMissionId MissionId) const;
 	void UnlockNext(EAshlineMissionId Completed);
 	void GrantXP(int32 Amount);
 };

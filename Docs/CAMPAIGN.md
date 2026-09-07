@@ -20,4 +20,20 @@ Saves between missions in slot `AshlineCampaign`. Completing a mission unlocks t
 | ASH-11 | Last Train | Freight corridor | Running fight on the consist |
 | ASH-12 | Ashline | Buried terminus | Cut the spine, collapse, end |
 
-Place `AAshlineObjectiveTrigger` volumes using the catalog objective ids (`INFIL`, `CUT`, `EXFIL`, …).
+`AAshlineGrayboxBuilder` spawns a unique graybox for every mission on Play.
+Walk into the glowing objective cubes. The extract / final required volume
+completes the mission, grants XP + crate tokens, unlocks the next mission, and
+saves slot `AshlineCampaign`.
+
+Authored `AAshlineObjectiveTrigger` volumes still use the catalog ids (`INFIL`, `CUT`, `EXFIL`, …).
+
+### What is playable vs stubbed
+
+| Playable now | Still stubbed |
+| --- | --- |
+| ASH-01…ASH-12 unique graybox layouts | Characters / weapon meshes / audio / lighting polish |
+| Move, look, jump, crouch, fire, aim, reload, swap, FPS/TPS | Authored `.umap` art passes |
+| Campaign select, difficulty, save / unlock | Operator creator UI, armory UMG, crate UI |
+| AI capsules that chase and shoot | Behavior trees, navmesh, voice |
+| DualSense + MetalFX hooks | iOS touch widget Blueprint |
+| Ads off (`UAshlineMonetizationHooks` stub) | Any IAP / ads SDK |

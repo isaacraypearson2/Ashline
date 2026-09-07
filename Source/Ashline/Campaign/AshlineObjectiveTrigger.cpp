@@ -27,7 +27,9 @@ void AAshlineObjectiveTrigger::OnOverlap(UPrimitiveComponent* OverlappedComponen
 		GameMode->SetObjectiveComplete(ObjectiveId, true);
 		if (bCompleteMissionOnEnter)
 		{
-			GameMode->CompleteActiveMission(StarsIfMissionComplete, true);
+			const bool bOptional = GameMode->AreRequiredObjectivesComplete();
+			const int32 Stars = GameMode->EvaluateCompletionStars();
+			GameMode->CompleteActiveMission(Stars > 0 ? Stars : StarsIfMissionComplete, bOptional);
 		}
 	}
 	bConsumed = true;

@@ -6,6 +6,8 @@
 #include "AshlineTypes.h"
 #include "AshlineAICharacter.generated.h"
 
+class UStaticMeshComponent;
+
 UCLASS()
 class ASHLINE_API AAshlineAICharacter : public ACharacter
 {
@@ -31,4 +33,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|AI")
 	bool bDead = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|AI")
+	TObjectPtr<UStaticMeshComponent> GrayboxBody;
 };

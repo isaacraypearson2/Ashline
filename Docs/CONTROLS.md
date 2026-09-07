@@ -1,8 +1,23 @@
 # Ashline controls
 
-Enhanced Input. Create mapping contexts in `/Game/Ashline/Input/` and assign them on `AAshlinePlayerController`.
+Enhanced Input is created at runtime by `UAshlineRuntimeInput`. Editor IA/IMC
+assets are optional.
 
-## Keyboard / mouse (`IMC_Ashline_KBM`)
+## Campaign select (frontend)
+
+- **Up / Down** — highlight a mission
+- **Enter** — deploy if unlocked (READY / ACTIVE / DONE). LOCKED is ignored
+- **Left / Right** — difficulty (Recruit / Regular / Veteran / Extreme)
+- **Esc** — unused on frontend
+
+Console cheats (Output Log or `~` if enabled):
+
+- `AshUnlockAll` — every mission becomes playable
+- `AshDeploy 3` — jump to ASH-03 (also unlocks all)
+- `AshComplete` — finish the active mission and grant XP
+- `AshFrontend` — abort back to campaign select
+
+## Keyboard / mouse (in mission)
 
 - **WASD** — move
 - **Mouse** — look
@@ -10,19 +25,20 @@ Enhanced Input. Create mapping contexts in `/Game/Ashline/Input/` and assign the
 - **RMB** — aim
 - **R** — reload
 - **Space** — jump
-- **C** — crouch
-- **V** — FPS / TPS
+- **C** or **Left Ctrl** — crouch
+- **V** — FPS / TPS (saved)
 - **Q** or **1 / 2** — swap weapon
-- **Esc** — pause (widget, editor)
+- **Esc** — pause (Enter resume, Esc again abort to campaign)
 
-## DualSense (`IMC_Ashline_Gamepad`)
+## DualSense (`IMC_Ashline_Gamepad`, still applied on Mac/iOS)
 
 - Left stick move, right stick look
 - **R2** fire, **L2** aim
 - **Square** reload, **Cross** jump, **Circle** crouch, **Triangle** swap
-- Touch pad — camera toggle
-- Adaptive triggers and haptics: `UAshlineDualSense` → `AshlineGameController.mm` (`GameController.framework`, `GCDualSenseGamepad`, `GCDeviceHaptics`)
+- Share / D-pad up — camera toggle
+- Adaptive triggers and haptics: `UAshlineDualSense` → `AshlineGameController.mm`
 
 ## iOS touch (`IMC_Ashline_Touch`)
 
-`UAshlineTouchHUD` shows virtual stick, fire, aim, and camera toggle on iOS only. Subclass in UMG and implement `ConfigureTouchLayout`.
+`UAshlineTouchHUD` shows virtual stick, fire, aim, and camera toggle on iOS only.
+Subclass in UMG and assign `TouchHUDClass` on `AAshlinePlayerController`.

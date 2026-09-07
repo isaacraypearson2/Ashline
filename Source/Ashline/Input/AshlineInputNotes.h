@@ -3,8 +3,13 @@
 #include "CoreMinimal.h"
 
 /**
- * Enhanced Input asset names expected after the first editor pass:
+ * Input no longer requires editor-authored assets for the first playthrough.
  *
+ * Runtime (always):
+ *   UAshlineRuntimeInput builds IA_* + IMC_* in memory and
+ *   AAshlinePlayerController adds the mapping contexts on possess.
+ *
+ * Optional editor assets (Scripts/create_ashline_play_assets.py):
  *   /Game/Ashline/Input/IMC_Ashline_KBM
  *   /Game/Ashline/Input/IMC_Ashline_Gamepad
  *   /Game/Ashline/Input/IMC_Ashline_Touch
@@ -18,7 +23,8 @@
  *   /Game/Ashline/Input/IA_SwapWeapon
  *   /Game/Ashline/Input/IA_Crouch
  *
- * Bindings are documented in Docs/CONTROLS.md and Config/DefaultInput.ini.
+ * If those objects are assigned on the character/controller, they win.
+ * Otherwise the runtime objects are used. Bindings: Docs/CONTROLS.md.
  */
 namespace AshlineInput
 {

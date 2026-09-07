@@ -1,15 +1,18 @@
 # Frontend
 
-Create `/Game/Ashline/Maps/Frontend/ASH_Frontend` as a graybox hub.
+**Runtime campaign select is live on Play** (Canvas HUD on `AAshlineHUD`).
+Up/Down pick a mission, Left/Right change difficulty, Enter deploys.
+Locked missions stay locked until the previous mission is completed (or
+`AshUnlockAll` in the console).
 
-Suggested widgets (UMG, editor-authored):
+Optional authored hub: `/Game/Ashline/Maps/Frontend/ASH_Frontend`.
+`UAshlineGameInstance::OpenFrontend` opens that map when it exists, otherwise
+it returns to the runtime select.
 
-- Operator creator (`UAshlineOperatorCreator` + `UAshlineProgressionSubsystem::ApplyOperator`)
-- Campaign select (catalog from `UAshlineMissionCatalog`)
+Suggested later UMG (not required for the playthrough):
+
+- Operator creator (`UAshlineOperatorCreator`)
 - Armory / attachments / upgrades
-- Prestige confirm (`PrestigeReset` at rank 50)
+- Prestige confirm
 - Play-earned crate open
-- Graphics settings (`UAshlineGraphicsSettings`)
-- Difficulty (`SetDifficulty`)
-
-Game instance helpers: `OpenFrontend`, `TravelToMission`.
+- Graphics settings
