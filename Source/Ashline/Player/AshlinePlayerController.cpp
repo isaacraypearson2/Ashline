@@ -1,6 +1,9 @@
 #include "Player/AshlinePlayerController.h"
 
+#include "Blueprint/UserWidget.h"
 #include "EnhancedInputSubsystems.h"
+#include "Engine/LocalPlayer.h"
+#include "InputMappingContext.h"
 #include "UI/AshlineTouchHUD.h"
 
 AAshlinePlayerController::AAshlinePlayerController()

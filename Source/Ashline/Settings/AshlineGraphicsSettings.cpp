@@ -78,7 +78,7 @@ void UAshlineGraphicsSettings::ApplyCVars()
 	{
 		if (IConsoleVariable* CVar = IConsoleManager::Get().FindConsoleVariable(Name))
 		{
-			CVar->Set(Value);
+			CVar->Set(Value, ECVF_SetByCode);
 		}
 	};
 

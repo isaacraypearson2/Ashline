@@ -1,20 +1,46 @@
 # Ashline
 
-Apple-first single-player military **FPS/TPS** campaign for **Unreal Engine 5.5+ (Metal)**.
+Apple-first single-player military **FPS/TPS** campaign for **Unreal Engine 5.8.2 (Metal)**.
 
 Twelve missions (**ASH-01…ASH-12**): Wire Cut, Dust Market, Holdfast, Night Glass, Convoy Ghost, Ash Harbor, Whiteout, Catacomb, Ridge Wire, False Flag, Last Train, Ashline.
 
 This repository is a full C++ Unreal project (modules, config, campaign/weapon/AI data, Apple platform hooks). Art is **graybox**. Hardware ray tracing is **capability-gated** and off unless the RHI reports it.
 
-## Open on Apple Silicon
+## Open on Apple Silicon (UE 5.8.2)
 
-1. Install **Unreal Engine 5.5 or newer** with **Mac** (and optionally **iOS**) support. Apple Silicon required for the intended Metal path.
-2. Clone this repo.
-3. Double-click `Ashline.uproject` (or *File → Open* from the Epic Launcher / Unreal Editor).
-4. Let the editor compile the **Ashline** and **AshlineApple** modules.
-5. First launch uses the engine Entry map. Create graybox campaign maps under `/Game/Ashline/Maps/` as listed in `Content/Ashline/README.md`, then set `GameDefaultMap` in Project Settings when you are ready.
+1. Install **Unreal Engine 5.8.2** with **Mac** (and optionally **iOS**) support. Apple Silicon required for the intended Metal path.
+2. Install **Xcode** and the command-line tools. In **Xcode → Settings → Components**, install the **Metal Toolchain**. Without it, MetalFX headers/framework may be missing. AshlineApple will still compile (MetalFX is optional / weakly linked only when the SDK has it).
+3. Clone this repo.
+4. Double-click `Ashline.uproject` (associated with **5.8**) or *File → Open* from the Epic Launcher / Unreal Editor.
+5. If the editor says the project could not be compiled, rebuild from source with `Build.sh` (below), then reopen.
 
-Xcode command-line tools are required for C++ compile. Do not expect a Windows DX12 workflow; this project is authored for Metal.
+First launch uses the engine Entry map. Create graybox campaign maps under `/Game/Ashline/Maps/` as listed in `Content/Ashline/README.md`, then set `GameDefaultMap` in Project Settings when you are ready.
+
+Do not expect a Windows DX12 workflow; this project is authored for Metal.
+
+### Rebuild from source (Mac)
+
+Replace the engine path if your 5.8.2 install lives elsewhere (Epic launcher default is shown):
+
+```bash
+# From the Ashline repo root
+UE58="/Users/Shared/Epic Games/UE_5.8/Engine/Build/BatchFiles/Mac/Build.sh"
+PROJ="$(pwd)/Ashline.uproject"
+
+# Editor target — this is what the .uproject open path compiles
+"$UE58" AshlineEditor Mac Development -Project="$PROJ" -WaitMutex
+
+# Game target (optional)
+"$UE58" Ashline Mac Development -Project="$PROJ" -WaitMutex
+```
+
+If `UE_5.8` is under your home library instead:
+
+```bash
+UE58="$HOME/Epic Games/UE_5.8/Engine/Build/BatchFiles/Mac/Build.sh"
+```
+
+After a successful `AshlineEditor` build, open `Ashline.uproject` again. Check `Saved/Logs/` if it still fails.
 
 ## Mac
 

@@ -32,8 +32,8 @@ static GCController* AshlineFindDualSense()
 	{
 		if (@available(macOS 11.0, iOS 14.5, *))
 		{
-			if (Controller.physicalInputProfile &&
-				[Controller.productCategory isEqualToString:GCProductCategoryDualSense])
+			NSString* Category = Controller.productCategory;
+			if (Category && ([Category containsString:@"DualSense"] || [Category containsString:@"DualShock"]))
 			{
 				return Controller;
 			}

@@ -1,6 +1,8 @@
 #include "AI/AshlineAICharacter.h"
 
 #include "AI/AshlineAICatalog.h"
+#include "Engine/DamageEvents.h"
+#include "Engine/GameInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Progression/AshlineProgressionSubsystem.h"
 

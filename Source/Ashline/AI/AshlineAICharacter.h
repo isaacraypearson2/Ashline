@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "AI/AshlineAICatalog.h"
 #include "AshlineTypes.h"
 #include "AshlineAICharacter.generated.h"
 

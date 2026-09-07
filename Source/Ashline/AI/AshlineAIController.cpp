@@ -2,7 +2,9 @@
 
 #include "AI/AshlineAICatalog.h"
 #include "AI/AshlineAICharacter.h"
+#include "Engine/GameInstance.h"
 #include "Perception/AIPerceptionComponent.h"
+#include "Perception/AISense.h"
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Player/AshlineCharacter.h"

@@ -2,12 +2,14 @@
 
 ## Modules
 
+Validated against **Unreal Engine 5.8.2** on Apple Silicon. Install the **Metal Toolchain** from Xcode → Settings → Components before relying on MetalFX.
+
 **AshlineApple** links:
 
 - `GameController.framework` (hard)
 - `CoreHaptics.framework` (hard)
 - `Metal.framework` / `QuartzCore.framework` (hard)
-- `MetalFX.framework` (weak)
+- `MetalFX.framework` (weak, **only if the SDK actually contains it**)
 
 `ASHLINE_APPLE_NATIVE=1` is defined only for Mac and iOS targets. Other platforms compile stub implementations.
 

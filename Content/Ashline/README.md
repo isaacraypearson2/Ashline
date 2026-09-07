@@ -1,6 +1,6 @@
 # Content / Ashline
 
-Graybox art only. These folders are the intended editor layout. Binary `.uasset` / `.umap` files are created when you open the project in Unreal Editor 5.5+ and save maps, input assets, and widgets.
+Graybox art only. These folders are the intended editor layout. Binary `.uasset` / `.umap` files are created when you open the project in Unreal Editor 5.8.2 and save maps, input assets, and widgets.
 
 ## Create these maps first
 

@@ -2,6 +2,7 @@
 
 #include "Ashline.h"
 #include "Campaign/AshlineMissionCatalog.h"
+#include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Weapons/AshlineWeaponCatalog.h"
 
