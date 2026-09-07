@@ -204,6 +204,16 @@ void AAshlineCharacter::SetCameraMode(EAshlineCameraMode NewMode)
 	{
 		GrayboxWeapon->SetVisibility(bFPS);
 	}
+
+	TArray<UStaticMeshComponent*> Meshes;
+	GetComponents<UStaticMeshComponent>(Meshes);
+	for (UStaticMeshComponent* MeshComp : Meshes)
+	{
+		if (MeshComp && MeshComp->GetName().StartsWith(TEXT("AshlineBlock_")))
+		{
+			MeshComp->SetOwnerNoSee(bFPS);
+		}
+	}
 }
 
 void AAshlineCharacter::ToggleCameraMode()
