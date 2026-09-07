@@ -7,6 +7,7 @@ Runtime:
 - `UAshlineRuntimeInput` — keyboard / mouse / gamepad without IA assets
 - `AAshlineGrayboxBuilder` — unique ASH-01…ASH-12 layouts + themed lighting / materials / dressing
 - `UAshlinePresentationLibrary` — DataAsset → StarterContent → Engine fallbacks
+- `UAshlineMetaCatalog` — MeshOverride / MaterialOverride auto-bound to `Data/ContentBindings.json`
 - `AAshlineHUD` — campaign select, objectives, mission complete
 
 ## Honest status
@@ -14,7 +15,8 @@ Runtime:
 | Path | In git? | What belongs here |
 | --- | --- | --- |
 | `Data/*.json` | Yes | Designer mirrors of C++ catalogs |
-| `Data/Kits/` | Stubs only | `UAshlineEnvironmentKit` / weapon / hero DataAssets |
+| `Data/Kits/` | Created in-editor | `DA_Kit_*` / `DA_WPN_*` / `DA_COS_*` / `DA_AI_*` |
+| `Data/ContentBindings.json` | Yes | Canonical MeshOverride / MaterialOverride paths |
 | `Characters/`, `Weapons/`, `Environments/` | Folders + README | Fab / MetaHuman / Megascans **after you import** |
 | `Maps/ASH_Playable` | No (optional script) | Dedicated host world |
 

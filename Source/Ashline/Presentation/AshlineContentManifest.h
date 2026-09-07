@@ -52,4 +52,46 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
 	static TArray<FString> MuzzleFXCandidates();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString CosmeticMeshPath(FName CosmeticId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString CosmeticStaticMeshPath(FName CosmeticId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString CosmeticMaterialPath(FName CosmeticId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString CosmeticDataAssetPath(FName CosmeticId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString SkinMaterialPath(FName SkinId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString SkinDataAssetPath(FName SkinId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString ClothingPartPath(EAshlineCosmeticSlot Slot, FName CosmeticId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString AIPresentationPath(EAshlineAIArchetype Archetype);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString KitWallPath(EAshlineMissionId MissionId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString KitTrimPath(EAshlineMissionId MissionId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString KitFoliagePath(EAshlineMissionId MissionId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> FoliageMeshCandidates();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> TreeMeshCandidates();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString SlotFolderName(EAshlineCosmeticSlot Slot);
 };

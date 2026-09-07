@@ -61,4 +61,18 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Meta")
 	static bool SlotFromName(FName SlotName, EAshlineCosmeticSlot& OutSlot);
-}
+
+	/** Canonical Content paths so MeshOverride / MaterialOverride resolve when packs land. */
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	static void BindCosmeticContentPaths(FAshlineCosmeticDefinition& Cosmetic);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	static void BindSkinContentPaths(FAshlineWeaponSkinDefinition& Skin);
+
+	/** DataAsset override (DA_COS_*) wins over the catalog path when the asset exists. */
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	static void OverlayCosmeticDataAsset(FAshlineCosmeticDefinition& Cosmetic);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	static void OverlaySkinDataAsset(FAshlineWeaponSkinDefinition& Skin);
+};

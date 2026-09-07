@@ -1,6 +1,6 @@
 # Phase 2 — next steps (Windows box `X3D_AMD`)
 
-Exact pack names and bind paths: **`Docs/FAB_PACKS.md`**. Soft refs are already wired.
+Exact pack names, install order, and 9070 GRE notes: **`Docs/PHASE2_FAB.md`**. Soft refs are wired in the catalog (`MeshOverride` / `MaterialOverride` point at `ContentBindings.json` paths).
 
 Do these on the 9070 GRE machine:
 

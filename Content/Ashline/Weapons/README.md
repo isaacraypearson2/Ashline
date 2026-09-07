@@ -12,6 +12,8 @@ Meshes/SM_WPN_DMR_SASS
 Meshes/SM_WPN_LMG_M250
 ```
 
+Skin materials: `Materials/M_{SkinId}`. Catalog `MaterialOverride` already points there.
+
 Or assign soft refs on `DA_WPN_*` in `/Game/Ashline/Data/Kits/`.
 
 In-repo fallback: compound receiver/barrel/stock/mag built in `UAshlineWeaponComponent` (class-specific proportions). Muzzle light + impact decals already fire.

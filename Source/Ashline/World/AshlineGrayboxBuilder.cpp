@@ -19,7 +19,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/PointLight.h"
 #include "Engine/PostProcessVolume.h"
-#include "Engine/SkyAtmosphere.h"
+#include "Components/SkyAtmosphereComponent.h"
 #include "Engine/SkyLight.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
@@ -28,6 +28,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 #include "Presentation/AshlineAudioDirector.h"
+#include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlineEnvironmentKit.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Progression/AshlineProgressionSubsystem.h"
@@ -381,14 +382,12 @@ void AAshlineGrayboxBuilder::ExtraAIAround(const FVector& Origin, float Radius)
 
 void AAshlineGrayboxBuilder::ApplyMissionMood(EAshlineMissionId MissionId)
 {
+	ActiveMissionId = MissionId;
+	ActiveMood = UAshlinePresentationLibrary::MoodForMission(MissionId);
 	ActiveKit = UAshlinePresentationLibrary::FindEnvironmentKit(MissionId);
-	if (ActiveKit)
+	if (ActiveKit && ActiveKit->bOverrideMood)
 	{
 		ActiveMood = ActiveKit->Mood;
-	}
-	else
-	{
-		ActiveMood = UAshlinePresentationLibrary::MoodForMission(MissionId);
 	}
 }
 
@@ -418,6 +417,39 @@ void AAshlineGrayboxBuilder::SpawnFullAtmosphere()
 		BuiltActors.Add(Sun);
 	}
 
+	if (ActiveMood.FillLightIntensity > 0.05f)
+	{
+		if (ADirectionalLight* Fill = World->SpawnActor<ADirectionalLight>(FVector(0.f, 0.f, 1600.f), ActiveMood.FillLightRotation, Params))
+		{
+			if (UDirectionalLightComponent* Light = Fill->GetComponent())
+			{
+				Light->SetIntensity(ActiveMood.FillLightIntensity);
+				Light->SetLightColor(ActiveMood.FillLightColor);
+				Light->SetAtmosphereSunLight(false);
+				Light->SetCastShadows(false);
+				Light->SetMobility(EComponentMobility::Stationary);
+			}
+			BuiltActors.Add(Fill);
+		}
+	}
+
+	if (ActiveMood.MoonIntensity > 0.05f)
+	{
+		const FRotator MoonRot(-18.f, ActiveMood.SunRotation.Yaw + 160.f, 0.f);
+		if (ADirectionalLight* Moon = World->SpawnActor<ADirectionalLight>(FVector(0.f, 0.f, 2000.f), MoonRot, Params))
+		{
+			if (UDirectionalLightComponent* Light = Moon->GetComponent())
+			{
+				Light->SetIntensity(ActiveMood.MoonIntensity);
+				Light->SetLightColor(ActiveMood.MoonColor);
+				Light->SetAtmosphereSunLight(false);
+				Light->SetCastShadows(true);
+				Light->SetMobility(EComponentMobility::Stationary);
+			}
+			BuiltActors.Add(Moon);
+		}
+	}
+
 	if (ASkyLight* Sky = World->SpawnActor<ASkyLight>(FVector::ZeroVector, FRotator::ZeroRotator, Params))
 	{
 		if (USkyLightComponent* SkyComp = Sky->GetLightComponent())
@@ -441,9 +473,10 @@ void AAshlineGrayboxBuilder::SpawnFullAtmosphere()
 			FogComp->SetFogDensity(ActiveMood.FogDensity);
 			FogComp->SetFogInscatteringColor(ActiveMood.FogColor);
 			FogComp->SetFogHeightFalloff(ActiveMood.FogHeightFalloff);
+			FogComp->SetStartDistance(ActiveMood.FogStartDistance);
 			FogComp->SetVolumetricFog(true);
-			FogComp->VolumetricFogScatteringDistribution = 0.3f;
-			FogComp->VolumetricFogExtinctionScale = ActiveMood.bNight ? 0.8f : 0.4f;
+			FogComp->VolumetricFogScatteringDistribution = ActiveMood.VolumetricScattering;
+			FogComp->VolumetricFogExtinctionScale = ActiveMood.VolumetricFogExtinction;
 		}
 		BuiltActors.Add(Fog);
 	}
@@ -474,6 +507,10 @@ void AAshlineGrayboxBuilder::SpawnPostProcess()
 	FPostProcessSettings& S = Volume->Settings;
 	S.bOverride_BloomIntensity = true;
 	S.BloomIntensity = ActiveMood.BloomIntensity;
+	S.bOverride_BloomThreshold = true;
+	S.BloomThreshold = ActiveMood.BloomThreshold;
+	S.bOverride_BloomDirtMaskIntensity = true;
+	S.BloomDirtMaskIntensity = ActiveMood.DirtMaskIntensity;
 	S.bOverride_VignetteIntensity = true;
 	S.VignetteIntensity = ActiveMood.Vignette;
 	S.bOverride_AmbientOcclusionIntensity = true;
@@ -483,7 +520,9 @@ void AAshlineGrayboxBuilder::SpawnPostProcess()
 	S.bOverride_AutoExposureMethod = true;
 	S.AutoExposureMethod = AEM_Histogram;
 	S.bOverride_AutoExposureBias = true;
-	S.AutoExposureBias = ActiveMood.bNight ? -0.4f : 0.15f;
+	S.AutoExposureBias = ActiveMood.AutoExposureBias != 0.f
+		? ActiveMood.AutoExposureBias
+		: (ActiveMood.bNight ? -0.4f : 0.15f);
 	S.bOverride_ColorSaturation = true;
 	S.ColorSaturation = ActiveMood.ColorSaturation;
 	S.bOverride_ColorContrast = true;
@@ -493,9 +532,15 @@ void AAshlineGrayboxBuilder::SpawnPostProcess()
 	S.bOverride_MotionBlurAmount = true;
 	S.MotionBlurAmount = 0.f;
 	S.bOverride_SceneFringeIntensity = true;
-	S.SceneFringeIntensity = ActiveMood.bNight ? 0.4f : 0.15f;
+	S.SceneFringeIntensity = ActiveMood.ChromaticAberration;
 	S.bOverride_IndirectLightingIntensity = true;
 	S.IndirectLightingIntensity = ActiveMood.bNight ? 0.7f : 1.f;
+	S.bOverride_WhiteTemp = true;
+	S.WhiteTemp = ActiveMood.ColorTempKelvin;
+	S.bOverride_LocalExposureHighlightContrastScale = true;
+	S.LocalExposureHighlightContrastScale = ActiveMood.LocalExposureHighlight;
+	S.bOverride_LocalExposureShadowContrastScale = true;
+	S.LocalExposureShadowContrastScale = ActiveMood.LocalExposureShadow;
 
 	BuiltActors.Add(Volume);
 }
@@ -556,6 +601,43 @@ void AAshlineGrayboxBuilder::DecalMark(const FVector& Location, const FRotator& 
 
 void AAshlineGrayboxBuilder::Tree(const FVector& Location, float Height)
 {
+	if (ActiveKit)
+	{
+		for (const FAshlineSoftMeshSlot& Slot : ActiveKit->PropMeshes)
+		{
+			if (Slot.SlotId == TEXT("Tree"))
+			{
+				if (UStaticMesh* KitTree = Slot.Mesh.LoadSynchronous())
+				{
+					if (AActor* Actor = Sphere(Location + FVector(0.f, 0.f, Height * 0.4f), FVector::OneVector, ActiveMood.GroundTint, EAshlineSurface::Foliage))
+					{
+						if (UStaticMeshComponent* Mesh = Actor->FindComponentByClass<UStaticMeshComponent>())
+						{
+							Mesh->SetStaticMesh(KitTree);
+							Mesh->SetWorldScale3D(Slot.Scale.IsNearlyZero() ? FVector(Height / 400.f) : Slot.Scale * (Height / 400.f));
+						}
+					}
+					return;
+				}
+			}
+		}
+	}
+
+	if (UStaticMesh* Authored = UAshlinePresentationLibrary::ResolveTreeMesh())
+	{
+		if (Authored != CylinderMesh && Authored->GetPathName().Contains(TEXT("Ashline")))
+		{
+			if (AActor* Actor = Cylinder(Location + FVector(0.f, 0.f, Height * 0.4f), FVector(1.f, 1.f, Height / 200.f), FLinearColor(0.16f, 0.1f, 0.06f), EAshlineSurface::Wood))
+			{
+				if (UStaticMeshComponent* Mesh = Actor->FindComponentByClass<UStaticMeshComponent>())
+				{
+					Mesh->SetStaticMesh(Authored);
+				}
+			}
+			return;
+		}
+	}
+
 	const float Trunk = FMath::Clamp(Height / 420.f, 0.6f, 1.6f);
 	Cylinder(Location + FVector(0.f, 0.f, Height * 0.28f), FVector(0.22f * Trunk, 0.22f * Trunk, Height / 100.f * 0.55f),
 		FLinearColor(0.16f, 0.1f, 0.06f), EAshlineSurface::Wood);
@@ -565,6 +647,42 @@ void AAshlineGrayboxBuilder::Tree(const FVector& Location, float Height)
 
 void AAshlineGrayboxBuilder::Bush(const FVector& Location)
 {
+	if (ActiveKit)
+	{
+		for (const FAshlineSoftMeshSlot& Slot : ActiveKit->PropMeshes)
+		{
+			if (Slot.SlotId == TEXT("Bush"))
+			{
+				if (UStaticMesh* KitBush = Slot.Mesh.LoadSynchronous())
+				{
+					if (AActor* Actor = Sphere(Location + FVector(0.f, 0.f, 30.f), FVector(0.7f, 0.85f, 0.45f), FLinearColor(0.1f, 0.2f, 0.08f), EAshlineSurface::Foliage))
+					{
+						if (UStaticMeshComponent* Mesh = Actor->FindComponentByClass<UStaticMeshComponent>())
+						{
+							Mesh->SetStaticMesh(KitBush);
+						}
+					}
+					return;
+				}
+			}
+		}
+	}
+
+	if (UStaticMesh* Authored = UAshlinePresentationLibrary::ResolveFoliageMesh())
+	{
+		if (Authored != SphereMesh && Authored->GetPathName().Contains(TEXT("StarterContent")))
+		{
+			if (AActor* Actor = Sphere(Location + FVector(0.f, 0.f, 30.f), FVector(0.7f, 0.85f, 0.45f), FLinearColor(0.1f, 0.2f, 0.08f), EAshlineSurface::Foliage))
+			{
+				if (UStaticMeshComponent* Mesh = Actor->FindComponentByClass<UStaticMeshComponent>())
+				{
+					Mesh->SetStaticMesh(Authored);
+				}
+			}
+			return;
+		}
+	}
+
 	Sphere(Location + FVector(0.f, 0.f, 30.f), FVector(0.7f, 0.85f, 0.45f), FLinearColor(0.1f, 0.2f, 0.08f), EAshlineSurface::Foliage);
 }
 
@@ -578,7 +696,7 @@ void AAshlineGrayboxBuilder::GrassPatch(const FVector& Center, float Radius, int
 	}
 }
 
-void AAshlineGrayboxBuilder::ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AActor* Owner, const FLinearColor& Color, EAshlineSurface Surface)
+void AAshlineGrayboxBuilder::ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AActor* MaterialOuter, const FLinearColor& Color, EAshlineSurface Surface)
 {
 	if (!Mesh)
 	{
@@ -610,29 +728,49 @@ void AAshlineGrayboxBuilder::ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AA
 		}
 	}
 
+	if (!KitMat && ActiveMissionId != EAshlineMissionId::None)
+	{
+		if (Surface == EAshlineSurface::Ground || Surface == EAshlineSurface::Sand || Surface == EAshlineSurface::Snow)
+		{
+			KitMat = UAshlinePresentationLibrary::LoadMaterial({ UAshlineContentManifest::KitGroundPath(ActiveMissionId) });
+		}
+		else if (Surface == EAshlineSurface::Foliage)
+		{
+			KitMat = UAshlinePresentationLibrary::LoadMaterial({ UAshlineContentManifest::KitFoliagePath(ActiveMissionId) });
+		}
+		else if (Surface == EAshlineSurface::Metal)
+		{
+			KitMat = UAshlinePresentationLibrary::LoadMaterial({ UAshlineContentManifest::KitTrimPath(ActiveMissionId) });
+		}
+		else
+		{
+			KitMat = UAshlinePresentationLibrary::LoadMaterial({ UAshlineContentManifest::KitWallPath(ActiveMissionId) });
+		}
+	}
+
 	if (KitMat)
 	{
-		if (UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(KitMat, Owner))
+		if (UMaterialInstanceDynamic* KitMID = UMaterialInstanceDynamic::Create(KitMat, MaterialOuter))
 		{
-			MID->SetVectorParameterValue(TEXT("Color"), Color);
-			MID->SetVectorParameterValue(TEXT("BaseColor"), Color);
-			Mesh->SetMaterial(0, MID);
+			KitMID->SetVectorParameterValue(TEXT("Color"), Color);
+			KitMID->SetVectorParameterValue(TEXT("BaseColor"), Color);
+			Mesh->SetMaterial(0, KitMID);
 			return;
 		}
 		Mesh->SetMaterial(0, KitMat);
 		return;
 	}
 
-	if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(Owner, Surface, Color))
+	if (UMaterialInstanceDynamic* PrimaryMID = UAshlinePresentationLibrary::MakeTintedMaterial(MaterialOuter, Surface, Color))
 	{
-		Mesh->SetMaterial(0, MID);
+		Mesh->SetMaterial(0, PrimaryMID);
 	}
 	else if (ShapeMaterial)
 	{
-		if (UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(ShapeMaterial, Owner))
+		if (UMaterialInstanceDynamic* FallbackMID = UMaterialInstanceDynamic::Create(ShapeMaterial, MaterialOuter))
 		{
-			MID->SetVectorParameterValue(TEXT("Color"), Color);
-			Mesh->SetMaterial(0, MID);
+			FallbackMID->SetVectorParameterValue(TEXT("Color"), Color);
+			Mesh->SetMaterial(0, FallbackMID);
 		}
 	}
 }
@@ -764,6 +902,24 @@ void AAshlineGrayboxBuilder::DressMission(EAshlineMissionId MissionId)
 		break;
 	default:
 		break;
+	}
+
+	if (ActiveMood.FoliageDensity > 0)
+	{
+		const FVector Origin = LastPlayerStartLocation + FVector(600.f, 0.f, 0.f);
+		for (int32 i = 0; i < FMath::Min(ActiveMood.FoliageDensity, 16); ++i)
+		{
+			const float Angle = (2.f * PI * i) / FMath::Max(1, ActiveMood.FoliageDensity);
+			const FVector Loc = Origin + FVector(FMath::Cos(Angle) * 420.f, FMath::Sin(Angle) * 380.f, 0.f);
+			if (i % 3 == 0)
+			{
+				Tree(Loc, 240.f + (i % 4) * 30.f);
+			}
+			else
+			{
+				Bush(Loc);
+			}
+		}
 	}
 
 	if (UGameInstance* GI = GetGameInstance())

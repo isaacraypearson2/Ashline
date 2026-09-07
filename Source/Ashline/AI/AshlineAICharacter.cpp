@@ -13,6 +13,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 #include "Presentation/AshlineCharacterPresentation.h"
+#include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlinePresentationSettings.h"
 #include "Progression/AshlineProgressionSubsystem.h"
@@ -48,6 +49,7 @@ void AAshlineAICharacter::BeginPlay()
 		}
 	}
 	ApplyArchetype(Archetype, Difficulty);
+	UAshlinePresentationLibrary::HideCapsuleVisual(this);
 	ApplyPresentationMesh();
 }
 
@@ -76,6 +78,12 @@ void AAshlineAICharacter::ApplyPresentationMesh()
 		{
 			Body = Pres->BodyMesh.LoadSynchronous();
 		}
+	}
+	if (!Body)
+	{
+		Body = UAshlinePresentationLibrary::LoadSkeletalMesh({
+			UAshlineContentManifest::AIMeshPath(Archetype)
+		});
 	}
 	if (!Body)
 	{

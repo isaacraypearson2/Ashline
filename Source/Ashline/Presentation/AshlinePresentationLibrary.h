@@ -72,4 +72,31 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
 	static void TintNamedStaticMesh(AActor* Actor, FName ComponentName, const FLinearColor& Tint, EAshlineSurface Surface);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static USkeletalMesh* ResolveCosmeticMesh(const FAshlineCosmeticDefinition& Cosmetic);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UStaticMesh* ResolveCosmeticPartMesh(const FAshlineCosmeticDefinition& Cosmetic);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInterface* ResolveCosmeticMaterial(const FAshlineCosmeticDefinition& Cosmetic);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInterface* ResolveSkinMaterial(const FAshlineWeaponSkinDefinition& Skin);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UStaticMesh* ResolveFoliageMesh();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UStaticMesh* ResolveTreeMesh();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static void ApplyClothingPart(ACharacter* Character, EAshlineCosmeticSlot Slot, FName CosmeticId, const FLinearColor& Tint);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static void HideCapsuleVisual(ACharacter* Character);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Presentation")
+	static FName ClothingComponentName(EAshlineCosmeticSlot Slot);
 };

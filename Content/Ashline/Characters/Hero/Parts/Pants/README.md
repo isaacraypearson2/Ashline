@@ -1,0 +1,1 @@
+Drop `SM_PANT_FATIGUE`, `SM_PANT_CRYE`.

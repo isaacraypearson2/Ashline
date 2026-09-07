@@ -68,6 +68,8 @@ r.NGX.DLSS.Enable=0
 
 `UAshlineGraphicsSettings::SetFrameGeneration(true)` sets `r.FidelityFX.FI.Enabled=1` when that CVar exists.
 
+Phase 2 import + 1440p Ultra notes after Megascans/MetaHuman land: **`Docs/PHASE2_FAB.md`** (Nanite/Lumen/FSR3, pool size, foliage cap).
+
 ## Upscaler order (Windows)
 
 1. **FSR 3** if `r.FidelityFX.FSR3.Enabled` exists.

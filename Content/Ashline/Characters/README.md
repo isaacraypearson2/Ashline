@@ -16,4 +16,4 @@ AI/SK_AI_Heavy
 AI/SK_AI_Irregular
 ```
 
-Until those exist, runtime uses GASP/TP mannequin paths if migrated, else a **humanoid blockout** (head/torso/limbs), not a capsule. Import steps: `Docs/CHARACTERS.md` + `Docs/FAB_PACKS.md`.
+Until those exist, runtime uses GASP/TP mannequin paths if migrated, else a **humanoid blockout** (head/torso/limbs). Capsules are hidden. Clothing parts: `Hero/Parts/{Slot}/SM_{Id}`. Import: `Docs/PHASE2_FAB.md`.

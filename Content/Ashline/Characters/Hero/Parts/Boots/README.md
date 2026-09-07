@@ -1,0 +1,1 @@
+Drop `SM_BOOT_COMBAT`, `SM_BOOT_DESERT`.

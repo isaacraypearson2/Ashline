@@ -1,1 +1,2 @@
-Drop `SK_AI_Rifleman` (and other archetypes) here. Shared mannequin + tint is the in-repo fallback.
+Per-archetype bodies: `SK_AI_Rifleman`, `Breacher`, `Marksman`, `Gunner`, `Officer`, `Scout`, `Heavy`, `Irregular`.
+Until present, `assign_interim_meshes.py` shares the hero mannequin. Capsules stay hidden.

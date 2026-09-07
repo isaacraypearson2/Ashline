@@ -8,13 +8,15 @@
 2. Project Settings → Ashline Presentation → `DefaultHeroMesh` / `HeroPresentation`
 3. `/Game/Ashline/Data/Kits/DA_Hero_Operator`
 4. Engine / template mannequin paths (`SKM_Manny`, editor DefaultSkeletalMesh, …)
-5. Tinted cube body if nothing loads
+5. Tinted humanoid blockout if nothing loads (capsule is hidden)
 
 AI is the same with `BodyMeshOverride` + per-archetype DataAssets + a tint so rifleman / officer / heavy read differently even on a shared mesh.
 
 When a skeletal mesh is assigned, the cube `GrayboxBody` is hidden.
 
-Equipped operator cosmetics (`Docs/META.md`) tint the hero mesh (or the head/torso/limb blockout) from catalog `PreviewTint`. If a camo `MeshOverride` / `MaterialOverride` is assigned and the asset exists, it wins. Voice packs are ids only until MetaSounds land.
+Equipped operator cosmetics (`Docs/META.md`) tint the hero mesh (or the head/torso/limb blockout) from catalog `PreviewTint`. Catalog `MeshOverride` / `MaterialOverride` are **auto-bound** to `Content/Ashline/Data/ContentBindings.json` paths — when you drop `SK_CAMO_NIGHT` or `M_SKIN_FDE` they resolve with no extra assign. Clothing parts (helmet/vest/pants/gloves/boots) attach if `SM_{Id}` exists under `Characters/Hero/Parts/`. Voice packs are ids only until MetaSounds land.
+
+Run `Scripts/assign_interim_meshes.py` so hero+AI use Engine / GASP / TP mannequins instead of capsules.
 
 ## MetaHuman Creator import (Phase 2)
 

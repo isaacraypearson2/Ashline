@@ -68,7 +68,7 @@ protected:
 	void SpawnAI(const FVector& Location, EAshlineAIArchetype Archetype);
 	void Objective(FName Id, const FVector& Location, bool bCompleteMission, const FLinearColor& Color = FLinearColor(1.f, 0.85f, 0.2f));
 	void ExtraAIAround(const FVector& Origin, float Radius);
-	void ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AActor* Owner, const FLinearColor& Color, EAshlineSurface Surface);
+	void ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AActor* MaterialOuter, const FLinearColor& Color, EAshlineSurface Surface);
 
 	void BuildWireCut();
 	void BuildDustMarket();
@@ -99,6 +99,8 @@ protected:
 	TObjectPtr<UMaterialInterface> ShapeMaterial;
 
 	EAshlineDifficulty CachedDifficulty = EAshlineDifficulty::Regular;
+
+	EAshlineMissionId ActiveMissionId = EAshlineMissionId::None;
 
 	FAshlineLightingMood ActiveMood;
 

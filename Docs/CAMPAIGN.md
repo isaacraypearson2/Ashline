@@ -21,7 +21,7 @@ Saves between missions in slot `AshlineCampaign` (v2). Completing a mission unlo
 | ASH-11 | Last Train | Freight corridor | Industrial overcast |
 | ASH-12 | Ashline | Buried terminus | Red finale |
 
-`AAshlineGrayboxBuilder` spawns a unique **themed blockout** for every mission: PBR-tinted surfaces, Sky Atmosphere, volumetric fog, unbound post-process, practical lights, foliage, vehicles/sandbags/doors, glowing objective markers.
+`AAshlineGrayboxBuilder` spawns a unique **themed blockout** for every mission: PBR-tinted surfaces, Sky Atmosphere, volumetric fog, fill/moon lights, unbound post-process (grain, dirt, chromatic, local exposure), practical lights, foliage (Starter / kit meshes when present), vehicles/sandbags/doors, glowing objective markers. Empty `DA_Kit_*` stubs do **not** flatten lighting (`bOverrideMood` defaults false).
 
 Walk into the markers. The extract / final required volume completes the mission.
 

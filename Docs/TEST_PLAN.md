@@ -62,4 +62,12 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 
 ## Honest failures
 
-If Quixel/Fab/MetaHuman folders are empty, that is **not** a test failure. Phase 2 import is documented in `Docs/CONTENT_PIPELINE.md`.
+If Quixel/Fab/MetaHuman folders are empty, that is **not** a test failure. Phase 2 import is documented in `Docs/PHASE2_FAB.md`.
+
+## Phase 2 content wiring (after scripts on the Windows box)
+
+- [ ] `import_fab_kits.py` then `assign_interim_meshes.py` — hero+AI are mannequins (or blockout), **not capsules**
+- [ ] Dropping `M_SKIN_FDE` at the bindings path + `AshEquipSkin WPN_AR_ASH16 SKIN_FDE` paints the gun
+- [ ] Dropping `M_CAMO_NIGHT` + equip Camo applies the material
+- [ ] Empty `DA_Kit_ASH##` does **not** reset ASH-01 to daylight (`bOverrideMood` false)
+- [ ] Each mission still has a distinct mood (fill/moon, fog, PP) without Megascans

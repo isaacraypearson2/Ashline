@@ -18,6 +18,8 @@ class ASHLINE_API UAshlinePresentationSettings : public UDeveloperSettings
 	GENERATED_BODY()
 
 public:
+	UAshlinePresentationSettings();
+
 	virtual FName GetCategoryName() const override { return TEXT("Ashline"); }
 
 	UPROPERTY(Config, EditAnywhere, Category = "Characters")

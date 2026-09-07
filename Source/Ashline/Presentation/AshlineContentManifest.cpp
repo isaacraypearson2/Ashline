@@ -90,10 +90,15 @@ TArray<FString> UAshlineContentManifest::HumanoidMeshCandidates()
 	return {
 		HeroMeshPath(),
 		TEXT("/Game/Ashline/Characters/MetaHuman/SK_MetaHumanBody.SK_MetaHumanBody"),
+		TEXT("/Game/Ashline/Characters/Hero/SK_AshlineHero.SK_AshlineHero"),
 		TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple"),
 		TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny"),
+		TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple"),
+		TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn"),
 		TEXT("/Game/Characters/Mannequins/Meshes/SK_Mannequin.SK_Mannequin"),
 		TEXT("/Game/GameAnimationSample/Characters/UEFN_Mannequin/Meshes/SKM_UEFN_Mannequin.SKM_UEFN_Mannequin"),
+		TEXT("/Game/GameAnimationSample/Characters/UEFN_Mannequin/Meshes/SKM_UEFN_Mannequin_Simple.SKM_UEFN_Mannequin_Simple"),
+		TEXT("/Game/Characters/Heroes/Mannequin/Meshes/SK_Mannequin.SK_Mannequin"),
 		TEXT("/Engine/EditorMeshes/AssetViewer/SkeletalMesh/DefaultSkeletalMesh.DefaultSkeletalMesh"),
 		TEXT("/Engine/EngineMeshes/SkeletalMesh/DefaultSkeletalMesh.DefaultSkeletalMesh"),
 		TEXT("/Engine/EngineMeshes/SkeletalMesh/SK_Mannequin.SK_Mannequin"),
@@ -108,4 +113,106 @@ TArray<FString> UAshlineContentManifest::MuzzleFXCandidates()
 		TEXT("/Game/StarterContent/Particles/P_Explosion.P_Explosion"),
 		TEXT("/Game/StarterContent/Particles/P_Fire.P_Fire")
 	};
+}
+
+FString UAshlineContentManifest::CosmeticMeshPath(FName CosmeticId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Characters/Hero/Cosmetics/SK_%s.SK_%s"),
+		*CosmeticId.ToString(), *CosmeticId.ToString());
+}
+
+FString UAshlineContentManifest::CosmeticStaticMeshPath(FName CosmeticId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Characters/Hero/Parts/SM_%s.SM_%s"),
+		*CosmeticId.ToString(), *CosmeticId.ToString());
+}
+
+FString UAshlineContentManifest::CosmeticMaterialPath(FName CosmeticId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Materials/Cosmetics/M_%s.M_%s"),
+		*CosmeticId.ToString(), *CosmeticId.ToString());
+}
+
+FString UAshlineContentManifest::CosmeticDataAssetPath(FName CosmeticId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Data/Kits/DA_COS_%s.DA_COS_%s"),
+		*CosmeticId.ToString(), *CosmeticId.ToString());
+}
+
+FString UAshlineContentManifest::SkinMaterialPath(FName SkinId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Weapons/Materials/M_%s.M_%s"),
+		*SkinId.ToString(), *SkinId.ToString());
+}
+
+FString UAshlineContentManifest::SkinDataAssetPath(FName SkinId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Data/Kits/DA_SKIN_%s.DA_SKIN_%s"),
+		*SkinId.ToString(), *SkinId.ToString());
+}
+
+FString UAshlineContentManifest::ClothingPartPath(EAshlineCosmeticSlot Slot, FName CosmeticId)
+{
+	const FString Folder = SlotFolderName(Slot);
+	return FString::Printf(TEXT("/Game/Ashline/Characters/Hero/Parts/%s/SM_%s.SM_%s"),
+		*Folder, *CosmeticId.ToString(), *CosmeticId.ToString());
+}
+
+FString UAshlineContentManifest::AIPresentationPath(EAshlineAIArchetype Archetype)
+{
+	const TCHAR* Slug = AshlineManifest::AISlug(Archetype);
+	return FString::Printf(TEXT("/Game/Ashline/Data/Kits/DA_AI_%s.DA_AI_%s"), Slug, Slug);
+}
+
+FString UAshlineContentManifest::KitWallPath(EAshlineMissionId MissionId)
+{
+	const TCHAR* Slug = AshlineManifest::MissionSlug(MissionId);
+	return FString::Printf(TEXT("/Game/Ashline/Environments/%s/M_Wall_%s.M_Wall_%s"), Slug, Slug, Slug);
+}
+
+FString UAshlineContentManifest::KitTrimPath(EAshlineMissionId MissionId)
+{
+	const TCHAR* Slug = AshlineManifest::MissionSlug(MissionId);
+	return FString::Printf(TEXT("/Game/Ashline/Environments/%s/M_Trim_%s.M_Trim_%s"), Slug, Slug, Slug);
+}
+
+FString UAshlineContentManifest::KitFoliagePath(EAshlineMissionId MissionId)
+{
+	const TCHAR* Slug = AshlineManifest::MissionSlug(MissionId);
+	return FString::Printf(TEXT("/Game/Ashline/Environments/%s/M_Foliage_%s.M_Foliage_%s"), Slug, Slug, Slug);
+}
+
+TArray<FString> UAshlineContentManifest::FoliageMeshCandidates()
+{
+	return {
+		TEXT("/Game/Ashline/Environments/Shared/SM_Bush.SM_Bush"),
+		TEXT("/Game/StarterContent/Props/SM_Bush.SM_Bush"),
+		TEXT("/Game/StarterContent/Props/SM_Rock.SM_Rock"),
+		TEXT("/Engine/BasicShapes/Sphere.Sphere")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::TreeMeshCandidates()
+{
+	return {
+		TEXT("/Game/Ashline/Environments/Shared/SM_Tree.SM_Tree"),
+		TEXT("/Game/StarterContent/Props/SM_Rock.SM_Rock"),
+		TEXT("/Engine/BasicShapes/Cylinder.Cylinder")
+	};
+}
+
+FString UAshlineContentManifest::SlotFolderName(EAshlineCosmeticSlot Slot)
+{
+	switch (Slot)
+	{
+	case EAshlineCosmeticSlot::Helmet: return TEXT("Helmet");
+	case EAshlineCosmeticSlot::Vest: return TEXT("Vest");
+	case EAshlineCosmeticSlot::Pants: return TEXT("Pants");
+	case EAshlineCosmeticSlot::Gloves: return TEXT("Gloves");
+	case EAshlineCosmeticSlot::Boots: return TEXT("Boots");
+	case EAshlineCosmeticSlot::Camo: return TEXT("Camo");
+	case EAshlineCosmeticSlot::Face: return TEXT("Face");
+	case EAshlineCosmeticSlot::Charm: return TEXT("Charm");
+	default: return TEXT("Other");
+	}
 }

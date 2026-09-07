@@ -1,6 +1,8 @@
 # Phase 2 shopping list — install on `X3D_AMD` (Windows 11, UE 5.8)
 
-Nothing below is in git. After install, drop or migrate assets onto the **canonical paths** in `UAshlineContentManifest`. Soft refs / DataAssets pick them up with **no architecture rewrite**.
+**Prefer `Docs/PHASE2_FAB.md`** (install order, clothing/skin paths, 1440p Ultra notes). This page is the short list.
+
+Nothing below is in git. After install, drop or migrate assets onto the **canonical paths** in `UAshlineContentManifest` / `ContentBindings.json`. Soft refs / DataAssets pick them up with **no architecture rewrite**.
 
 Run `Scripts/import_fab_kits.py` once in the editor to create the folder tree + empty DataAssets.
 
