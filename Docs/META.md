@@ -16,7 +16,7 @@ Save: slot `AshlineCampaign`, version **2.0.0** (`UAshlineSaveGame::MigrateIfNee
 | Weapon skins (universal + per-gun) | Owned + equipped; tint applied to FPS gun | Fab material / unique meshes |
 | Prestige at rank 50 | Resets rank, keeps locker, grants gilt + prestige camo + spine charm | Prestige emblem art |
 | Play-earned crates | Tokens → rarity roll → cosmetic id | Crate VFX |
-| Soft mesh / material overrides | Fields exist, load if you assign them | Bind after Fab / MetaHuman import |
+| Soft mesh / material overrides | Auto-bound to `ContentBindings.json` paths; load if the file exists | Drop Fab / MetaHuman onto those names |
 
 Canvas HUD remains the playable frontend. That is not a missing meta — the data path is live.
 
@@ -38,7 +38,7 @@ Grants and equips: `CAMO_PRESTIGE`, `SKIN_GOLD` (all owned guns), `CHARM_SPINE`.
 
 ## Runtime apply
 
-- `AAshlineCharacter::ApplyOperatorLook` tints the hero mesh or blockout parts from equipped slot ids.
+- `AAshlineCharacter::ApplyOperatorLook` tints the hero mesh or blockout parts from equipped slot ids, applies camo Mesh/Material overrides, and attaches clothing parts when `SM_{Id}` exists.
 - `UAshlineWeaponComponent` stores `SkinId` on the runtime weapon and paints receiver / barrel / stock / mag.
 - Equipped charm is a small mesh on the gun (placeholder until a Phase 2 charm mesh is assigned).
 

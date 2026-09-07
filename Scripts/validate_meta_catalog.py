@@ -93,6 +93,10 @@ def main() -> None:
     if not {"CAMO_PRESTIGE", "SKIN_GOLD", "CHARM_SPINE"} <= grants:
         fail("prestige must grant camo, gold skin, spine charm")
 
+    extra_clothing = {"HELM_BOONIE", "VEST_RECON", "PANT_CRYE", "GLOVE_WINTER", "BOOT_DESERT"}
+    if not extra_clothing <= set(cosmetic_ids):
+        fail(f"missing Phase 2 clothing {sorted(extra_clothing - set(cosmetic_ids))}")
+
     print(f"OK: {len(cosmetics)} cosmetics, {len(skins)} skins, rank 1–{data['maxRank']}")
 
 

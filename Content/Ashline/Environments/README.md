@@ -8,4 +8,4 @@ Shared/
 ```
 
 Canonical ground material: `M_Ground_<FolderName>`.
-See `Docs/FAB_PACKS.md` for the exact search list.
+See `Docs/PHASE2_FAB.md` for the exact search list and install order.

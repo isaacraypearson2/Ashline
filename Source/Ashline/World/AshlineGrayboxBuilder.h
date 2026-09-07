@@ -100,6 +100,8 @@ protected:
 
 	EAshlineDifficulty CachedDifficulty = EAshlineDifficulty::Regular;
 
+	EAshlineMissionId ActiveMissionId = EAshlineMissionId::None;
+
 	FAshlineLightingMood ActiveMood;
 
 	UPROPERTY()

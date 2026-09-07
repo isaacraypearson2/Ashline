@@ -436,6 +436,12 @@ void UAshlineWeaponComponent::ApplyVisualAsset(UAshlineWeaponVisual* Visual)
 	UStaticMesh* Mesh = Visual->WorldMesh.LoadSynchronous();
 	if (!Mesh)
 	{
+		Mesh = UAshlinePresentationLibrary::LoadStaticMesh({
+			UAshlineContentManifest::WeaponMeshPath(GetActiveWeapon().Definition.WeaponId)
+		});
+	}
+	if (!Mesh)
+	{
 		Mesh = UAshlinePresentationLibrary::ResolveWeaponPlaceholderMesh();
 	}
 	if (Mesh)
@@ -560,7 +566,11 @@ void UAshlineWeaponComponent::ApplyEquippedSkin()
 	if (UAshlineMetaCatalog::FindSkin(SkinId, Def))
 	{
 		Tint = Def.Tint;
-		Override = Def.MaterialOverride.LoadSynchronous();
+		Override = UAshlinePresentationLibrary::ResolveSkinMaterial(Def);
+		if (!Override)
+		{
+			Override = Def.MaterialOverride.LoadSynchronous();
+		}
 	}
 	ApplyTintToWeaponMeshes(Tint, Override);
 }
@@ -583,12 +593,30 @@ void UAshlineWeaponComponent::ApplyCharm(FName CharmId)
 		return;
 	}
 
-	UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
-	if (Cube)
+	UStaticMesh* CharmAsset = nullptr;
+	FAshlineCosmeticDefinition CharmDef;
+	if (UAshlineMetaCatalog::FindCosmetic(CharmId, CharmDef))
 	{
-		CharmMesh->SetStaticMesh(Cube);
+		CharmAsset = UAshlinePresentationLibrary::ResolveCosmeticPartMesh(CharmDef);
+	}
+	if (!CharmAsset)
+	{
+		CharmAsset = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+	}
+	if (CharmAsset)
+	{
+		CharmMesh->SetStaticMesh(CharmAsset);
 	}
 	const FLinearColor Tint = UAshlineMetaCatalog::CosmeticTint(CharmId, FLinearColor(0.7f, 0.55f, 0.2f));
+	if (UAshlineMetaCatalog::FindCosmetic(CharmId, CharmDef))
+	{
+		if (UMaterialInterface* CharmMat = UAshlinePresentationLibrary::ResolveCosmeticMaterial(CharmDef))
+		{
+			CharmMesh->SetMaterial(0, CharmMat);
+			CharmMesh->SetVisibility(true);
+			return;
+		}
+	}
 	if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, EAshlineSurface::Metal, Tint))
 	{
 		CharmMesh->SetMaterial(0, MID);

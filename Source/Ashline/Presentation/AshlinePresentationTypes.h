@@ -75,7 +75,52 @@ struct FAshlineLightingMood
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
 	EAshlineSurface DefaultGround = EAshlineSurface::Ground;
-};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	float FogStartDistance = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	float VolumetricFogExtinction = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	float VolumetricScattering = 0.3f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	float ChromaticAberration = 0.2f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	float BloomThreshold = -1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	float LocalExposureHighlight = 0.8f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	float LocalExposureShadow = 0.8f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	float DirtMaskIntensity = 0.15f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	FLinearColor FillLightColor = FLinearColor(0.45f, 0.55f, 0.75f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	float FillLightIntensity = 1.8f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	FRotator FillLightRotation = FRotator(-20.f, 140.f, 0.f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	FLinearColor MoonColor = FLinearColor(0.35f, 0.45f, 0.75f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	float MoonIntensity = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	int32 FoliageDensity = 8;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
+	float AutoExposureBias = 0.f;
+}
 
 /** Soft-ref slots so maps can pull Fab / Megascans / MetaHuman without baking binaries into git. */
 USTRUCT(BlueprintType)

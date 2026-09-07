@@ -1,15 +1,18 @@
 # Ashline AAA content pipeline (Phase 1 scaffolding)
 
-The campaign is **playable without any marketplace binaries**. This document is the honest import path for Phase 2.
+The campaign is **playable without any marketplace binaries**. Install order and exact Fab names: **`Docs/PHASE2_FAB.md`**. This page is the folder / DataAsset contract.
 
 ## Folder layout (`Content/Ashline/`)
 
 ```
 Content/Ashline/
   Characters/Hero/          MetaHuman or mannequin body/face
-  Characters/AI/            Per-archetype meshes
-  Characters/MetaHuman/     Bridge drop folder
-  Weapons/Meshes/           FAB rifle/SMG/sniper/etc.
+    Characters/Hero/Cosmetics/  SK_{CosmeticId} MeshOverride
+    Characters/Hero/Parts/      SM_{Id} clothing (Helmet/Vest/…)
+    Characters/AI/            Per-archetype meshes
+    Characters/MetaHuman/     Bridge drop folder
+    Weapons/Meshes/           FAB rifle/SMG/sniper/etc.
+    Weapons/Materials/        M_{SkinId} MaterialOverride
   Weapons/Attachments/      Optics, muzzles
   Environments/
     ASH01_WireCut/ … ASH12_Ashline/
@@ -47,7 +50,8 @@ Maps never hard-crash when a Fab mesh is missing.
 | `UAshlineEnvironmentKit` | `/Game/Ashline/Data/Kits/DA_Kit_ASH01` … `ASH12` | Mood + ground/wall/foliage/decal + prop slots + music bed |
 | `UAshlineWeaponVisual` | `/Game/Ashline/Data/Kits/DA_WPN_WPN_AR_ASH16` | World mesh, muzzle FX, impact decal, fire/reload/hit cues |
 | `UAshlineCharacterPresentation` | `/Game/Ashline/Data/Kits/DA_Hero_Operator` | MetaHuman/mannequin + anim class |
-| `UAshlineMetaCatalog` | `Content/Ashline/Data/Meta.json` (designer mirror) | Cosmetics, skins, rank curve, prestige. C++ is source of truth. |
+| `UAshlineMetaCatalog` | `Content/Ashline/Data/Meta.json` + `ContentBindings.json` | Cosmetics, skins, rank curve, prestige. Soft refs auto-bound. |
+| `UAshlineCosmeticVisual` | `/Game/Ashline/Data/Kits/DA_COS_*` / `DA_SKIN_*` | Optional overlay for Mesh/Material/PartMesh |
 
 Create them with `Scripts/import_fab_kits.py` inside the editor (does **not** download Fab).
 

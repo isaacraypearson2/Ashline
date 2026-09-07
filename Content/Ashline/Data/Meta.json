@@ -34,13 +34,18 @@
     { "id": "CAMO_WHITEOUT", "name": "Whiteout", "slot": "Camo", "rarity": "Rare", "rank": 18, "cost": 900, "prestige": 0, "starter": false, "tint": [0.78, 0.82, 0.88] },
     { "id": "CAMO_ASHLINE", "name": "Terminus", "slot": "Camo", "rarity": "Legendary", "rank": 40, "cost": 2400, "prestige": 0, "starter": false, "tint": [0.45, 0.08, 0.06] },
     { "id": "CAMO_PRESTIGE", "name": "Prestige Ash", "slot": "Camo", "rarity": "Epic", "rank": 1, "cost": 0, "prestige": 1, "starter": false, "tint": [0.72, 0.62, 0.22] },
-    { "id": "HELM_PATROL", "name": "Patrol cap", "slot": "Helmet", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.16, 0.18, 0.12] },
-    { "id": "HELM_FAST", "name": "FAST helmet", "slot": "Helmet", "rarity": "Rare", "rank": 12, "cost": 700, "prestige": 0, "starter": false, "tint": [0.10, 0.10, 0.10] },
-    { "id": "VEST_PLATE", "name": "Plate carrier", "slot": "Vest", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.14, 0.16, 0.12] },
-    { "id": "VEST_HEAVY", "name": "Heavy rig", "slot": "Vest", "rarity": "Rare", "rank": 20, "cost": 850, "prestige": 0, "starter": false, "tint": [0.12, 0.10, 0.08] },
-    { "id": "PANT_FATIGUE", "name": "Field fatigues", "slot": "Pants", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.20, 0.22, 0.14] },
-    { "id": "GLOVE_NOMEX", "name": "Nomex gloves", "slot": "Gloves", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.08, 0.08, 0.08] },
-    { "id": "BOOT_COMBAT", "name": "Combat boots", "slot": "Boots", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.10, 0.08, 0.06] },
+    { "id": "HELM_PATROL", "name": "Patrol cap", "slot": "Helmet", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.16, 0.18, 0.12], "meshPath": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_PATROL", "materialPath": "/Game/Ashline/Materials/Cosmetics/M_HELM_PATROL" },
+    { "id": "HELM_FAST", "name": "FAST helmet", "slot": "Helmet", "rarity": "Rare", "rank": 12, "cost": 700, "prestige": 0, "starter": false, "tint": [0.10, 0.10, 0.10], "meshPath": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_FAST", "materialPath": "/Game/Ashline/Materials/Cosmetics/M_HELM_FAST" },
+    { "id": "HELM_BOONIE", "name": "Boonie", "slot": "Helmet", "rarity": "Uncommon", "rank": 5, "cost": 350, "prestige": 0, "starter": false, "tint": [0.28, 0.26, 0.14], "meshPath": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_BOONIE", "materialPath": "/Game/Ashline/Materials/Cosmetics/M_HELM_BOONIE" },
+    { "id": "VEST_PLATE", "name": "Plate carrier", "slot": "Vest", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.14, 0.16, 0.12], "meshPath": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_PLATE", "materialPath": "/Game/Ashline/Materials/Cosmetics/M_VEST_PLATE" },
+    { "id": "VEST_HEAVY", "name": "Heavy rig", "slot": "Vest", "rarity": "Rare", "rank": 20, "cost": 850, "prestige": 0, "starter": false, "tint": [0.12, 0.10, 0.08], "meshPath": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_HEAVY", "materialPath": "/Game/Ashline/Materials/Cosmetics/M_VEST_HEAVY" },
+    { "id": "VEST_RECON", "name": "Recon vest", "slot": "Vest", "rarity": "Uncommon", "rank": 9, "cost": 500, "prestige": 0, "starter": false, "tint": [0.18, 0.16, 0.10], "meshPath": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_RECON", "materialPath": "/Game/Ashline/Materials/Cosmetics/M_VEST_RECON" },
+    { "id": "PANT_FATIGUE", "name": "Field fatigues", "slot": "Pants", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.20, 0.22, 0.14], "meshPath": "/Game/Ashline/Characters/Hero/Cosmetics/SK_PANT_FATIGUE", "materialPath": "/Game/Ashline/Materials/Cosmetics/M_PANT_FATIGUE" },
+    { "id": "PANT_CRYE", "name": "Crye cut", "slot": "Pants", "rarity": "Uncommon", "rank": 11, "cost": 400, "prestige": 0, "starter": false, "tint": [0.18, 0.20, 0.12], "meshPath": "/Game/Ashline/Characters/Hero/Cosmetics/SK_PANT_CRYE", "materialPath": "/Game/Ashline/Materials/Cosmetics/M_PANT_CRYE" },
+    { "id": "GLOVE_NOMEX", "name": "Nomex gloves", "slot": "Gloves", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.08, 0.08, 0.08], "meshPath": "/Game/Ashline/Characters/Hero/Cosmetics/SK_GLOVE_NOMEX", "materialPath": "/Game/Ashline/Materials/Cosmetics/M_GLOVE_NOMEX" },
+    { "id": "GLOVE_WINTER", "name": "Winter gloves", "slot": "Gloves", "rarity": "Rare", "rank": 18, "cost": 450, "prestige": 0, "starter": false, "tint": [0.22, 0.24, 0.26], "meshPath": "/Game/Ashline/Characters/Hero/Cosmetics/SK_GLOVE_WINTER", "materialPath": "/Game/Ashline/Materials/Cosmetics/M_GLOVE_WINTER" },
+    { "id": "BOOT_COMBAT", "name": "Combat boots", "slot": "Boots", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.10, 0.08, 0.06], "meshPath": "/Game/Ashline/Characters/Hero/Cosmetics/SK_BOOT_COMBAT", "materialPath": "/Game/Ashline/Materials/Cosmetics/M_BOOT_COMBAT" },
+    { "id": "BOOT_DESERT", "name": "Desert boots", "slot": "Boots", "rarity": "Uncommon", "rank": 8, "cost": 300, "prestige": 0, "starter": false, "tint": [0.32, 0.24, 0.12], "meshPath": "/Game/Ashline/Characters/Hero/Cosmetics/SK_BOOT_DESERT", "materialPath": "/Game/Ashline/Materials/Cosmetics/M_BOOT_DESERT" },
     { "id": "FACE_00", "name": "Operator A", "slot": "Face", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.45, 0.34, 0.26] },
     { "id": "FACE_01", "name": "Operator B", "slot": "Face", "rarity": "Common", "rank": 4, "cost": 150, "prestige": 0, "starter": false, "tint": [0.38, 0.28, 0.20] },
     { "id": "VOICE_NEUTRAL", "name": "Neutral VO", "slot": "Voice", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [1.0, 1.0, 1.0] },
@@ -71,9 +76,11 @@
     { "rarity": "Legendary", "weightNote": "< 0.02", "item": "CAMO_ASHLINE" }
   ],
   "phase2Hooks": {
-    "cosmeticMeshOverride": "FAshlineCosmeticDefinition.MeshOverride (skeletal)",
-    "cosmeticMaterialOverride": "FAshlineCosmeticDefinition.MaterialOverride",
-    "skinMaterialOverride": "FAshlineWeaponSkinDefinition.MaterialOverride",
-    "umg": "Canvas HUD is playable. Operator locker / armory UMG is Phase 2."
+    "cosmeticMeshOverride": "FAshlineCosmeticDefinition.MeshOverride — auto-bound to /Game/Ashline/Characters/Hero/Cosmetics/SK_{Id}",
+    "cosmeticMaterialOverride": "FAshlineCosmeticDefinition.MaterialOverride — auto-bound to /Game/Ashline/Materials/Cosmetics/M_{Id}",
+    "skinMaterialOverride": "FAshlineWeaponSkinDefinition.MaterialOverride — auto-bound to /Game/Ashline/Weapons/Materials/M_{Id}",
+    "dataAssets": "DA_COS_{Id} / DA_SKIN_{Id} overlay catalog paths when present",
+    "bindings": "Content/Ashline/Data/ContentBindings.json",
+    "umg": "Canvas HUD is playable. Operator locker / armory UMG is still optional."
   }
 }

@@ -1,5 +1,11 @@
 #include "Meta/AshlineMetaCatalog.h"
 
+#include "Presentation/AshlineContentManifest.h"
+#include "Presentation/AshlineCosmeticVisual.h"
+#include "Engine/SkeletalMesh.h"
+#include "Materials/MaterialInterface.h"
+#include "UObject/SoftObjectPath.h"
+
 namespace AshlineMeta
 {
 	static FAshlineCosmeticDefinition C(
@@ -23,6 +29,7 @@ namespace AshlineMeta
 		D.RequiredPrestige = Prestige;
 		D.bStarter = bStarter;
 		D.PreviewTint = Tint;
+		UAshlineMetaCatalog::BindCosmeticContentPaths(D);
 		return D;
 	}
 
@@ -47,6 +54,7 @@ namespace AshlineMeta
 		D.RequiredPrestige = Prestige;
 		D.bStarter = bStarter;
 		D.Tint = Tint;
+		UAshlineMetaCatalog::BindSkinContentPaths(D);
 		return D;
 	}
 }
@@ -66,11 +74,16 @@ TArray<FAshlineCosmeticDefinition> UAshlineMetaCatalog::BuildCosmetics()
 
 	List.Add(C(TEXT("HELM_PATROL"), TEXT("Patrol cap"), EAshlineCosmeticSlot::Helmet, EAshlineLootRarity::Common, 1, 0, 0, true, FLinearColor(0.16f, 0.18f, 0.12f)));
 	List.Add(C(TEXT("HELM_FAST"), TEXT("FAST helmet"), EAshlineCosmeticSlot::Helmet, EAshlineLootRarity::Rare, 12, 700, 0, false, FLinearColor(0.1f, 0.1f, 0.1f)));
+	List.Add(C(TEXT("HELM_BOONIE"), TEXT("Boonie"), EAshlineCosmeticSlot::Helmet, EAshlineLootRarity::Uncommon, 5, 350, 0, false, FLinearColor(0.28f, 0.26f, 0.14f)));
 	List.Add(C(TEXT("VEST_PLATE"), TEXT("Plate carrier"), EAshlineCosmeticSlot::Vest, EAshlineLootRarity::Common, 1, 0, 0, true, FLinearColor(0.14f, 0.16f, 0.12f)));
 	List.Add(C(TEXT("VEST_HEAVY"), TEXT("Heavy rig"), EAshlineCosmeticSlot::Vest, EAshlineLootRarity::Rare, 20, 850, 0, false, FLinearColor(0.12f, 0.1f, 0.08f)));
+	List.Add(C(TEXT("VEST_RECON"), TEXT("Recon vest"), EAshlineCosmeticSlot::Vest, EAshlineLootRarity::Uncommon, 9, 500, 0, false, FLinearColor(0.18f, 0.16f, 0.1f)));
 	List.Add(C(TEXT("PANT_FATIGUE"), TEXT("Field fatigues"), EAshlineCosmeticSlot::Pants, EAshlineLootRarity::Common, 1, 0, 0, true, FLinearColor(0.2f, 0.22f, 0.14f)));
+	List.Add(C(TEXT("PANT_CRYE"), TEXT("Crye cut"), EAshlineCosmeticSlot::Pants, EAshlineLootRarity::Uncommon, 11, 400, 0, false, FLinearColor(0.18f, 0.2f, 0.12f)));
 	List.Add(C(TEXT("GLOVE_NOMEX"), TEXT("Nomex gloves"), EAshlineCosmeticSlot::Gloves, EAshlineLootRarity::Common, 1, 0, 0, true, FLinearColor(0.08f, 0.08f, 0.08f)));
+	List.Add(C(TEXT("GLOVE_WINTER"), TEXT("Winter gloves"), EAshlineCosmeticSlot::Gloves, EAshlineLootRarity::Rare, 18, 450, 0, false, FLinearColor(0.22f, 0.24f, 0.26f)));
 	List.Add(C(TEXT("BOOT_COMBAT"), TEXT("Combat boots"), EAshlineCosmeticSlot::Boots, EAshlineLootRarity::Common, 1, 0, 0, true, FLinearColor(0.1f, 0.08f, 0.06f)));
+	List.Add(C(TEXT("BOOT_DESERT"), TEXT("Desert boots"), EAshlineCosmeticSlot::Boots, EAshlineLootRarity::Uncommon, 8, 300, 0, false, FLinearColor(0.32f, 0.24f, 0.12f)));
 
 	List.Add(C(TEXT("FACE_00"), TEXT("Operator A"), EAshlineCosmeticSlot::Face, EAshlineLootRarity::Common, 1, 0, 0, true, FLinearColor(0.45f, 0.34f, 0.26f)));
 	List.Add(C(TEXT("FACE_01"), TEXT("Operator B"), EAshlineCosmeticSlot::Face, EAshlineLootRarity::Common, 4, 150, 0, false, FLinearColor(0.38f, 0.28f, 0.2f)));
@@ -142,6 +155,7 @@ bool UAshlineMetaCatalog::FindCosmetic(FName CosmeticId, FAshlineCosmeticDefinit
 		if (Item.CosmeticId == CosmeticId)
 		{
 			OutCosmetic = Item;
+			OverlayCosmeticDataAsset(OutCosmetic);
 			return true;
 		}
 	}
@@ -155,6 +169,7 @@ bool UAshlineMetaCatalog::FindSkin(FName SkinId, FAshlineWeaponSkinDefinition& O
 		if (Item.SkinId == SkinId)
 		{
 			OutSkin = Item;
+			OverlaySkinDataAsset(OutSkin);
 			return true;
 		}
 	}
@@ -279,4 +294,55 @@ bool UAshlineMetaCatalog::SlotFromName(FName SlotName, EAshlineCosmeticSlot& Out
 	if (S.Equals(TEXT("Voice"), ESearchCase::IgnoreCase)) { OutSlot = EAshlineCosmeticSlot::Voice; return true; }
 	if (S.Equals(TEXT("Charm"), ESearchCase::IgnoreCase)) { OutSlot = EAshlineCosmeticSlot::Charm; return true; }
 	return false;
+}
+
+void UAshlineMetaCatalog::BindCosmeticContentPaths(FAshlineCosmeticDefinition& Cosmetic)
+{
+	if (Cosmetic.MeshOverride.IsNull())
+	{
+		Cosmetic.MeshOverride = TSoftObjectPtr<USkeletalMesh>(
+			FSoftObjectPath(UAshlineContentManifest::CosmeticMeshPath(Cosmetic.CosmeticId)));
+	}
+	if (Cosmetic.MaterialOverride.IsNull())
+	{
+		Cosmetic.MaterialOverride = TSoftObjectPtr<UMaterialInterface>(
+			FSoftObjectPath(UAshlineContentManifest::CosmeticMaterialPath(Cosmetic.CosmeticId)));
+	}
+}
+
+void UAshlineMetaCatalog::BindSkinContentPaths(FAshlineWeaponSkinDefinition& Skin)
+{
+	if (Skin.MaterialOverride.IsNull())
+	{
+		Skin.MaterialOverride = TSoftObjectPtr<UMaterialInterface>(
+			FSoftObjectPath(UAshlineContentManifest::SkinMaterialPath(Skin.SkinId)));
+	}
+}
+
+void UAshlineMetaCatalog::OverlayCosmeticDataAsset(FAshlineCosmeticDefinition& Cosmetic)
+{
+	if (UAshlineCosmeticVisual* Visual = LoadObject<UAshlineCosmeticVisual>(
+		nullptr, *UAshlineContentManifest::CosmeticDataAssetPath(Cosmetic.CosmeticId)))
+	{
+		if (!Visual->MeshOverride.IsNull())
+		{
+			Cosmetic.MeshOverride = Visual->MeshOverride;
+		}
+		if (!Visual->MaterialOverride.IsNull())
+		{
+			Cosmetic.MaterialOverride = Visual->MaterialOverride;
+		}
+	}
+}
+
+void UAshlineMetaCatalog::OverlaySkinDataAsset(FAshlineWeaponSkinDefinition& Skin)
+{
+	if (UAshlineCosmeticVisual* Visual = LoadObject<UAshlineCosmeticVisual>(
+		nullptr, *UAshlineContentManifest::SkinDataAssetPath(Skin.SkinId)))
+	{
+		if (!Visual->MaterialOverride.IsNull())
+		{
+			Skin.MaterialOverride = Visual->MaterialOverride;
+		}
+	}
 }

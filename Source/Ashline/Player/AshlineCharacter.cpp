@@ -111,6 +111,7 @@ void AAshlineCharacter::BeginPlay()
 	}
 
 	EnsureDefaultLoadout();
+	UAshlinePresentationLibrary::HideCapsuleVisual(this);
 	ApplyPresentationMesh();
 	ApplyGrayboxMeshes();
 	ApplyOperatorLook();
@@ -209,7 +210,7 @@ void AAshlineCharacter::SetCameraMode(EAshlineCameraMode NewMode)
 	GetComponents<UStaticMeshComponent>(Meshes);
 	for (UStaticMeshComponent* MeshComp : Meshes)
 	{
-		if (MeshComp && MeshComp->GetName().StartsWith(TEXT("AshlineBlock_")))
+		if (MeshComp && (MeshComp->GetName().StartsWith(TEXT("AshlineBlock_")) || MeshComp->GetName().StartsWith(TEXT("AshlineCloth_"))))
 		{
 			MeshComp->SetOwnerNoSee(bFPS);
 		}
@@ -652,7 +653,11 @@ void AAshlineCharacter::ApplyOperatorLook()
 		UMaterialInterface* Override = nullptr;
 		if (UAshlineMetaCatalog::FindCosmetic(CamoId, CamoDef))
 		{
-			Override = CamoDef.MaterialOverride.LoadSynchronous();
+			if (USkeletalMesh* CamoMesh = UAshlinePresentationLibrary::ResolveCosmeticMesh(CamoDef))
+			{
+				GetMesh()->SetSkeletalMeshAsset(CamoMesh);
+			}
+			Override = UAshlinePresentationLibrary::ResolveCosmeticMaterial(CamoDef);
 		}
 		if (Override)
 		{
@@ -674,6 +679,13 @@ void AAshlineCharacter::ApplyOperatorLook()
 		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_LegL"), PantsTint, EAshlineSurface::Plastic);
 		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_LegR"), BootsTint, EAshlineSurface::Plastic);
 	}
+
+	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Helmet, HelmetId, HelmetTint);
+	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Vest, VestId, VestTint);
+	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Pants, PantsId, PantsTint);
+	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Gloves, GlovesId, GlovesTint);
+	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Boots, BootsId, BootsTint);
+	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Face, FaceId, FaceTint);
 
 	if (WeaponComponent)
 	{

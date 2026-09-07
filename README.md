@@ -32,7 +32,7 @@ Optional editor content (makes PIE look closer to final art — **not committed 
 
 - **Add Content Pack → Starter Content** (grass, concrete, metal, water materials).
 - Enable **AMD FidelityFX Super Resolution 3** from Fab if you want the FSR3 plugin (CVars are already wired; TSR runs without it).
-- Run `Scripts/create_ashline_play_assets.py` and `Scripts/import_fab_kits.py` (see `Docs/CONTENT_PIPELINE.md`).
+- Run `Scripts/import_fab_kits.py` then `Scripts/assign_interim_meshes.py` (mannequin hero+AI, no capsules). See `Docs/PHASE2_FAB.md`.
 
 ### Rebuild from source (Windows)
 
@@ -78,8 +78,8 @@ Ads stay off (`UAshlineMonetizationHooks`).
 
 **This repo does not contain Quixel, Fab, or MetaHuman binary packs.** If those folders are empty, that is expected.
 
-**Install next (exact names / URLs):** `Docs/FAB_PACKS.md`  
-Also: `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Docs/TEST_PLAN.md`.
+**Install next (exact names / URLs / 1440p notes):** `Docs/PHASE2_FAB.md`  
+Also: `Docs/FAB_PACKS.md`, `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Docs/TEST_PLAN.md`.
 
 ## Campaign
 

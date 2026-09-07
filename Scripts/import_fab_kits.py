@@ -14,13 +14,25 @@ import unreal
 KIT_ROOT = "/Game/Ashline/Data/Kits"
 FOLDERS = [
     "/Game/Ashline/Characters/Hero",
+    "/Game/Ashline/Characters/Hero/Cosmetics",
+    "/Game/Ashline/Characters/Hero/Materials",
+    "/Game/Ashline/Characters/Hero/Parts/Helmet",
+    "/Game/Ashline/Characters/Hero/Parts/Vest",
+    "/Game/Ashline/Characters/Hero/Parts/Pants",
+    "/Game/Ashline/Characters/Hero/Parts/Gloves",
+    "/Game/Ashline/Characters/Hero/Parts/Boots",
+    "/Game/Ashline/Characters/Hero/Parts/Face",
+    "/Game/Ashline/Characters/Hero/Parts/Charm",
     "/Game/Ashline/Characters/AI",
     "/Game/Ashline/Characters/MetaHuman",
     "/Game/Ashline/Weapons/Meshes",
     "/Game/Ashline/Weapons/Attachments",
+    "/Game/Ashline/Weapons/Materials",
+    "/Game/Ashline/Weapons/Charms",
     "/Game/Ashline/Environments/Shared",
     "/Game/Ashline/Materials/PBR",
     "/Game/Ashline/Materials/Decals",
+    "/Game/Ashline/Materials/Cosmetics",
     "/Game/Ashline/Audio/Weapons",
     "/Game/Ashline/Audio/Footsteps",
     "/Game/Ashline/Audio/Music",
@@ -54,6 +66,57 @@ WEAPONS = [
     "WPN_PIS_M17A",
     "WPN_DMR_SASS",
     "WPN_LMG_M250",
+]
+
+AI_ARCHETYPES = (
+    "Rifleman",
+    "Breacher",
+    "Marksman",
+    "Gunner",
+    "Officer",
+    "Scout",
+    "Heavy",
+    "Irregular",
+)
+
+COSMETICS = [
+    "CAMO_FIELD",
+    "CAMO_NIGHT",
+    "CAMO_DUST",
+    "CAMO_WHITEOUT",
+    "CAMO_ASHLINE",
+    "CAMO_PRESTIGE",
+    "HELM_PATROL",
+    "HELM_FAST",
+    "HELM_BOONIE",
+    "VEST_PLATE",
+    "VEST_HEAVY",
+    "VEST_RECON",
+    "PANT_FATIGUE",
+    "PANT_CRYE",
+    "GLOVE_NOMEX",
+    "GLOVE_WINTER",
+    "BOOT_COMBAT",
+    "BOOT_DESERT",
+    "FACE_00",
+    "FACE_01",
+    "CHARM_WIRE",
+    "CHARM_SPINE",
+]
+
+SKINS = [
+    "SKIN_FACTORY",
+    "SKIN_FDE",
+    "SKIN_OD",
+    "SKIN_SNOW",
+    "SKIN_GOLD",
+    "SKIN_ASH16_NIGHT",
+    "SKIN_C9_DUST",
+    "SKIN_G28_GLASS",
+    "SKIN_M870_BREACH",
+    "SKIN_M17_SIDE",
+    "SKIN_SASS_MARK",
+    "SKIN_M250_SAW",
 ]
 
 FAB_LIST = """
@@ -135,11 +198,59 @@ def main():
                 pass
 
     create_data_asset("DA_Hero_Operator", KIT_ROOT, "/Script/Ashline.AshlineCharacterPresentation")
+    for slug in AI_ARCHETYPES:
+        asset = create_data_asset(f"DA_AI_{slug}", KIT_ROOT, "/Script/Ashline.AshlineCharacterPresentation")
+        if asset:
+            try:
+                asset.set_editor_property("presentation_id", f"AI_{slug}")
+                asset.set_editor_property("b_hero", False)
+            except Exception:
+                pass
     for weapon in WEAPONS:
-        create_data_asset(f"DA_WPN_{weapon}", KIT_ROOT, "/Script/Ashline.AshlineWeaponVisual")
+        asset = create_data_asset(f"DA_WPN_{weapon}", KIT_ROOT, "/Script/Ashline.AshlineWeaponVisual")
+        if asset:
+            try:
+                asset.set_editor_property("weapon_id", weapon)
+                asset.set_editor_property(
+                    "world_mesh",
+                    unreal.SoftObjectPath(f"/Game/Ashline/Weapons/Meshes/SM_{weapon}.SM_{weapon}"),
+                )
+            except Exception:
+                pass
+    for cosmetic in COSMETICS:
+        asset = create_data_asset(f"DA_COS_{cosmetic}", KIT_ROOT, "/Script/Ashline.AshlineCosmeticVisual")
+        if asset:
+            try:
+                asset.set_editor_property("cosmetic_id", cosmetic)
+                asset.set_editor_property(
+                    "mesh_override",
+                    unreal.SoftObjectPath(f"/Game/Ashline/Characters/Hero/Cosmetics/SK_{cosmetic}.SK_{cosmetic}"),
+                )
+                asset.set_editor_property(
+                    "material_override",
+                    unreal.SoftObjectPath(f"/Game/Ashline/Materials/Cosmetics/M_{cosmetic}.M_{cosmetic}"),
+                )
+                asset.set_editor_property(
+                    "part_mesh",
+                    unreal.SoftObjectPath(f"/Game/Ashline/Characters/Hero/Parts/SM_{cosmetic}.SM_{cosmetic}"),
+                )
+            except Exception:
+                pass
+    for skin in SKINS:
+        asset = create_data_asset(f"DA_SKIN_{skin}", KIT_ROOT, "/Script/Ashline.AshlineCosmeticVisual")
+        if asset:
+            try:
+                asset.set_editor_property("cosmetic_id", skin)
+                asset.set_editor_property(
+                    "material_override",
+                    unreal.SoftObjectPath(f"/Game/Ashline/Weapons/Materials/M_{skin}.M_{skin}"),
+                )
+            except Exception:
+                pass
 
     unreal.log(FAB_LIST)
-    unreal.log("Ashline: kit folders + DataAsset stubs ready. Assign Fab/MetaHuman soft refs, then PIE.")
+    unreal.log("Ashline: kit / weapon / cosmetic / AI DataAsset stubs ready.")
+    unreal.log("Next: Scripts/assign_interim_meshes.py then Docs/PHASE2_FAB.md install order.")
     unreal.log(UAshline_fallback())
 
 
