@@ -120,7 +120,7 @@ struct FAshlineLightingMood
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Kit")
 	float AutoExposureBias = 0.f;
-}
+};
 
 /** Soft-ref slots so maps can pull Fab / Megascans / MetaHuman without baking binaries into git. */
 USTRUCT(BlueprintType)

@@ -99,4 +99,4 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Presentation")
 	static FName ClothingComponentName(EAshlineCosmeticSlot Slot);
-}
+};

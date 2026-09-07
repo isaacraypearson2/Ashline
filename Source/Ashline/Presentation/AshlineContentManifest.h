@@ -94,4 +94,4 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
 	static FString SlotFolderName(EAshlineCosmeticSlot Slot);
-}
+};

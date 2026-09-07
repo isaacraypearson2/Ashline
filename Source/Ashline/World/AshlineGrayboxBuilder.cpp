@@ -473,7 +473,7 @@ void AAshlineGrayboxBuilder::SpawnFullAtmosphere()
 			FogComp->SetFogDensity(ActiveMood.FogDensity);
 			FogComp->SetFogInscatteringColor(ActiveMood.FogColor);
 			FogComp->SetFogHeightFalloff(ActiveMood.FogHeightFalloff);
-			FogComp->SetFogStartDistance(ActiveMood.FogStartDistance);
+			FogComp->SetStartDistance(ActiveMood.FogStartDistance);
 			FogComp->SetVolumetricFog(true);
 			FogComp->VolumetricFogScatteringDistribution = ActiveMood.VolumetricScattering;
 			FogComp->VolumetricFogExtinctionScale = ActiveMood.VolumetricFogExtinction;
@@ -696,7 +696,7 @@ void AAshlineGrayboxBuilder::GrassPatch(const FVector& Center, float Radius, int
 	}
 }
 
-void AAshlineGrayboxBuilder::ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AActor* Owner, const FLinearColor& Color, EAshlineSurface Surface)
+void AAshlineGrayboxBuilder::ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AActor* MaterialOuter, const FLinearColor& Color, EAshlineSurface Surface)
 {
 	if (!Mesh)
 	{
@@ -750,27 +750,27 @@ void AAshlineGrayboxBuilder::ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AA
 
 	if (KitMat)
 	{
-		if (UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(KitMat, Owner))
+		if (UMaterialInstanceDynamic* KitMID = UMaterialInstanceDynamic::Create(KitMat, MaterialOuter))
 		{
-			MID->SetVectorParameterValue(TEXT("Color"), Color);
-			MID->SetVectorParameterValue(TEXT("BaseColor"), Color);
-			Mesh->SetMaterial(0, MID);
+			KitMID->SetVectorParameterValue(TEXT("Color"), Color);
+			KitMID->SetVectorParameterValue(TEXT("BaseColor"), Color);
+			Mesh->SetMaterial(0, KitMID);
 			return;
 		}
 		Mesh->SetMaterial(0, KitMat);
 		return;
 	}
 
-	if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(Owner, Surface, Color))
+	if (UMaterialInstanceDynamic* PrimaryMID = UAshlinePresentationLibrary::MakeTintedMaterial(MaterialOuter, Surface, Color))
 	{
-		Mesh->SetMaterial(0, MID);
+		Mesh->SetMaterial(0, PrimaryMID);
 	}
 	else if (ShapeMaterial)
 	{
-		if (UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(ShapeMaterial, Owner))
+		if (UMaterialInstanceDynamic* FallbackMID = UMaterialInstanceDynamic::Create(ShapeMaterial, MaterialOuter))
 		{
-			MID->SetVectorParameterValue(TEXT("Color"), Color);
-			Mesh->SetMaterial(0, MID);
+			FallbackMID->SetVectorParameterValue(TEXT("Color"), Color);
+			Mesh->SetMaterial(0, FallbackMID);
 		}
 	}
 }
