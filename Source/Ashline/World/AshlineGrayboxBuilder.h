@@ -3,12 +3,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "AshlineTypes.h"
+#include "Presentation/AshlinePresentationTypes.h"
 #include "AshlineGrayboxBuilder.generated.h"
 
 class ACameraActor;
 class APlayerStart;
 class UStaticMesh;
 class UMaterialInterface;
+class UAshlineEnvironmentKit;
 
 /** Runtime graybox world for the campaign frontend and ASH-01..12. */
 UCLASS()
@@ -42,10 +44,23 @@ public:
 protected:
 	void LoadPrimitives();
 	void SpawnAtmosphere(const FLinearColor& SunColor, float SunIntensity, const FLinearColor& FogColor, float FogDensity);
+	void ApplyMissionMood(EAshlineMissionId MissionId);
+	void SpawnFullAtmosphere();
+	void SpawnPostProcess();
+	void DressMission(EAshlineMissionId MissionId);
+	void Practical(const FVector& Location, const FLinearColor& Color, float Intensity, float Radius, bool bCastShadows = false);
+	void DecalMark(const FVector& Location, const FRotator& Rotation, const FVector& Size);
+	void Tree(const FVector& Location, float Height = 420.f);
+	void Bush(const FVector& Location);
+	void GrassPatch(const FVector& Center, float Radius, int32 Count);
+	void Sandbag(const FVector& Location, const FRotator& Rotation = FRotator::ZeroRotator);
+	void VehicleHull(const FVector& Location, const FRotator& Rotation, const FLinearColor& Color, float Length = 5.2f);
+	void WindowStrip(const FVector& Location, int32 Count, float Spacing, const FLinearColor& Glow);
+	void Doorway(const FVector& Location, const FRotator& Rotation = FRotator::ZeroRotator);
 
-	AActor* Box(const FVector& Location, const FVector& Scale, const FLinearColor& Color, bool bCollision = true);
-	AActor* Cylinder(const FVector& Location, const FVector& Scale, const FLinearColor& Color);
-	AActor* Sphere(const FVector& Location, const FVector& Scale, const FLinearColor& Color);
+	AActor* Box(const FVector& Location, const FVector& Scale, const FLinearColor& Color, bool bCollision = true, EAshlineSurface Surface = EAshlineSurface::Auto);
+	AActor* Cylinder(const FVector& Location, const FVector& Scale, const FLinearColor& Color, EAshlineSurface Surface = EAshlineSurface::Auto);
+	AActor* Sphere(const FVector& Location, const FVector& Scale, const FLinearColor& Color, EAshlineSurface Surface = EAshlineSurface::Auto);
 	void Floor(const FVector& Center, const FVector2D& Size, const FLinearColor& Color);
 	void Wall(const FVector& Location, const FVector& Scale, const FLinearColor& Color);
 	void Cover(const FVector& Location);
@@ -53,6 +68,7 @@ protected:
 	void SpawnAI(const FVector& Location, EAshlineAIArchetype Archetype);
 	void Objective(FName Id, const FVector& Location, bool bCompleteMission, const FLinearColor& Color = FLinearColor(1.f, 0.85f, 0.2f));
 	void ExtraAIAround(const FVector& Origin, float Radius);
+	void ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AActor* Owner, const FLinearColor& Color, EAshlineSurface Surface);
 
 	void BuildWireCut();
 	void BuildDustMarket();
@@ -83,4 +99,9 @@ protected:
 	TObjectPtr<UMaterialInterface> ShapeMaterial;
 
 	EAshlineDifficulty CachedDifficulty = EAshlineDifficulty::Regular;
+
+	FAshlineLightingMood ActiveMood;
+
+	UPROPERTY()
+	TObjectPtr<UAshlineEnvironmentKit> ActiveKit;
 };

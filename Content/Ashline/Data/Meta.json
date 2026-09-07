@@ -1,0 +1,79 @@
+{
+  "campaign": "Ashline",
+  "note": "Designer mirror. Runtime source of truth is UAshlineMetaCatalog. Soft mesh/material refs are Phase 2 hooks — do not assume Fab binaries exist.",
+  "saveSlot": "AshlineCampaign",
+  "slotVersion": "2.0.0",
+  "startingCredits": 750,
+  "maxRank": 50,
+  "rankCurve": {
+    "xpToNext": "700 + Rank * 70 (0 at rank 50)",
+    "creditGrant": "200 every 5 ranks, else 50",
+    "crateGrant": "1 every 10 ranks",
+    "rankUnlocks": {
+      "10": "CAMO_NIGHT",
+      "20": "VEST_HEAVY",
+      "40": "CAMO_ASHLINE"
+    }
+  },
+  "economy": {
+    "missionCredits": "round((BaseXP * 0.45 + Stars * 80) * difficultyMul)",
+    "difficultyMul": { "Recruit": 0.75, "Regular": 1.0, "Veteran": 1.25, "Extreme": 1.6 },
+    "weaponUpgradeCost": "200 + CurrentTier * 250",
+    "maxUpgradeTier": 5
+  },
+  "prestige": {
+    "requiredRank": 50,
+    "keeps": ["cosmetics", "skins", "crate history", "credits"],
+    "resets": ["rank", "xp", "non-starter attachments", "weapon upgrade tiers"],
+    "grantsAndEquips": ["CAMO_PRESTIGE", "SKIN_GOLD", "CHARM_SPINE"]
+  },
+  "cosmetics": [
+    { "id": "CAMO_FIELD", "name": "Field Ash", "slot": "Camo", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.22, 0.26, 0.16] },
+    { "id": "CAMO_NIGHT", "name": "Night Glass", "slot": "Camo", "rarity": "Uncommon", "rank": 6, "cost": 400, "prestige": 0, "starter": false, "tint": [0.08, 0.10, 0.16] },
+    { "id": "CAMO_DUST", "name": "Dust Market", "slot": "Camo", "rarity": "Uncommon", "rank": 8, "cost": 450, "prestige": 0, "starter": false, "tint": [0.42, 0.30, 0.14] },
+    { "id": "CAMO_WHITEOUT", "name": "Whiteout", "slot": "Camo", "rarity": "Rare", "rank": 18, "cost": 900, "prestige": 0, "starter": false, "tint": [0.78, 0.82, 0.88] },
+    { "id": "CAMO_ASHLINE", "name": "Terminus", "slot": "Camo", "rarity": "Legendary", "rank": 40, "cost": 2400, "prestige": 0, "starter": false, "tint": [0.45, 0.08, 0.06] },
+    { "id": "CAMO_PRESTIGE", "name": "Prestige Ash", "slot": "Camo", "rarity": "Epic", "rank": 1, "cost": 0, "prestige": 1, "starter": false, "tint": [0.72, 0.62, 0.22] },
+    { "id": "HELM_PATROL", "name": "Patrol cap", "slot": "Helmet", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.16, 0.18, 0.12] },
+    { "id": "HELM_FAST", "name": "FAST helmet", "slot": "Helmet", "rarity": "Rare", "rank": 12, "cost": 700, "prestige": 0, "starter": false, "tint": [0.10, 0.10, 0.10] },
+    { "id": "VEST_PLATE", "name": "Plate carrier", "slot": "Vest", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.14, 0.16, 0.12] },
+    { "id": "VEST_HEAVY", "name": "Heavy rig", "slot": "Vest", "rarity": "Rare", "rank": 20, "cost": 850, "prestige": 0, "starter": false, "tint": [0.12, 0.10, 0.08] },
+    { "id": "PANT_FATIGUE", "name": "Field fatigues", "slot": "Pants", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.20, 0.22, 0.14] },
+    { "id": "GLOVE_NOMEX", "name": "Nomex gloves", "slot": "Gloves", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.08, 0.08, 0.08] },
+    { "id": "BOOT_COMBAT", "name": "Combat boots", "slot": "Boots", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.10, 0.08, 0.06] },
+    { "id": "FACE_00", "name": "Operator A", "slot": "Face", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.45, 0.34, 0.26] },
+    { "id": "FACE_01", "name": "Operator B", "slot": "Face", "rarity": "Common", "rank": 4, "cost": 150, "prestige": 0, "starter": false, "tint": [0.38, 0.28, 0.20] },
+    { "id": "VOICE_NEUTRAL", "name": "Neutral VO", "slot": "Voice", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [1.0, 1.0, 1.0] },
+    { "id": "VOICE_HOLDFAST", "name": "Holdfast VO", "slot": "Voice", "rarity": "Epic", "rank": 16, "cost": 1200, "prestige": 0, "starter": false, "tint": [0.80, 0.70, 0.40] },
+    { "id": "VOICE_HARBOR", "name": "Harbor VO", "slot": "Voice", "rarity": "Rare", "rank": 22, "cost": 800, "prestige": 0, "starter": false, "tint": [0.40, 0.60, 0.80] },
+    { "id": "CHARM_WIRE", "name": "Wire Cut charm", "slot": "Charm", "rarity": "Rare", "rank": 2, "cost": 300, "prestige": 0, "starter": false, "tint": [0.70, 0.55, 0.20] },
+    { "id": "CHARM_SPINE", "name": "Spine charm", "slot": "Charm", "rarity": "Legendary", "rank": 50, "cost": 0, "prestige": 1, "starter": false, "tint": [0.90, 0.20, 0.15] }
+  ],
+  "skins": [
+    { "id": "SKIN_FACTORY", "name": "Factory black", "weapon": "*", "rarity": "Common", "rank": 1, "cost": 0, "prestige": 0, "starter": true, "tint": [0.07, 0.07, 0.08] },
+    { "id": "SKIN_FDE", "name": "FDE", "weapon": "*", "rarity": "Uncommon", "rank": 5, "cost": 350, "prestige": 0, "starter": false, "tint": [0.35, 0.28, 0.16] },
+    { "id": "SKIN_OD", "name": "OD green", "weapon": "*", "rarity": "Uncommon", "rank": 7, "cost": 350, "prestige": 0, "starter": false, "tint": [0.16, 0.20, 0.10] },
+    { "id": "SKIN_SNOW", "name": "Arctic", "weapon": "*", "rarity": "Rare", "rank": 18, "cost": 800, "prestige": 0, "starter": false, "tint": [0.75, 0.78, 0.82] },
+    { "id": "SKIN_GOLD", "name": "Prestige gilt", "weapon": "*", "rarity": "Legendary", "rank": 1, "cost": 0, "prestige": 1, "starter": false, "tint": [0.72, 0.58, 0.18] },
+    { "id": "SKIN_ASH16_NIGHT", "name": "ASH-16 Night Glass", "weapon": "WPN_AR_ASH16", "rarity": "Rare", "rank": 10, "cost": 600, "prestige": 0, "starter": false, "tint": [0.05, 0.08, 0.14] },
+    { "id": "SKIN_C9_DUST", "name": "C9 Dust", "weapon": "WPN_SMG_C9", "rarity": "Uncommon", "rank": 8, "cost": 400, "prestige": 0, "starter": false, "tint": [0.40, 0.28, 0.12] },
+    { "id": "SKIN_G28_GLASS", "name": "G28-L Glass", "weapon": "WPN_SNP_G28L", "rarity": "Epic", "rank": 24, "cost": 1400, "prestige": 0, "starter": false, "tint": [0.12, 0.14, 0.18] },
+    { "id": "SKIN_M870_BREACH", "name": "M870 Breacher", "weapon": "WPN_SHG_M870K", "rarity": "Rare", "rank": 14, "cost": 700, "prestige": 0, "starter": false, "tint": [0.18, 0.10, 0.06] },
+    { "id": "SKIN_M17_SIDE", "name": "M17 Sidearm", "weapon": "WPN_PIS_M17A", "rarity": "Uncommon", "rank": 3, "cost": 250, "prestige": 0, "starter": false, "tint": [0.10, 0.10, 0.12] },
+    { "id": "SKIN_SASS_MARK", "name": "SASS-7 Marks", "weapon": "WPN_DMR_SASS", "rarity": "Rare", "rank": 16, "cost": 750, "prestige": 0, "starter": false, "tint": [0.14, 0.12, 0.08] },
+    { "id": "SKIN_M250_SAW", "name": "M250 SAW", "weapon": "WPN_LMG_M250", "rarity": "Epic", "rank": 28, "cost": 1600, "prestige": 0, "starter": false, "tint": [0.10, 0.12, 0.08] }
+  ],
+  "crateTable": [
+    { "rarity": "Common", "weightNote": "< 0.50 leftover", "item": "CAMO_FIELD" },
+    { "rarity": "Uncommon", "weightNote": "0.22–0.50", "item": "CAMO_NIGHT" },
+    { "rarity": "Rare", "weightNote": "0.08–0.22", "item": "CHARM_WIRE" },
+    { "rarity": "Epic", "weightNote": "0.02–0.08", "item": "VOICE_HOLDFAST" },
+    { "rarity": "Legendary", "weightNote": "< 0.02", "item": "CAMO_ASHLINE" }
+  ],
+  "phase2Hooks": {
+    "cosmeticMeshOverride": "FAshlineCosmeticDefinition.MeshOverride (skeletal)",
+    "cosmeticMaterialOverride": "FAshlineCosmeticDefinition.MaterialOverride",
+    "skinMaterialOverride": "FAshlineWeaponSkinDefinition.MaterialOverride",
+    "umg": "Canvas HUD is playable. Operator locker / armory UMG is Phase 2."
+  }
+}

@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Engine/GameInstance.h"
+#include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
 #include "Game/AshlineGameMode.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -22,6 +23,11 @@
 #include "Materials/MaterialInterface.h"
 #include "Player/AshlinePlayerController.h"
 #include "Progression/AshlineProgressionSubsystem.h"
+#include "Meta/AshlineMetaCatalog.h"
+#include "Presentation/AshlineAudioDirector.h"
+#include "Presentation/AshlineCharacterPresentation.h"
+#include "Presentation/AshlinePresentationLibrary.h"
+#include "Presentation/AshlinePresentationSettings.h"
 #include "Weapons/AshlineWeaponComponent.h"
 
 AAshlineCharacter::AAshlineCharacter()
@@ -105,7 +111,9 @@ void AAshlineCharacter::BeginPlay()
 	}
 
 	EnsureDefaultLoadout();
+	ApplyPresentationMesh();
 	ApplyGrayboxMeshes();
+	ApplyOperatorLook();
 	Health = MaxHealth;
 	SetCameraMode(CameraMode);
 }
@@ -115,6 +123,7 @@ void AAshlineCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	const float Target = bIsAiming ? 430.f * AimWalkMul : 430.f;
 	GetCharacterMovement()->MaxWalkSpeed = Target;
+	TickFootsteps(DeltaSeconds);
 }
 
 void AAshlineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -194,6 +203,16 @@ void AAshlineCharacter::SetCameraMode(EAshlineCameraMode NewMode)
 	if (GrayboxWeapon)
 	{
 		GrayboxWeapon->SetVisibility(bFPS);
+	}
+
+	TArray<UStaticMeshComponent*> Meshes;
+	GetComponents<UStaticMeshComponent>(Meshes);
+	for (UStaticMeshComponent* MeshComp : Meshes)
+	{
+		if (MeshComp && MeshComp->GetName().StartsWith(TEXT("AshlineBlock_")))
+		{
+			MeshComp->SetOwnerNoSee(bFPS);
+		}
 	}
 }
 
@@ -464,36 +483,200 @@ void AAshlineCharacter::EnsureDefaultLoadout()
 	FAshlineLoadoutSlot Primary;
 	FAshlineLoadoutSlot Secondary;
 	Primary.WeaponId = TEXT("WPN_AR_ASH16");
+	Primary.SkinId = TEXT("SKIN_FACTORY");
 	Secondary.WeaponId = TEXT("WPN_PIS_M17A");
+	Secondary.SkinId = TEXT("SKIN_FACTORY");
 	WeaponComponent->LoadFromLoadout(Primary, Secondary, 0, 0);
+}
+
+void AAshlineCharacter::ApplyPresentationMesh()
+{
+	USkeletalMesh* Hero = nullptr;
+	FVector RelLoc(0.f, 0.f, -96.f);
+	FRotator RelRot(0.f, -90.f, 0.f);
+	FVector RelScale = FVector::OneVector;
+
+	if (!HeroMeshOverride.IsNull())
+	{
+		Hero = HeroMeshOverride.LoadSynchronous();
+	}
+	if (!Hero)
+	{
+		if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
+		{
+			Hero = Settings->DefaultHeroMesh.LoadSynchronous();
+			if (!Hero && Settings->HeroPresentation.IsValid())
+			{
+				if (UAshlineCharacterPresentation* Pres = Settings->HeroPresentation.LoadSynchronous())
+				{
+					Hero = Pres->BodyMesh.LoadSynchronous();
+					RelLoc = Pres->MeshRelativeLocation;
+					RelRot = Pres->MeshRelativeRotation;
+					RelScale = Pres->MeshScale;
+				}
+			}
+		}
+	}
+	if (!Hero)
+	{
+		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(true, EAshlineAIArchetype::Rifleman))
+		{
+			Hero = Pres->BodyMesh.LoadSynchronous();
+			RelLoc = Pres->MeshRelativeLocation;
+			RelRot = Pres->MeshRelativeRotation;
+			RelScale = Pres->MeshScale;
+		}
+	}
+	if (!Hero)
+	{
+		Hero = UAshlinePresentationLibrary::ResolveHumanoidMesh();
+	}
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineProgressionSubsystem* Progression = GI->GetSubsystem<UAshlineProgressionSubsystem>())
+		{
+			if (UAshlineSaveGame* Save = Progression->GetSave())
+			{
+				const FName CamoId = UAshlineMetaCatalog::EquippedCosmeticId(Save->Operator, EAshlineCosmeticSlot::Camo);
+				FAshlineCosmeticDefinition CamoDef;
+				if (UAshlineMetaCatalog::FindCosmetic(CamoId, CamoDef))
+				{
+					if (USkeletalMesh* OverrideMesh = CamoDef.MeshOverride.LoadSynchronous())
+					{
+						Hero = OverrideMesh;
+					}
+				}
+			}
+		}
+	}
+
+	if (Hero && GetMesh())
+	{
+		GetMesh()->SetSkeletalMeshAsset(Hero);
+		GetMesh()->SetRelativeLocation(RelLoc);
+		GetMesh()->SetRelativeRotation(RelRot);
+		GetMesh()->SetRelativeScale3D(RelScale);
+		GetMesh()->SetVisibility(true);
+		GetMesh()->SetCastShadow(true);
+		if (GrayboxBody)
+		{
+			GrayboxBody->SetVisibility(false);
+		}
+	}
+}
+
+void AAshlineCharacter::TickFootsteps(float DeltaSeconds)
+{
+	const float Speed = GetVelocity().Size2D();
+	if (Speed < 40.f || !GetCharacterMovement() || GetCharacterMovement()->IsFalling())
+	{
+		FootstepAccumulator = 0.f;
+		return;
+	}
+	FootstepAccumulator += DeltaSeconds * (Speed / 280.f);
+	if (FootstepAccumulator >= 1.f)
+	{
+		FootstepAccumulator = 0.f;
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (UAshlineAudioDirector* Audio = GI->GetSubsystem<UAshlineAudioDirector>())
+			{
+				Audio->PlayFootstep(this, GetActorLocation());
+			}
+		}
+	}
 }
 
 void AAshlineCharacter::ApplyGrayboxMeshes()
 {
-	UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
-	UMaterialInterface* Shape = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
-	if (GrayboxBody && Cube)
+	const bool bHasHeroMesh = GetMesh() && GetMesh()->GetSkeletalMeshAsset() != nullptr;
+	if (GrayboxBody)
 	{
-		GrayboxBody->SetStaticMesh(Cube);
-		if (Shape)
+		GrayboxBody->SetVisibility(!bHasHeroMesh);
+	}
+
+	// Weapon visuals live on UAshlineWeaponComponent. Hide the old single-cube prop when present.
+	if (GrayboxWeapon)
+	{
+		GrayboxWeapon->SetVisibility(false);
+	}
+
+	if (bHasHeroMesh)
+	{
+		return;
+	}
+
+	if (GrayboxBody)
+	{
+		GrayboxBody->SetVisibility(false);
+	}
+	UAshlinePresentationLibrary::ApplyHumanoidBlockout(this, FLinearColor(0.18f, 0.24f, 0.16f));
+}
+
+void AAshlineCharacter::ApplyOperatorLook()
+{
+	FAshlineOperatorProfile Profile;
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineProgressionSubsystem* Progression = GI->GetSubsystem<UAshlineProgressionSubsystem>())
 		{
-			if (UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Shape, this))
+			if (UAshlineSaveGame* Save = Progression->GetSave())
 			{
-				MID->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.25f, 0.32f, 0.22f));
-				GrayboxBody->SetMaterial(0, MID);
+				Profile = Save->Operator;
 			}
 		}
 	}
-	if (GrayboxWeapon && Cube)
+
+	const FName CamoId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Camo);
+	const FName HelmetId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Helmet);
+	const FName VestId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Vest);
+	const FName PantsId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Pants);
+	const FName GlovesId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Gloves);
+	const FName BootsId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Boots);
+	const FName FaceId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Face);
+	const FName CharmId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Charm);
+
+	const FLinearColor CamoTint = UAshlineMetaCatalog::CosmeticTint(CamoId, FLinearColor(0.18f, 0.24f, 0.16f));
+	const FLinearColor HelmetTint = UAshlineMetaCatalog::CosmeticTint(HelmetId, CamoTint * 0.65f);
+	const FLinearColor VestTint = UAshlineMetaCatalog::CosmeticTint(VestId, CamoTint);
+	const FLinearColor PantsTint = UAshlineMetaCatalog::CosmeticTint(PantsId, CamoTint * 0.85f);
+	const FLinearColor GlovesTint = UAshlineMetaCatalog::CosmeticTint(GlovesId, CamoTint * 0.55f);
+	const FLinearColor BootsTint = UAshlineMetaCatalog::CosmeticTint(BootsId, FLinearColor(0.1f, 0.08f, 0.06f));
+	const FLinearColor FaceTint = UAshlineMetaCatalog::CosmeticTint(FaceId, FLinearColor(0.45f, 0.34f, 0.26f));
+
+	const bool bHasHeroMesh = GetMesh() && GetMesh()->GetSkeletalMeshAsset() != nullptr;
+	if (bHasHeroMesh)
 	{
-		GrayboxWeapon->SetStaticMesh(Cube);
-		if (Shape)
+		FAshlineCosmeticDefinition CamoDef;
+		UMaterialInterface* Override = nullptr;
+		if (UAshlineMetaCatalog::FindCosmetic(CamoId, CamoDef))
 		{
-			if (UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Shape, this))
-			{
-				MID->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.12f, 0.12f, 0.12f));
-				GrayboxWeapon->SetMaterial(0, MID);
-			}
+			Override = CamoDef.MaterialOverride.LoadSynchronous();
 		}
+		if (Override)
+		{
+			GetMesh()->SetMaterial(0, Override);
+		}
+		else if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, EAshlineSurface::Plastic, CamoTint))
+		{
+			GetMesh()->SetMaterial(0, MID);
+		}
+	}
+	else
+	{
+		UAshlinePresentationLibrary::ApplyHumanoidBlockout(this, CamoTint);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_Torso"), VestTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_Helmet"), HelmetTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_Head"), FaceTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_ArmL"), GlovesTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_ArmR"), GlovesTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_LegL"), PantsTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_LegR"), BootsTint, EAshlineSurface::Plastic);
+	}
+
+	if (WeaponComponent)
+	{
+		WeaponComponent->ApplyCharm(CharmId);
 	}
 }

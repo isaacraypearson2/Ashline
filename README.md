@@ -1,163 +1,135 @@
 # Ashline
 
-Apple-first single-player military **FPS/TPS** campaign for **Unreal Engine 5.8.2 (Metal)**.
+Windows-first single-player military **FPS/TPS** campaign for **Unreal Engine 5.8.2 (DX12 / SM6)**.
 
 Twelve missions (**ASH-01…ASH-12**): Wire Cut, Dust Market, Holdfast, Night Glass, Convoy Ghost, Ash Harbor, Whiteout, Catacomb, Ridge Wire, False Flag, Last Train, Ashline.
 
-This repository is a full C++ Unreal project (modules, config, campaign/weapon/AI data, Apple platform hooks). Art is **graybox**. Hardware ray tracing is **capability-gated** and off unless the RHI reports it.
+This repository is a full C++ Unreal project: campaign loop, weapons, AI, progression, a cross-platform graphics path, and an AAA **content pipeline** (DataAssets + soft refs + editor scripts). **Play/test on Windows.** Mac and iOS modules still compile; they are not the primary target.
 
-## Open on Apple Silicon (UE 5.8.2)
+## Target hardware (Isaac's PC)
 
-1. Install **Unreal Engine 5.8.2** with **Mac** (and optionally **iOS**) support. Apple Silicon required for the intended Metal path.
-2. Install **Xcode** and the command-line tools. In **Xcode → Settings → Components**, install the **Metal Toolchain**. Without it, MetalFX headers/framework may be missing. AshlineApple will still compile (MetalFX is optional / weakly linked only when the SDK has it).
-3. Clone this repo.
-4. Double-click `Ashline.uproject` (associated with **5.8**) or *File → Open* from the Epic Launcher / Unreal Editor.
-5. If the editor says the project could not be compiled, rebuild from source with `Build.sh` (below), then reopen.
+| | |
+| --- | --- |
+| CPU | AMD Ryzen 5 7500X3D |
+| RAM | 32 GB DDR5-6000 |
+| GPU | Radeon RX 9070 GRE class (RDNA4) |
+| Resolution | **2560×1440** Ultra / high-refresh |
+| RHI | DirectX 12, Shader Model 6 |
+| GI / shadows | Lumen + Virtual Shadow Maps + Nanite |
+| RT | Hardware ray tracing **ON when the RHI reports it** |
+| Upscaling | **FSR 3** (Temporal Upscale). TSR is the built-in fallback. DLSS is optional and never required. |
 
-First Play lands in the **runtime campaign select** (no `.umap` or Input Action assets required). `AAshlineGrayboxBuilder` hosts ASH-01…ASH-12 in the current world. If `/Game/Ashline/Maps/ASH_Playable` does not exist yet, the module remaps startup to `/Engine/Maps/Entry` and still builds the playable campaign there.
+Named presets: **`Ashline_PC_Ultra`** (default on Windows) and **`Ashline_PC_Balanced`**. Console: `AshPCUltra` / `AshPCBalanced`. CVars: `Docs/GRAPHICS.md`.
 
-Do not expect a Windows DX12 workflow; this project is authored for Metal.
+## Open on Windows (UE 5.8.2)
 
-## Play the full campaign on Mac (bug test)
+1. Install **Unreal Engine 5.8.2** with **Win64** (Visual Studio 2022 + Windows 10/11 SDK + .NET).
+2. Clone this repo.
+3. Right-click `Ashline.uproject` → **Generate Visual Studio project files**, or double-click to compile.
+4. First Play lands in the **runtime campaign select**. `AAshlineGrayboxBuilder` hosts ASH-01…ASH-12 in the current world with **themed lighting, PBR-tinted surfaces, practical lights, fog, post-process, foliage, and weapon/character presentation hooks**. If `/Game/Ashline/Maps/ASH_Playable` does not exist yet, the module remaps startup to `/Engine/Maps/Entry` and still builds the campaign there.
 
-1. Install **UE 5.8.2** (Mac) + **Xcode** + **Metal Toolchain** (Xcode → Settings → Components).
-2. Clone this repo. Double-click `Ashline.uproject` (engine **5.8**).
-3. If the editor asks to rebuild, let it, or compile first:
+Optional editor content (makes PIE look closer to final art — **not committed as binaries**):
 
-```bash
-UE58="/Users/Shared/Epic Games/UE_5.8/Engine/Build/BatchFiles/Mac/Build.sh"
-"$UE58" AshlineEditor Mac Development -Project="$(pwd)/Ashline.uproject" -WaitMutex
+- **Add Content Pack → Starter Content** (grass, concrete, metal, water materials).
+- Enable **AMD FidelityFX Super Resolution 3** from Fab if you want the FSR3 plugin (CVars are already wired; TSR runs without it).
+- Run `Scripts/create_ashline_play_assets.py` and `Scripts/import_fab_kits.py` (see `Docs/CONTENT_PIPELINE.md`).
+
+### Rebuild from source (Windows)
+
+```bat
+REM From the Ashline repo root. Adjust the engine path if needed.
+set UE58=C:\Program Files\Epic Games\UE_5.8\Engine\Build\BatchFiles\Build.bat
+set PROJ=%CD%\Ashline.uproject
+
+"%UE58%" AshlineEditor Win64 Development -Project="%PROJ%" -WaitMutex
+"%UE58%" Ashline Win64 Development -Project="%PROJ%" -WaitMutex
 ```
 
-4. If a dialog says `ASH_Playable` is missing, dismiss it. Play still works on the engine host world.
-5. Click **Play** (PIE) in the toolbar. You should see the **ASHLINE** campaign list, not an empty Entry void.
-6. **Up/Down** highlight ASH-01 Wire Cut (READY). **Left/Right** set difficulty. **Enter** deploys.
-7. In mission:
+## Play the full campaign
+
+1. Click **Play** (PIE). You should see the **ASHLINE** campaign list.
+2. **Up/Down** highlight ASH-01 Wire Cut (READY). **Left/Right** set difficulty. **Enter** deploys.
+3. In mission:
    - **WASD** move, **mouse** look, **Space** jump, **C** crouch
    - **LMB** fire, **RMB** aim, **R** reload, **Q** swap, **V** FPS/TPS
-   - Walk into **glowing cubes** to complete objectives. The last / extract cube finishes the mission.
-   - Red capsules are AI — they can be shot and will push/shoot back.
-8. On **MISSION COMPLETE**, note XP / crate tokens, press **Enter** to return to campaign select. ASH-02 is now READY.
-9. Repeat through **ASH-12**. After the finale, **ASHLINE CUT** means the save unlocked the whole spine.
-10. Progress lives in save slot `AshlineCampaign` (Saved/SaveGames). Delete that file to start a new operator.
+   - Walk into **glowing objective markers** to complete. The extract / last required volume finishes the mission.
+   - Hostiles use a **humanoid mesh when one can be resolved** (mannequin / MetaHuman / assigned DataAsset); otherwise a tinted blockout body.
+4. On **MISSION COMPLETE**, note XP / **credits** / crate tokens, press **Enter** to return to campaign select. ASH-02 is now READY. Frontend shows Rank / Prestige / Credits and the equipped camo + primary skin.
+5. Repeat through **ASH-12**. After the finale, **ASHLINE CUT** means the save unlocked the whole spine.
+6. Progress lives in save slot `AshlineCampaign` (`Saved/SaveGames`). Delete that file to start a new operator.
+7. Apply **Ashline_PC_Ultra** (`AshPCUltra`) after PIE if you changed scalability.
 
-**Smoke-test checklist**
+**Smoke-test checklist** — see `Docs/TEST_PLAN.md`.
 
-- [ ] PIE opens campaign select without authored maps
-- [ ] WASD / mouse / jump / crouch / fire / aim / reload / swap / V toggle
-- [ ] ASH-01 INFIL → CUT → EXFIL awards XP and unlocks ASH-02
-- [ ] Difficulty Left/Right changes AI pressure (Veteran/Extreme spawn extra bots)
-- [ ] Esc pause → Enter resume; Esc twice aborts to select
-- [ ] `AshUnlockAll` then `AshDeploy 12` reaches the finale graybox
-- [ ] DualSense still rumbles on fire if one is paired (AshlineApple)
-- [ ] Ads stay off
+Ads stay off (`UAshlineMonetizationHooks`).
 
-Optional: `Scripts/create_ashline_play_assets.py` in the editor creates `/Game/Ashline/Maps/ASH_Playable` plus IA/IMC assets. Not required for Play.
+## What is final vs still import work
 
-### Rebuild from source (Mac)
+| In this repo now | Phase 2 (you import — not in git) |
+| --- | --- |
+| Playable ASH-01…12 campaign loop | Quixel / Fab Megascans environment kits |
+| Themed lighting, fog, PP, decals, foliage blockout | Authored `.umap` art passes per mission |
+| PBR-tinted Engine/StarterContent materials | Unique scanned surfaces |
+| Compound weapon meshes + muzzle light + impact decals | Fab military weapon packs (soft-ref swap) |
+| Hero/AI skeletal hooks (MetaHuman / mannequin) | MetaHuman Creator characters + AnimBPs |
+| Audio **slots** (fire / reload / hit / footsteps / music) | Authored MetaSounds / Sound Cues |
+| SP meta: credits, rank 1–50, cosmetics, weapon skins, prestige | MetaHuman wardrobe + Fab skin materials |
+| `Ashline_PC_Ultra` / `Balanced` + DX12 config | Profile on the 9070 GRE and tune |
 
-Replace the engine path if your 5.8.2 install lives elsewhere (Epic launcher default is shown):
+**This repo does not contain Quixel, Fab, or MetaHuman binary packs.** If those folders are empty, that is expected.
 
-```bash
-# From the Ashline repo root
-UE58="/Users/Shared/Epic Games/UE_5.8/Engine/Build/BatchFiles/Mac/Build.sh"
-PROJ="$(pwd)/Ashline.uproject"
-
-# Editor target — this is what the .uproject open path compiles
-"$UE58" AshlineEditor Mac Development -Project="$PROJ" -WaitMutex
-
-# Game target (optional)
-"$UE58" Ashline Mac Development -Project="$PROJ" -WaitMutex
-```
-
-If `UE_5.8` is under your home library instead:
-
-```bash
-UE58="$HOME/Epic Games/UE_5.8/Engine/Build/BatchFiles/Mac/Build.sh"
-```
-
-After a successful `AshlineEditor` build, open `Ashline.uproject` again. Check `Saved/Logs/` if it still fails.
-
-**Mac UE 5.8.2 compile is verified** on Apple Silicon after: `PCHUsageMode.NoPCHs` on AshlineApple (avoids FVector vs CarbonCore/Foundation), `PublicFrameworks` for GameController/CoreHaptics, a plain-C `AshlineAppleNative.h`, and an ObjC++ Game Controller file that does not include Unreal headers.
-
-## Mac
-
-- Target: **arm64**, macOS **14+**, Metal SM5/SM6 (`Config/Mac/MacEngine.ini`).
-- Pair a **DualSense** over Bluetooth/USB. Adaptive triggers and haptics go through `GameController.framework` in **AshlineApple**.
-- Keyboard and mouse are first-class (WASD, mouse look, standard shooter binds).
-- Graphics: apply presets from `UAshlineGraphicsSettings`. **MetalFX** is weakly linked (`MetalFX.framework`). If the scaler classes are missing, upscaling stays off. **Do not** force `r.RayTracing=1` on machines that do not report HW RT.
-
-## iOS
-
-- Minimum **iOS 17**, landscape, Metal (`Config/IOS/IOSEngine.ini`).
-- Remote build from a Mac with Xcode. Enable iOS in Unreal project settings and provision your team.
-- Touch: `UAshlineTouchHUD` + `IMC_Ashline_Touch` (virtual stick, fire, aim, camera toggle). Create the widget Blueprint subclass in editor and assign `TouchHUDClass` on `AAshlinePlayerController`.
-- Game Controller / DualSense work when iOS reports an extended gamepad.
-
-## Controls
-
-| Action | Keyboard / mouse | DualSense | iOS touch |
-| --- | --- | --- | --- |
-| Move | WASD | Left stick | Virtual stick |
-| Look | Mouse | Right stick | Look region |
-| Fire | LMB | R2 | Fire button |
-| Aim | RMB | L2 | Aim button |
-| Reload | R | Square / X | Reload |
-| Jump | Space | Cross / A | Jump |
-| Crouch | C | Circle / B | Crouch |
-| FPS / TPS | V | Touch pad | Camera toggle |
-| Swap weapon | Q or 1/2 | Triangle / Y | Swap |
-
-Input is created at runtime (`UAshlineRuntimeInput`) so Play works with no `.uasset` Input Actions. C++ binds are on `AAshlineCharacter`. Optional editor assets: `Scripts/create_ashline_play_assets.py`. See `Docs/CONTROLS.md`.
+**Install next (exact names / URLs):** `Docs/FAB_PACKS.md`  
+Also: `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Docs/TEST_PLAN.md`.
 
 ## Campaign
 
-| Code | Title | Theme |
+| Code | Title | Theme / mood |
 | --- | --- | --- |
-| ASH-01 | Wire Cut | Night raid / comms sabotage |
-| ASH-02 | Dust Market | Urban recon / HVT intercept |
-| ASH-03 | Holdfast | Firebase defense |
+| ASH-01 | Wire Cut | Night raid / cold moonlight |
+| ASH-02 | Dust Market | Harsh desert noon |
+| ASH-03 | Holdfast | Bleached firebase day |
 | ASH-04 | Night Glass | Counter-sniper overwatch |
-| ASH-05 | Convoy Ghost | Ambush / mobile assault |
-| ASH-06 | Ash Harbor | Port / shipboard |
-| ASH-07 | Whiteout | Arctic storm navigation |
-| ASH-08 | Catacomb | Subterranean CQB |
-| ASH-09 | Ridge Wire | Mountain EW |
-| ASH-10 | False Flag | Deception / urban night |
-| ASH-11 | Last Train | Rail extract |
-| ASH-12 | Ashline | Finale — cut the spine |
+| ASH-05 | Convoy Ghost | Amber highway dusk |
+| ASH-06 | Ash Harbor | Overcast port |
+| ASH-07 | Whiteout | Arctic white-out |
+| ASH-08 | Catacomb | Subterranean warm dark |
+| ASH-09 | Ridge Wire | High-altitude clear |
+| ASH-10 | False Flag | Urban night campus |
+| ASH-11 | Last Train | Industrial overcast |
+| ASH-12 | Ashline | Finale — red buried terminus |
 
-Briefings, objectives, XP, and crate tokens are in `UAshlineMissionCatalog` and `Content/Ashline/Data/Campaign.json`. Progress saves between missions in slot `AshlineCampaign` via `UAshlineProgressionSubsystem`.
+Briefings, XP, and crate tokens: `UAshlineMissionCatalog` + `Content/Ashline/Data/Campaign.json`.  
+Locker / economy / prestige: `UAshlineMetaCatalog` + `Content/Ashline/Data/Meta.json` (`Docs/META.md`). Save: `UAshlineProgressionSubsystem`.
 
 ## Systems
 
-- **FPS/TPS toggle** — `AAshlineCharacter` first-person camera vs spring-arm third-person. Preference is saved.
-- **Weapons** — AR, SMG, sniper, shotgun, sidearm, DMR, LMG (`UAshlineWeaponCatalog`). Attachments: optic, muzzle, underbarrel, magazine, stock, laser. Five upgrade tiers.
-- **AI** — Rifleman, Breacher, Marksman, Machine Gunner, Officer, Scout, Heavy, Irregular. Perception + simple push/hold.
-- **Difficulty** — Recruit, Regular, Veteran, Extreme (damage, accuracy, health, extra AI).
-- **Operator creator** — Callsign, name, voice, camo, face (`UAshlineOperatorCreator`).
-- **Armory / prestige / crates** — Unlock by rank, prestige at 50 (keeps cosmetics), play-earned crate tokens (no IAP).
-- **MonetizationHooks** — `UAshlineMonetizationHooks` stub only. Ads stay off. Campaign loot is play-earned.
+- **FPS/TPS toggle** — first-person camera vs spring-arm third-person. Preference is saved.
+- **Weapons** — AR, SMG, sniper, shotgun, sidearm, DMR, LMG. Visual mesh + muzzle flash + impact decals + audio slots + **equipped skin tint** on `UAshlineWeaponComponent`.
+- **Operator locker** — clothing slots, camos, faces, voice packs, charms. Equipped ids tint the hero / blockout and hang a charm on the gun.
+- **Economy / prestige** — credits from missions and rank-ups; spend on cosmetics, skins, weapon upgrades; prestige at rank 50 keeps the locker and grants gilt.
+- **AI** — eight archetypes, perception + push/hold, humanoid mesh when assigned.
+- **Difficulty** — Recruit, Regular, Veteran, Extreme.
+- **Graphics** — `UAshlineGraphicsSettings` (Windows FSR3/TSR/RT; Apple MetalFX still gated).
+- **MonetizationHooks** — stub only. Ads stay off. No multiplayer.
 
 ## Source layout
 
 ```
 Ashline.uproject
-Source/Ashline/                 Game module
-Source/AshlineApple/            MetalFX.framework + GameController
-Config/                         Engine, input, Mac, iOS
-Content/Ashline/                Graybox scaffolding + JSON data
+Source/Ashline/                 Game module (campaign, graphics, presentation)
+Source/AshlineApple/            MetalFX + DualSense (compiles as stubs on Windows)
+Config/                         Default + Windows/ + Mac/ + IOS/
+Content/Ashline/                Pipeline folders + JSON (no Fab binaries)
+Docs/                           Windows, graphics, content, characters, test plan
+Scripts/                        Editor Python (play map + Fab kit stubs)
 ```
 
-## Honest limits
+## Mac / iOS (secondary)
 
-- **Graybox art.** Capsules/cubes/engine primitives. No shipped characters, weapon meshes, audio, or finished lighting. All 12 missions are playable as code-built grayboxes.
-- **Hardware RT is gated.** `UAshlineMetalFXSubsystem` reads `GRHISupportsRayTracing`. If the device does not report RT, the setting refuses to enable. Most Apple GPUs will stay on software Lumen / no RT.
-- **MetalFX is optional.** Weak-linked. Spatial/Temporal only when `MTLFX*ScalerDescriptor` exists (typically macOS 13+ / iOS 16+ on supported GPUs).
-- **No authored `.umap` required.** Startup prefers `/Game/Ashline/Maps/ASH_Playable`; if that package is missing, Play hosts on `/Engine/Maps/Entry` and still runs the campaign.
-- **Frontend UMG / armory / operator screens** are still stubs. Campaign select is a Canvas HUD.
-- This repo is not a packaged App Store build. You still need Apple Developer signing for iOS devices.
+Kept compiling. See `Docs/APPLE.md`. Graphics default to High + MetalFX when available; HW RT stays capability-gated. Do not treat Mac as the playtest machine.
+
+UE 5.8.2 Mac compile notes (already in tree): `EditorStartupMap` via `FSoftObjectPath` assign (no `SetEditorStartupMap`); `CameraActor` include + `static_cast` for `SetViewTarget`; AshlineApple `PCHUsageMode.NoPCHs`.
 
 ## License
 
-Project files are provided as-is for the Ashline campaign. Unreal Engine is subject to Epic’s EULA.
+Project files are provided as-is for the Ashline campaign. Unreal Engine is subject to Epic’s EULA. Fab / Quixel / MetaHuman assets remain under their own licenses after you import them.

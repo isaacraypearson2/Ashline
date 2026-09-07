@@ -47,8 +47,44 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Loot")
 	FAshlineCrateGrant OpenPlayEarnedCrate();
 
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Economy")
+	bool GrantCredits(int32 Amount);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Economy")
+	bool SpendCredits(int32 Amount);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	bool PurchaseCosmetic(FName CosmeticId);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	bool EquipCosmetic(EAshlineCosmeticSlot Slot, FName CosmeticId);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	bool PurchaseSkin(FName SkinId);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	bool EquipSkin(FName WeaponId, FName SkinId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Economy")
+	int32 GetCredits() const;
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Meta")
+	TArray<FName> GetOwnedCosmetics() const;
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Meta")
+	TArray<FName> GetOwnedSkins() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	bool SetRank(int32 Rank);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	void UnlockAllMeta();
+
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Difficulty")
 	void SetDifficulty(EAshlineDifficulty Difficulty);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Economy")
+	int32 LastAwardedCredits = 0;
 
 	UPROPERTY(BlueprintAssignable, Category = "Ashline|Save")
 	FAshlineSaveLoaded OnSaveLoaded;

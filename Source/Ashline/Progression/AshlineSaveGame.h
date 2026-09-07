@@ -39,6 +39,12 @@ struct FAshlineOwnedWeapon
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Save")
 	TMap<EAshlineAttachmentSlot, FName> EquippedAttachments;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Save")
+	FName EquippedSkinId = TEXT("SKIN_FACTORY");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Save")
+	TArray<FName> UnlockedSkins;
 };
 
 USTRUCT(BlueprintType)
@@ -63,7 +69,7 @@ class ASHLINE_API UAshlineSaveGame : public USaveGame
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Save")
-	FString SlotVersion = TEXT("1.0.0");
+	FString SlotVersion = TEXT("2.0.0");
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ashline|Save")
 	FAshlineOperatorProfile Operator;
@@ -87,6 +93,15 @@ public:
 	FAshlineLoadoutSlot Secondary;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ashline|Save")
+	int32 Credits = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ashline|Save")
+	TArray<FName> OwnedCosmeticIds;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ashline|Save")
+	TArray<FName> OwnedSkinIds;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ashline|Save")
 	int32 CrateTokens = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ashline|Save")
@@ -105,8 +120,11 @@ public:
 	static constexpr int32 UserIndex = 0;
 
 	void SeedNewCampaign();
+	void MigrateIfNeeded();
 	FAshlineMissionProgress* FindMissionProgress(EAshlineMissionId MissionId);
 	const FAshlineMissionProgress* FindMissionProgress(EAshlineMissionId MissionId) const;
 	void UnlockNext(EAshlineMissionId Completed);
 	void GrantXP(int32 Amount);
+	bool OwnsCosmetic(FName CosmeticId) const;
+	bool OwnsSkin(FName SkinId) const;
 };

@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Player/AshlineCharacter.h"
 #include "Progression/AshlineProgressionSubsystem.h"
+#include "Settings/AshlineGraphicsSettings.h"
 #include "Weapons/AshlineWeaponComponent.h"
 
 namespace
@@ -86,7 +87,7 @@ void AAshlineHUD::DrawHUD()
 void AAshlineHUD::DrawFrontend(AAshlineGameMode* GameMode, UAshlineSaveGame* Save)
 {
 	DrawTextLine(TEXT("ASHLINE"), 48.f, 36.f, FLinearColor(0.95f, 0.86f, 0.55f));
-	DrawTextLine(TEXT("Campaign select  —  graybox playtest"), 48.f, 64.f, FLinearColor(0.75f, 0.75f, 0.7f));
+	DrawTextLine(TEXT("Campaign select  —  Windows-first AAA blockout"), 48.f, 64.f, FLinearColor(0.75f, 0.75f, 0.7f));
 
 	const TArray<FAshlineMissionDefinition> Campaign = UAshlineMissionCatalog::BuildCampaign();
 	for (int32 i = 0; i < Campaign.Num(); ++i)
@@ -120,10 +121,34 @@ void AAshlineHUD::DrawFrontend(AAshlineGameMode* GameMode, UAshlineSaveGame* Sav
 	const int32 Rank = Save ? Save->Operator.Rank : 1;
 	const int32 XP = Save ? Save->Operator.XP : 0;
 	const int32 Tokens = Save ? Save->CrateTokens : 0;
-	DrawTextLine(FString::Printf(TEXT("Difficulty: < %s >     Rank %d  XP %d  Crates %d"), DifficultyName(Difficulty), Rank, XP, Tokens),
-		48.f, Canvas->SizeY - 92.f, FLinearColor(0.8f, 0.85f, 0.7f));
+	const int32 Credits = Save ? Save->Credits : 0;
+	const int32 Prestige = Save ? Save->PrestigeLevel : 0;
+	const FName CamoId = Save ? Save->Operator.CamoId : FName(TEXT("CAMO_FIELD"));
+	const FName SkinId = Save ? Save->Primary.SkinId : FName(TEXT("SKIN_FACTORY"));
+	DrawTextLine(FString::Printf(TEXT("Difficulty: < %s >     Rank %d  P%d  XP %d  Credits %d  Crates %d"),
+		DifficultyName(Difficulty), Rank, Prestige, XP, Credits, Tokens),
+		48.f, Canvas->SizeY - 112.f, FLinearColor(0.8f, 0.85f, 0.7f));
+	DrawTextLine(FString::Printf(TEXT("Operator %s   Camo %s   Primary skin %s"),
+		Save ? *Save->Operator.Callsign : TEXT("ASH-0"),
+		*CamoId.ToString(),
+		*SkinId.ToString()),
+		48.f, Canvas->SizeY - 92.f, FLinearColor(0.65f, 0.7f, 0.58f));
 	DrawTextLine(TEXT("Up/Down select   Enter deploy   Left/Right difficulty   Esc unused here"), 48.f, Canvas->SizeY - 68.f, FLinearColor(0.65f, 0.65f, 0.6f));
-	DrawTextLine(TEXT("Bug-test console: AshUnlockAll  |  AshDeploy 3  |  AshComplete  |  AshFrontend"), 48.f, Canvas->SizeY - 44.f, FLinearColor(0.5f, 0.55f, 0.5f));
+	FString PresetLine = TEXT("Graphics: Ashline_PC_Ultra (console: AshPCUltra / AshPCBalanced)");
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			const FAshlineGraphicsState State = Graphics->GetState();
+			PresetLine = FString::Printf(TEXT("Graphics: %s   RHI %s   RT %s   FSR3 %s"),
+				*UAshlineGraphicsSettings::GetPresetDisplayName(State.Preset),
+				*State.RHIName,
+				State.bRayTracingEnabled ? TEXT("ON") : TEXT("off"),
+				State.bFSR3Available ? TEXT("ready") : TEXT("TSR fallback"));
+		}
+	}
+	DrawTextLine(PresetLine, 48.f, Canvas->SizeY - 44.f, FLinearColor(0.5f, 0.62f, 0.55f));
+	DrawTextLine(TEXT("Console: AshUnlockAll  AshUnlockMeta  AshGrantCredits  AshPrestige  AshBuySkin  AshPCUltra"), 48.f, Canvas->SizeY - 24.f, FLinearColor(0.45f, 0.5f, 0.45f));
 }
 
 void AAshlineHUD::DrawCombat(AAshlineGameMode* GameMode)
@@ -133,10 +158,11 @@ void AAshlineHUD::DrawCombat(AAshlineGameMode* GameMode)
 	{
 		const FAshlineRuntimeWeapon& Weapon = Character->WeaponComponent->GetActiveWeapon();
 		const FString WeaponLine = FString::Printf(
-			TEXT("%s  %d / %d"),
+			TEXT("%s  %d / %d  %s"),
 			*Weapon.Definition.DisplayName.ToString(),
 			Weapon.AmmoInMag,
-			Weapon.Reserve);
+			Weapon.Reserve,
+			*Weapon.SkinId.ToString());
 		DrawTextLine(WeaponLine, 48.f, Canvas->SizeY - 84.f, FLinearColor::White);
 
 		const FString Mode = Character->GetCameraMode() == EAshlineCameraMode::FirstPerson ? TEXT("FPS") : TEXT("TPS");
@@ -173,8 +199,8 @@ void AAshlineHUD::DrawMissionComplete(AAshlineGameMode* GameMode)
 	DrawTextLine(bFinale ? TEXT("ASHLINE CUT") : TEXT("MISSION COMPLETE"), 48.f, 80.f, FLinearColor(0.95f, 0.86f, 0.55f));
 	DrawTextLine(GameMode->ActiveDefinition.CodeName + TEXT("  ") + GameMode->ActiveDefinition.Title.ToString(),
 		48.f, 120.f, FLinearColor::White);
-	DrawTextLine(FString::Printf(TEXT("Stars %d   XP +%d   Crate tokens +%d"),
-		GameMode->LastAwardedStars, GameMode->LastAwardedXP, GameMode->LastAwardedCrates),
+	DrawTextLine(FString::Printf(TEXT("Stars %d   XP +%d   Credits +%d   Crate tokens +%d"),
+		GameMode->LastAwardedStars, GameMode->LastAwardedXP, GameMode->LastAwardedCredits, GameMode->LastAwardedCrates),
 		48.f, 160.f, FLinearColor(0.8f, 0.85f, 0.7f));
 	DrawTextLine(TEXT("Progress saved to slot AshlineCampaign."), 48.f, 196.f, FLinearColor(0.7f, 0.7f, 0.65f));
 	DrawTextLine(TEXT("Enter  —  return to campaign select"), 48.f, 240.f, FLinearColor(0.85f, 0.8f, 0.5f));

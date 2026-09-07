@@ -14,8 +14,13 @@ Console cheats (Output Log or `~` if enabled):
 
 - `AshUnlockAll` — every mission becomes playable
 - `AshDeploy 3` — jump to ASH-03 (also unlocks all)
-- `AshComplete` — finish the active mission and grant XP
+- `AshPCUltra` / `AshPCBalanced` — named 1440p presets for the 9070 GRE
+- `AshComplete` — finish the active mission and grant XP + credits
 - `AshFrontend` — abort back to campaign select
+- `AshGrantCredits 5000` / `AshSetRank 50` / `AshPrestige` / `AshOpenCrate`
+- `AshBuySkin SKIN_FDE` / `AshEquipSkin WPN_AR_ASH16 SKIN_FDE`
+- `AshBuyCosmetic CAMO_NIGHT` / `AshEquipCosmetic Camo CAMO_NIGHT`
+- `AshUnlockMeta` / `AshListMeta` — locker catalog (`Docs/META.md`)
 
 ## Keyboard / mouse (in mission)
 

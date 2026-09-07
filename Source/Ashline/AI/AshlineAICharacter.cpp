@@ -6,10 +6,15 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Engine/GameInstance.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
+#include "Presentation/AshlineCharacterPresentation.h"
+#include "Presentation/AshlinePresentationLibrary.h"
+#include "Presentation/AshlinePresentationSettings.h"
 #include "Progression/AshlineProgressionSubsystem.h"
 
 AAshlineAICharacter::AAshlineAICharacter()
@@ -43,22 +48,7 @@ void AAshlineAICharacter::BeginPlay()
 		}
 	}
 	ApplyArchetype(Archetype, Difficulty);
-
-	if (GrayboxBody)
-	{
-		if (UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube")))
-		{
-			GrayboxBody->SetStaticMesh(Cube);
-		}
-		if (UMaterialInterface* Shape = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")))
-		{
-			if (UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Shape, this))
-			{
-				MID->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.55f, 0.16f, 0.12f));
-				GrayboxBody->SetMaterial(0, MID);
-			}
-		}
-	}
+	ApplyPresentationMesh();
 }
 
 void AAshlineAICharacter::ApplyArchetype(EAshlineAIArchetype InArchetype, EAshlineDifficulty Difficulty)
@@ -68,6 +58,66 @@ void AAshlineAICharacter::ApplyArchetype(EAshlineAIArchetype InArchetype, EAshli
 	const FAshlineDifficultyTuning Tuning = UAshlineAICatalog::GetDifficulty(Difficulty);
 	Health = ArchetypeDef.MaxHealth * Tuning.AIHealthMul;
 	GetCharacterMovement()->MaxWalkSpeed = ArchetypeDef.MoveSpeed;
+}
+
+void AAshlineAICharacter::ApplyPresentationMesh()
+{
+	USkeletalMesh* Body = BodyMeshOverride.LoadSynchronous();
+	if (!Body)
+	{
+		if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
+		{
+			Body = Settings->DefaultAIMesh.LoadSynchronous();
+		}
+	}
+	if (!Body)
+	{
+		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(false, Archetype))
+		{
+			Body = Pres->BodyMesh.LoadSynchronous();
+		}
+	}
+	if (!Body)
+	{
+		Body = UAshlinePresentationLibrary::ResolveHumanoidMesh();
+	}
+
+	FLinearColor Tint(0.45f, 0.12f, 0.1f);
+	switch (Archetype)
+	{
+	case EAshlineAIArchetype::Officer: Tint = FLinearColor(0.15f, 0.16f, 0.22f); break;
+	case EAshlineAIArchetype::Marksman: Tint = FLinearColor(0.22f, 0.2f, 0.12f); break;
+	case EAshlineAIArchetype::Heavy: Tint = FLinearColor(0.12f, 0.12f, 0.12f); break;
+	case EAshlineAIArchetype::Breacher: Tint = FLinearColor(0.28f, 0.12f, 0.08f); break;
+	case EAshlineAIArchetype::Scout: Tint = FLinearColor(0.16f, 0.2f, 0.12f); break;
+	case EAshlineAIArchetype::MachineGunner: Tint = FLinearColor(0.18f, 0.14f, 0.1f); break;
+	case EAshlineAIArchetype::CivilianIrregular: Tint = FLinearColor(0.32f, 0.24f, 0.16f); break;
+	default: break;
+	}
+
+	if (Body && GetMesh())
+	{
+		GetMesh()->SetSkeletalMeshAsset(Body);
+		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
+		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+		GetMesh()->SetVisibility(true);
+		GetMesh()->SetCastShadow(true);
+		if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, EAshlineSurface::Plastic, Tint))
+		{
+			GetMesh()->SetMaterial(0, MID);
+		}
+		if (GrayboxBody)
+		{
+			GrayboxBody->SetVisibility(false);
+		}
+		return;
+	}
+
+	if (GrayboxBody)
+	{
+		GrayboxBody->SetVisibility(false);
+	}
+	UAshlinePresentationLibrary::ApplyHumanoidBlockout(this, Tint);
 }
 
 float AAshlineAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

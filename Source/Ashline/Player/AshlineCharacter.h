@@ -10,6 +10,7 @@ class UCameraComponent;
 class UInputAction;
 class UAshlineWeaponComponent;
 class UStaticMeshComponent;
+class USkeletalMesh;
 struct FInputActionValue;
 
 UCLASS()
@@ -121,6 +122,14 @@ protected:
 	void LegacyLookPitch(float Value);
 	void EnsureDefaultLoadout();
 	void ApplyGrayboxMeshes();
+	void ApplyPresentationMesh();
+	void ApplyOperatorLook();
+	void TickFootsteps(float DeltaSeconds);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Mesh")
+	TSoftObjectPtr<USkeletalMesh> HeroMeshOverride;
+
+	float FootstepAccumulator = 0.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Camera")
 	EAshlineCameraMode CameraMode = EAshlineCameraMode::FirstPerson;

@@ -22,7 +22,7 @@ void UAshlineGameInstance::Init()
 		Graphics->ApplySavedOrDetect();
 	}
 
-	UE_LOG(LogAshline, Log, TEXT("Ashline game instance ready (Apple-first FPS/TPS campaign)."));
+	UE_LOG(LogAshline, Log, TEXT("Ashline game instance ready (Windows-first AAA presentation, UE 5.8.2)."));
 }
 
 void UAshlineGameInstance::OpenFrontend()

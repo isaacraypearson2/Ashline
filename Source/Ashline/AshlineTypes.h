@@ -3,6 +3,9 @@
 #include "CoreMinimal.h"
 #include "AshlineTypes.generated.h"
 
+class USkeletalMesh;
+class UMaterialInterface;
+
 UENUM(BlueprintType)
 enum class EAshlineMissionId : uint8
 {
@@ -93,13 +96,31 @@ enum class EAshlineLootRarity : uint8
 };
 
 UENUM(BlueprintType)
+enum class EAshlineCosmeticSlot : uint8
+{
+	Helmet,
+	Vest,
+	Pants,
+	Gloves,
+	Boots,
+	Camo,
+	Face,
+	Voice,
+	Charm
+};
+
+UENUM(BlueprintType)
 enum class EAshlineGraphicsPreset : uint8
 {
 	Low,
 	Medium,
 	High,
 	Epic,
-	Cinematic
+	Cinematic,
+	/** 1440p high-refresh on Radeon 9070-class (FSR3 Balanced + cheaper Lumen). */
+	PC_Balanced UMETA(DisplayName = "Ashline_PC_Balanced"),
+	/** Default Windows target: 1440p Ultra, Nanite/Lumen/VSM, HW RT when supported. */
+	PC_Ultra UMETA(DisplayName = "Ashline_PC_Ultra")
 };
 
 UENUM(BlueprintType)
@@ -117,7 +138,29 @@ enum class EAshlineUpscaler : uint8
 {
 	Off,
 	MetalFXSpatial,
-	MetalFXTemporal
+	MetalFXTemporal,
+	/** AMD FidelityFX Super Resolution 3 (primary Windows path). */
+	FSR3,
+	/** Unreal Temporal Super Resolution — always available fallback. */
+	TSR,
+	/** NVIDIA DLSS — optional, never required. */
+	DLSS
+};
+
+UENUM(BlueprintType)
+enum class EAshlineSurface : uint8
+{
+	Auto,
+	Ground,
+	Concrete,
+	Metal,
+	Wood,
+	Sand,
+	Snow,
+	Water,
+	Foliage,
+	Emissive,
+	Plastic
 };
 
 USTRUCT(BlueprintType)
@@ -274,6 +317,9 @@ struct FAshlineLoadoutSlot
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Armory")
 	TMap<EAshlineAttachmentSlot, FName> Attachments;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Armory")
+	FName SkinId;
 };
 
 USTRUCT(BlueprintType)
@@ -288,10 +334,10 @@ struct FAshlineOperatorProfile
 	FString GivenName = TEXT("Operator");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Operator")
-	FName VoicePack = TEXT("Neutral");
+	FName VoicePack = TEXT("VOICE_NEUTRAL");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Operator")
-	FName CamoId = TEXT("AshlineField");
+	FName CamoId = TEXT("CAMO_FIELD");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Operator")
 	int32 FaceIndex = 0;
@@ -304,6 +350,13 @@ struct FAshlineOperatorProfile
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Operator")
 	int32 XP = 0;
+
+	/** Equipped clothing / identity. Keys are EAshlineCosmeticSlot. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Operator")
+	TMap<EAshlineCosmeticSlot, FName> EquippedCosmetics;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Operator")
+	FName EquippedCharm;
 };
 
 USTRUCT(BlueprintType)
@@ -328,4 +381,101 @@ struct FAshlineDifficultyTuning
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Difficulty")
 	int32 ExtraAICount = 0;
+};
+
+USTRUCT(BlueprintType)
+struct FAshlineCosmeticDefinition
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FName CosmeticId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FText DisplayName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	EAshlineCosmeticSlot Slot = EAshlineCosmeticSlot::Camo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	EAshlineLootRarity Rarity = EAshlineLootRarity::Common;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	int32 UnlockRank = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	int32 CreditCost = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	int32 RequiredPrestige = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	bool bStarter = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FLinearColor PreviewTint = FLinearColor(0.2f, 0.24f, 0.18f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	TSoftObjectPtr<USkeletalMesh> MeshOverride;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	TSoftObjectPtr<UMaterialInterface> MaterialOverride;
+};
+
+USTRUCT(BlueprintType)
+struct FAshlineWeaponSkinDefinition
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FName SkinId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FText DisplayName;
+
+	/** None = universal (all weapons). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FName WeaponId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	EAshlineLootRarity Rarity = EAshlineLootRarity::Common;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	int32 UnlockRank = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	int32 CreditCost = 250;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	int32 RequiredPrestige = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	bool bStarter = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FLinearColor Tint = FLinearColor(0.08f, 0.08f, 0.09f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	TSoftObjectPtr<UMaterialInterface> MaterialOverride;
+};
+
+USTRUCT(BlueprintType)
+struct FAshlineRankTier
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	int32 Rank = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	int32 XPToNext = 800;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	int32 CreditGrant = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	int32 CrateGrant = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FName UnlockId;
 };
