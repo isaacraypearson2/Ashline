@@ -19,7 +19,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/PointLight.h"
 #include "Engine/PostProcessVolume.h"
-#include "Engine/SkyAtmosphere.h"
+#include "Components/SkyAtmosphereComponent.h"
 #include "Engine/SkyLight.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"

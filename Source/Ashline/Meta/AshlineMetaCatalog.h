@@ -75,4 +75,4 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
 	static void OverlaySkinDataAsset(FAshlineWeaponSkinDefinition& Skin);
-}
+};
