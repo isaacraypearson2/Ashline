@@ -4,6 +4,7 @@
 #include "Campaign/AshlineMissionCatalog.h"
 #include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Meta/AshlineMetaCatalog.h"
 #include "Weapons/AshlineWeaponCatalog.h"
 
 void UAshlineProgressionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -17,6 +18,11 @@ void UAshlineProgressionSubsystem::LoadOrCreate()
 	if (USaveGame* Existing = UGameplayStatics::LoadGameFromSlot(UAshlineSaveGame::SlotName, UAshlineSaveGame::UserIndex))
 	{
 		Save = Cast<UAshlineSaveGame>(Existing);
+		if (Save)
+		{
+			Save->MigrateIfNeeded();
+			SaveCampaign();
+		}
 	}
 
 	if (!Save)
@@ -65,6 +71,8 @@ void UAshlineProgressionSubsystem::CompleteMission(EAshlineMissionId MissionId, 
 	Save->UnlockNext(MissionId);
 	Save->GrantXP(Def.XPReward + Stars * 50);
 	Save->CrateTokens += Def.CrateTokensReward;
+	LastAwardedCredits = UAshlineMetaCatalog::MissionCreditReward(Def.XPReward, Stars, Save->Difficulty);
+	Save->Credits += LastAwardedCredits;
 
 	// Unlock weapons that have become available by rank.
 	for (const FAshlineWeaponDefinition& Weapon : UAshlineWeaponCatalog::BuildRoster())
@@ -107,6 +115,7 @@ bool UAshlineProgressionSubsystem::EquipWeapon(bool bPrimary, FName WeaponId)
 	if (const FAshlineOwnedWeapon* Owned = FindOwned(WeaponId))
 	{
 		Slot.Attachments = Owned->EquippedAttachments;
+		Slot.SkinId = Owned->EquippedSkinId;
 	}
 	SaveCampaign();
 	return true;
@@ -149,6 +158,11 @@ bool UAshlineProgressionSubsystem::UpgradeWeapon(FName WeaponId)
 	{
 		return false;
 	}
+	const int32 Cost = UAshlineMetaCatalog::WeaponUpgradeCost(Owned->UpgradeTier);
+	if (!SpendCredits(Cost))
+	{
+		return false;
+	}
 	++Owned->UpgradeTier;
 	SaveCampaign();
 	return true;
@@ -165,17 +179,28 @@ bool UAshlineProgressionSubsystem::PrestigeReset()
 	Save->Operator.Prestige = Save->PrestigeLevel;
 	Save->Operator.Rank = 1;
 	Save->Operator.XP = 0;
+	Save->OwnedCosmeticIds.AddUnique(TEXT("CAMO_PRESTIGE"));
+	Save->OwnedSkinIds.AddUnique(TEXT("SKIN_GOLD"));
+	Save->OwnedCosmeticIds.AddUnique(TEXT("CHARM_SPINE"));
+	Save->Operator.EquippedCosmetics.Add(EAshlineCosmeticSlot::Camo, TEXT("CAMO_PRESTIGE"));
+	Save->Operator.EquippedCosmetics.Add(EAshlineCosmeticSlot::Charm, TEXT("CHARM_SPINE"));
+	Save->Operator.CamoId = TEXT("CAMO_PRESTIGE");
+	Save->Operator.EquippedCharm = TEXT("CHARM_SPINE");
 
 	// Keep cosmetics and crate history; reset weapon upgrades except starters.
 	for (FAshlineOwnedWeapon& Owned : Save->Armory)
 	{
 		Owned.UpgradeTier = 0;
+		Owned.UnlockedSkins.AddUnique(TEXT("SKIN_GOLD"));
+		Owned.EquippedSkinId = TEXT("SKIN_GOLD");
 		if (Owned.WeaponId != FName(TEXT("WPN_AR_ASH16")) && Owned.WeaponId != FName(TEXT("WPN_PIS_M17A")))
 		{
 			Owned.UnlockedAttachments.Reset();
 			Owned.EquippedAttachments.Reset();
 		}
 	}
+	Save->Primary.SkinId = TEXT("SKIN_GOLD");
+	Save->Secondary.SkinId = TEXT("SKIN_GOLD");
 
 	SaveCampaign();
 	return true;
@@ -219,9 +244,219 @@ FAshlineCrateGrant UAshlineProgressionSubsystem::OpenPlayEarnedCrate()
 	}
 
 	Save->CollectedCosmetics.Add(Grant);
+	Save->OwnedCosmeticIds.AddUnique(Grant.ItemId);
 	SaveCampaign();
 	OnCrateOpened.Broadcast(Grant);
 	return Grant;
+}
+
+bool UAshlineProgressionSubsystem::GrantCredits(int32 Amount)
+{
+	if (!Save || Amount <= 0)
+	{
+		return false;
+	}
+	Save->Credits += Amount;
+	SaveCampaign();
+	return true;
+}
+
+bool UAshlineProgressionSubsystem::SpendCredits(int32 Amount)
+{
+	if (!Save || Amount < 0 || Save->Credits < Amount)
+	{
+		return false;
+	}
+	Save->Credits -= Amount;
+	SaveCampaign();
+	return true;
+}
+
+bool UAshlineProgressionSubsystem::PurchaseCosmetic(FName CosmeticId)
+{
+	if (!Save)
+	{
+		return false;
+	}
+	FAshlineCosmeticDefinition Def;
+	if (!UAshlineMetaCatalog::FindCosmetic(CosmeticId, Def))
+	{
+		return false;
+	}
+	if (Save->OwnsCosmetic(CosmeticId))
+	{
+		return true;
+	}
+	if (Save->Operator.Rank < Def.UnlockRank || Save->PrestigeLevel < Def.RequiredPrestige)
+	{
+		return false;
+	}
+	if (!SpendCredits(Def.CreditCost))
+	{
+		return false;
+	}
+	Save->OwnedCosmeticIds.AddUnique(CosmeticId);
+	SaveCampaign();
+	return true;
+}
+
+bool UAshlineProgressionSubsystem::EquipCosmetic(EAshlineCosmeticSlot Slot, FName CosmeticId)
+{
+	if (!Save || !Save->OwnsCosmetic(CosmeticId))
+	{
+		return false;
+	}
+	FAshlineCosmeticDefinition Def;
+	if (!UAshlineMetaCatalog::FindCosmetic(CosmeticId, Def) || Def.Slot != Slot)
+	{
+		return false;
+	}
+	Save->Operator.EquippedCosmetics.Add(Slot, CosmeticId);
+	if (Slot == EAshlineCosmeticSlot::Camo)
+	{
+		Save->Operator.CamoId = CosmeticId;
+	}
+	if (Slot == EAshlineCosmeticSlot::Voice)
+	{
+		Save->Operator.VoicePack = CosmeticId;
+	}
+	if (Slot == EAshlineCosmeticSlot::Charm)
+	{
+		Save->Operator.EquippedCharm = CosmeticId;
+	}
+	SaveCampaign();
+	return true;
+}
+
+bool UAshlineProgressionSubsystem::PurchaseSkin(FName SkinId)
+{
+	if (!Save)
+	{
+		return false;
+	}
+	FAshlineWeaponSkinDefinition Def;
+	if (!UAshlineMetaCatalog::FindSkin(SkinId, Def))
+	{
+		return false;
+	}
+	if (Save->OwnsSkin(SkinId))
+	{
+		return true;
+	}
+	if (Save->Operator.Rank < Def.UnlockRank || Save->PrestigeLevel < Def.RequiredPrestige)
+	{
+		return false;
+	}
+	if (!SpendCredits(Def.CreditCost))
+	{
+		return false;
+	}
+	Save->OwnedSkinIds.AddUnique(SkinId);
+	if (!Def.WeaponId.IsNone())
+	{
+		if (FAshlineOwnedWeapon* Owned = FindOwned(Def.WeaponId))
+		{
+			Owned->UnlockedSkins.AddUnique(SkinId);
+		}
+	}
+	else
+	{
+		for (FAshlineOwnedWeapon& Owned : Save->Armory)
+		{
+			Owned.UnlockedSkins.AddUnique(SkinId);
+		}
+	}
+	SaveCampaign();
+	return true;
+}
+
+bool UAshlineProgressionSubsystem::EquipSkin(FName WeaponId, FName SkinId)
+{
+	FAshlineOwnedWeapon* Owned = FindOwned(WeaponId);
+	FAshlineWeaponSkinDefinition Def;
+	if (!Owned || !Save || !Save->OwnsSkin(SkinId) || !UAshlineMetaCatalog::FindSkin(SkinId, Def))
+	{
+		return false;
+	}
+	if (!UAshlineMetaCatalog::SkinFitsWeapon(Def, WeaponId))
+	{
+		return false;
+	}
+	Owned->EquippedSkinId = SkinId;
+	Owned->UnlockedSkins.AddUnique(SkinId);
+	if (Save->Primary.WeaponId == WeaponId)
+	{
+		Save->Primary.SkinId = SkinId;
+	}
+	if (Save->Secondary.WeaponId == WeaponId)
+	{
+		Save->Secondary.SkinId = SkinId;
+	}
+	SaveCampaign();
+	return true;
+}
+
+int32 UAshlineProgressionSubsystem::GetCredits() const
+{
+	return Save ? Save->Credits : 0;
+}
+
+TArray<FName> UAshlineProgressionSubsystem::GetOwnedCosmetics() const
+{
+	return Save ? Save->OwnedCosmeticIds : TArray<FName>();
+}
+
+TArray<FName> UAshlineProgressionSubsystem::GetOwnedSkins() const
+{
+	return Save ? Save->OwnedSkinIds : TArray<FName>();
+}
+
+bool UAshlineProgressionSubsystem::SetRank(int32 Rank)
+{
+	if (!Save)
+	{
+		return false;
+	}
+	Save->Operator.Rank = FMath::Clamp(Rank, 1, UAshlineMetaCatalog::MaxRank);
+	SaveCampaign();
+	return true;
+}
+
+void UAshlineProgressionSubsystem::UnlockAllMeta()
+{
+	if (!Save)
+	{
+		return;
+	}
+	Save->Credits = FMath::Max(Save->Credits, 50000);
+	Save->CrateTokens = FMath::Max(Save->CrateTokens, 8);
+	Save->Operator.Rank = UAshlineMetaCatalog::MaxRank;
+	for (const FAshlineCosmeticDefinition& Item : UAshlineMetaCatalog::BuildCosmetics())
+	{
+		if (Item.RequiredPrestige <= Save->PrestigeLevel)
+		{
+			Save->OwnedCosmeticIds.AddUnique(Item.CosmeticId);
+		}
+	}
+	for (const FAshlineWeaponSkinDefinition& Item : UAshlineMetaCatalog::BuildWeaponSkins())
+	{
+		if (Item.RequiredPrestige <= Save->PrestigeLevel)
+		{
+			Save->OwnedSkinIds.AddUnique(Item.SkinId);
+			if (Item.WeaponId.IsNone())
+			{
+				for (FAshlineOwnedWeapon& Owned : Save->Armory)
+				{
+					Owned.UnlockedSkins.AddUnique(Item.SkinId);
+				}
+			}
+			else if (FAshlineOwnedWeapon* Owned = FindOwned(Item.WeaponId))
+			{
+				Owned->UnlockedSkins.AddUnique(Item.SkinId);
+			}
+		}
+	}
+	SaveCampaign();
 }
 
 void UAshlineProgressionSubsystem::SetDifficulty(EAshlineDifficulty Difficulty)

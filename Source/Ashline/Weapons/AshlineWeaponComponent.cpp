@@ -13,6 +13,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Materials/MaterialInterface.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "Particles/ParticleSystem.h"
@@ -20,6 +21,7 @@
 #include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlineWeaponVisual.h"
+#include "Meta/AshlineMetaCatalog.h"
 #include "Weapons/AshlineWeaponCatalog.h"
 
 UAshlineWeaponComponent::UAshlineWeaponComponent()
@@ -86,6 +88,7 @@ void UAshlineWeaponComponent::LoadFromLoadout(const FAshlineLoadoutSlot& Primary
 		Runtime.Stats.RecoilPitch = FMath::Max(0.05f, Runtime.Stats.RecoilPitch - Upgrade * 0.04f);
 		Runtime.AmmoInMag = Runtime.Stats.MagazineSize;
 		Runtime.Reserve = Runtime.Stats.ReserveAmmo;
+		Runtime.SkinId = Slot.SkinId.IsNone() ? FName(TEXT("SKIN_FACTORY")) : Slot.SkinId;
 		return Runtime;
 	};
 
@@ -388,6 +391,14 @@ void UAshlineWeaponComponent::AttachVisuals()
 		MuzzleLight->AttachToComponent(BarrelMesh ? BarrelMesh : AttachParent, FAttachmentTransformRules::KeepRelativeTransform);
 		MuzzleLight->SetRelativeLocation(FVector(40.f, 0.f, 0.f));
 	}
+	if (!CharmMesh)
+	{
+		CharmMesh = MakeMesh(TEXT("AshlineWeaponCharm"));
+		CharmMesh->AttachToComponent(WeaponMesh ? WeaponMesh : AttachParent, FAttachmentTransformRules::KeepRelativeTransform);
+		CharmMesh->SetRelativeLocation(FVector(-16.f, 4.f, -6.f));
+		CharmMesh->SetRelativeScale3D(FVector(0.04f, 0.04f, 0.07f));
+		CharmMesh->SetVisibility(false);
+	}
 }
 
 void UAshlineWeaponComponent::RefreshVisuals()
@@ -405,9 +416,13 @@ void UAshlineWeaponComponent::RefreshVisuals()
 	if (Visual)
 	{
 		ApplyVisualAsset(Visual);
-		return;
 	}
-	BuildCompoundPlaceholder();
+	else
+	{
+		BuildCompoundPlaceholder();
+	}
+	ApplyEquippedSkin();
+	ApplyCharm(EquippedCharmId);
 }
 
 void UAshlineWeaponComponent::ApplyVisualAsset(UAshlineWeaponVisual* Visual)
@@ -534,6 +549,76 @@ void UAshlineWeaponComponent::BuildCompoundPlaceholder()
 			MagMesh->SetMaterial(0, MID);
 		}
 	}
+}
+
+void UAshlineWeaponComponent::ApplyEquippedSkin()
+{
+	const FName SkinId = GetActiveWeapon().SkinId.IsNone() ? FName(TEXT("SKIN_FACTORY")) : GetActiveWeapon().SkinId;
+	FAshlineWeaponSkinDefinition Def;
+	UMaterialInterface* Override = nullptr;
+	FLinearColor Tint = FLinearColor(0.07f, 0.07f, 0.08f);
+	if (UAshlineMetaCatalog::FindSkin(SkinId, Def))
+	{
+		Tint = Def.Tint;
+		Override = Def.MaterialOverride.LoadSynchronous();
+	}
+	ApplyTintToWeaponMeshes(Tint, Override);
+}
+
+void UAshlineWeaponComponent::ApplyCharm(FName CharmId)
+{
+	EquippedCharmId = CharmId;
+	if (!CharmMesh)
+	{
+		AttachVisuals();
+	}
+	if (!CharmMesh)
+	{
+		return;
+	}
+
+	if (CharmId.IsNone())
+	{
+		CharmMesh->SetVisibility(false);
+		return;
+	}
+
+	UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+	if (Cube)
+	{
+		CharmMesh->SetStaticMesh(Cube);
+	}
+	const FLinearColor Tint = UAshlineMetaCatalog::CosmeticTint(CharmId, FLinearColor(0.7f, 0.55f, 0.2f));
+	if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, EAshlineSurface::Metal, Tint))
+	{
+		CharmMesh->SetMaterial(0, MID);
+	}
+	CharmMesh->SetVisibility(true);
+}
+
+void UAshlineWeaponComponent::ApplyTintToWeaponMeshes(const FLinearColor& Tint, UMaterialInterface* Override)
+{
+	auto Paint = [this, Tint, Override](UStaticMeshComponent* Mesh, EAshlineSurface Surface, const FLinearColor& Color)
+	{
+		if (!Mesh || !Mesh->GetStaticMesh())
+		{
+			return;
+		}
+		if (Override)
+		{
+			Mesh->SetMaterial(0, Override);
+			return;
+		}
+		if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, Surface, Color))
+		{
+			Mesh->SetMaterial(0, MID);
+		}
+	};
+
+	Paint(WeaponMesh, EAshlineSurface::Metal, Tint);
+	Paint(BarrelMesh, EAshlineSurface::Metal, Tint * 1.25f);
+	Paint(StockMesh, EAshlineSurface::Plastic, Tint * 0.7f);
+	Paint(MagMesh, EAshlineSurface::Metal, Tint * 0.9f);
 }
 
 void UAshlineWeaponComponent::PlayFireAudio()

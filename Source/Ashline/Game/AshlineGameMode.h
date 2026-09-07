@@ -85,6 +85,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Campaign")
 	int32 LastAwardedCrates = 0;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Campaign")
+	int32 LastAwardedCredits = 0;
+
 protected:
 	AAshlineGrayboxBuilder* EnsureBuilder();
 	void ApplyFrontendView(APlayerController* PC);

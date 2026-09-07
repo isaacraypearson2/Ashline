@@ -23,6 +23,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Player/AshlinePlayerController.h"
 #include "Progression/AshlineProgressionSubsystem.h"
+#include "Meta/AshlineMetaCatalog.h"
 #include "Presentation/AshlineAudioDirector.h"
 #include "Presentation/AshlineCharacterPresentation.h"
 #include "Presentation/AshlinePresentationLibrary.h"
@@ -112,6 +113,7 @@ void AAshlineCharacter::BeginPlay()
 	EnsureDefaultLoadout();
 	ApplyPresentationMesh();
 	ApplyGrayboxMeshes();
+	ApplyOperatorLook();
 	Health = MaxHealth;
 	SetCameraMode(CameraMode);
 }
@@ -471,7 +473,9 @@ void AAshlineCharacter::EnsureDefaultLoadout()
 	FAshlineLoadoutSlot Primary;
 	FAshlineLoadoutSlot Secondary;
 	Primary.WeaponId = TEXT("WPN_AR_ASH16");
+	Primary.SkinId = TEXT("SKIN_FACTORY");
 	Secondary.WeaponId = TEXT("WPN_PIS_M17A");
+	Secondary.SkinId = TEXT("SKIN_FACTORY");
 	WeaponComponent->LoadFromLoadout(Primary, Secondary, 0, 0);
 }
 
@@ -516,6 +520,25 @@ void AAshlineCharacter::ApplyPresentationMesh()
 	if (!Hero)
 	{
 		Hero = UAshlinePresentationLibrary::ResolveHumanoidMesh();
+	}
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineProgressionSubsystem* Progression = GI->GetSubsystem<UAshlineProgressionSubsystem>())
+		{
+			if (UAshlineSaveGame* Save = Progression->GetSave())
+			{
+				const FName CamoId = UAshlineMetaCatalog::EquippedCosmeticId(Save->Operator, EAshlineCosmeticSlot::Camo);
+				FAshlineCosmeticDefinition CamoDef;
+				if (UAshlineMetaCatalog::FindCosmetic(CamoId, CamoDef))
+				{
+					if (USkeletalMesh* OverrideMesh = CamoDef.MeshOverride.LoadSynchronous())
+					{
+						Hero = OverrideMesh;
+					}
+				}
+			}
+		}
 	}
 
 	if (Hero && GetMesh())
@@ -579,4 +602,71 @@ void AAshlineCharacter::ApplyGrayboxMeshes()
 		GrayboxBody->SetVisibility(false);
 	}
 	UAshlinePresentationLibrary::ApplyHumanoidBlockout(this, FLinearColor(0.18f, 0.24f, 0.16f));
+}
+
+void AAshlineCharacter::ApplyOperatorLook()
+{
+	FAshlineOperatorProfile Profile;
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineProgressionSubsystem* Progression = GI->GetSubsystem<UAshlineProgressionSubsystem>())
+		{
+			if (UAshlineSaveGame* Save = Progression->GetSave())
+			{
+				Profile = Save->Operator;
+			}
+		}
+	}
+
+	const FName CamoId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Camo);
+	const FName HelmetId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Helmet);
+	const FName VestId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Vest);
+	const FName PantsId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Pants);
+	const FName GlovesId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Gloves);
+	const FName BootsId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Boots);
+	const FName FaceId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Face);
+	const FName CharmId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Charm);
+
+	const FLinearColor CamoTint = UAshlineMetaCatalog::CosmeticTint(CamoId, FLinearColor(0.18f, 0.24f, 0.16f));
+	const FLinearColor HelmetTint = UAshlineMetaCatalog::CosmeticTint(HelmetId, CamoTint * 0.65f);
+	const FLinearColor VestTint = UAshlineMetaCatalog::CosmeticTint(VestId, CamoTint);
+	const FLinearColor PantsTint = UAshlineMetaCatalog::CosmeticTint(PantsId, CamoTint * 0.85f);
+	const FLinearColor GlovesTint = UAshlineMetaCatalog::CosmeticTint(GlovesId, CamoTint * 0.55f);
+	const FLinearColor BootsTint = UAshlineMetaCatalog::CosmeticTint(BootsId, FLinearColor(0.1f, 0.08f, 0.06f));
+	const FLinearColor FaceTint = UAshlineMetaCatalog::CosmeticTint(FaceId, FLinearColor(0.45f, 0.34f, 0.26f));
+
+	const bool bHasHeroMesh = GetMesh() && GetMesh()->GetSkeletalMeshAsset() != nullptr;
+	if (bHasHeroMesh)
+	{
+		FAshlineCosmeticDefinition CamoDef;
+		UMaterialInterface* Override = nullptr;
+		if (UAshlineMetaCatalog::FindCosmetic(CamoId, CamoDef))
+		{
+			Override = CamoDef.MaterialOverride.LoadSynchronous();
+		}
+		if (Override)
+		{
+			GetMesh()->SetMaterial(0, Override);
+		}
+		else if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, EAshlineSurface::Plastic, CamoTint))
+		{
+			GetMesh()->SetMaterial(0, MID);
+		}
+	}
+	else
+	{
+		UAshlinePresentationLibrary::ApplyHumanoidBlockout(this, CamoTint);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_Torso"), VestTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_Helmet"), HelmetTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_Head"), FaceTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_ArmL"), GlovesTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_ArmR"), GlovesTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_LegL"), PantsTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_LegR"), BootsTint, EAshlineSurface::Plastic);
+	}
+
+	if (WeaponComponent)
+	{
+		WeaponComponent->ApplyCharm(CharmId);
+	}
 }

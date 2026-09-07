@@ -54,7 +54,7 @@ set PROJ=%CD%\Ashline.uproject
    - **LMB** fire, **RMB** aim, **R** reload, **Q** swap, **V** FPS/TPS
    - Walk into **glowing objective markers** to complete. The extract / last required volume finishes the mission.
    - Hostiles use a **humanoid mesh when one can be resolved** (mannequin / MetaHuman / assigned DataAsset); otherwise a tinted blockout body.
-4. On **MISSION COMPLETE**, note XP / crate tokens, press **Enter** to return to campaign select. ASH-02 is now READY.
+4. On **MISSION COMPLETE**, note XP / **credits** / crate tokens, press **Enter** to return to campaign select. ASH-02 is now READY. Frontend shows Rank / Prestige / Credits and the equipped camo + primary skin.
 5. Repeat through **ASH-12**. After the finale, **ASHLINE CUT** means the save unlocked the whole spine.
 6. Progress lives in save slot `AshlineCampaign` (`Saved/SaveGames`). Delete that file to start a new operator.
 7. Apply **Ashline_PC_Ultra** (`AshPCUltra`) after PIE if you changed scalability.
@@ -73,6 +73,7 @@ Ads stay off (`UAshlineMonetizationHooks`).
 | Compound weapon meshes + muzzle light + impact decals | Fab military weapon packs (soft-ref swap) |
 | Hero/AI skeletal hooks (MetaHuman / mannequin) | MetaHuman Creator characters + AnimBPs |
 | Audio **slots** (fire / reload / hit / footsteps / music) | Authored MetaSounds / Sound Cues |
+| SP meta: credits, rank 1–50, cosmetics, weapon skins, prestige | MetaHuman wardrobe + Fab skin materials |
 | `Ashline_PC_Ultra` / `Balanced` + DX12 config | Profile on the 9070 GRE and tune |
 
 **This repo does not contain Quixel, Fab, or MetaHuman binary packs.** If those folders are empty, that is expected.
@@ -97,16 +98,19 @@ Also: `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Doc
 | ASH-11 | Last Train | Industrial overcast |
 | ASH-12 | Ashline | Finale — red buried terminus |
 
-Briefings, XP, and crate tokens: `UAshlineMissionCatalog` + `Content/Ashline/Data/Campaign.json`. Save: `UAshlineProgressionSubsystem`.
+Briefings, XP, and crate tokens: `UAshlineMissionCatalog` + `Content/Ashline/Data/Campaign.json`.  
+Locker / economy / prestige: `UAshlineMetaCatalog` + `Content/Ashline/Data/Meta.json` (`Docs/META.md`). Save: `UAshlineProgressionSubsystem`.
 
 ## Systems
 
 - **FPS/TPS toggle** — first-person camera vs spring-arm third-person. Preference is saved.
-- **Weapons** — AR, SMG, sniper, shotgun, sidearm, DMR, LMG. Visual mesh + muzzle flash + impact decals + audio slots on `UAshlineWeaponComponent`.
+- **Weapons** — AR, SMG, sniper, shotgun, sidearm, DMR, LMG. Visual mesh + muzzle flash + impact decals + audio slots + **equipped skin tint** on `UAshlineWeaponComponent`.
+- **Operator locker** — clothing slots, camos, faces, voice packs, charms. Equipped ids tint the hero / blockout and hang a charm on the gun.
+- **Economy / prestige** — credits from missions and rank-ups; spend on cosmetics, skins, weapon upgrades; prestige at rank 50 keeps the locker and grants gilt.
 - **AI** — eight archetypes, perception + push/hold, humanoid mesh when assigned.
 - **Difficulty** — Recruit, Regular, Veteran, Extreme.
 - **Graphics** — `UAshlineGraphicsSettings` (Windows FSR3/TSR/RT; Apple MetalFX still gated).
-- **MonetizationHooks** — stub only. Ads stay off.
+- **MonetizationHooks** — stub only. Ads stay off. No multiplayer.
 
 ## Source layout
 

@@ -4,6 +4,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Campaign/AshlineMissionCatalog.h"
 #include "EnhancedInputSubsystems.h"
+#include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
 #include "Game/AshlineGameMode.h"
 #include "Input/AshlineRuntimeInput.h"
@@ -11,6 +12,8 @@
 #include "InputMappingContext.h"
 #include "Kismet/GameplayStatics.h"
 #include "Settings/AshlineGraphicsSettings.h"
+#include "Meta/AshlineMetaCatalog.h"
+#include "Progression/AshlineProgressionSubsystem.h"
 #include "UI/AshlineTouchHUD.h"
 
 AAshlinePlayerController::AAshlinePlayerController()
@@ -229,5 +232,136 @@ void AAshlinePlayerController::AshPCBalanced()
 		{
 			Graphics->ApplyPreset(EAshlineGraphicsPreset::PC_Balanced);
 		}
+	}
+}
+
+namespace
+{
+	UAshlineProgressionSubsystem* AshProgression(const AAshlinePlayerController* PC)
+	{
+		if (!PC)
+		{
+			return nullptr;
+		}
+		if (UGameInstance* GI = PC->GetGameInstance())
+		{
+			return GI->GetSubsystem<UAshlineProgressionSubsystem>();
+		}
+		return nullptr;
+	}
+}
+
+void AAshlinePlayerController::AshGrantCredits(int32 Amount)
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const int32 Grant = Amount > 0 ? Amount : 1000;
+		Progression->GrantCredits(Grant);
+		UE_LOG(LogAshline, Log, TEXT("AshGrantCredits: +%d now %d"), Grant, Progression->GetCredits());
+	}
+}
+
+void AAshlinePlayerController::AshSetRank(int32 Rank)
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		Progression->SetRank(Rank);
+		if (UAshlineSaveGame* Save = Progression->GetSave())
+		{
+			UE_LOG(LogAshline, Log, TEXT("AshSetRank: rank=%d prestige=%d"), Save->Operator.Rank, Save->PrestigeLevel);
+		}
+	}
+}
+
+void AAshlinePlayerController::AshPrestige()
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		if (Progression->PrestigeReset())
+		{
+			UE_LOG(LogAshline, Log, TEXT("AshPrestige: prestige=%d gold skin + prestige camo equipped."),
+				Progression->GetSave() ? Progression->GetSave()->PrestigeLevel : 0);
+		}
+		else
+		{
+			UE_LOG(LogAshline, Warning, TEXT("AshPrestige: need rank 50 (use AshSetRank 50)."));
+		}
+	}
+}
+
+void AAshlinePlayerController::AshOpenCrate()
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const FAshlineCrateGrant Grant = Progression->OpenPlayEarnedCrate();
+		UE_LOG(LogAshline, Log, TEXT("AshOpenCrate: %s (%s)"), *Grant.DisplayName.ToString(), *Grant.ItemId.ToString());
+	}
+}
+
+void AAshlinePlayerController::AshBuySkin(const FString& SkinId)
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const bool bOk = Progression->PurchaseSkin(FName(*SkinId));
+		UE_LOG(LogAshline, Log, TEXT("AshBuySkin %s -> %s (credits %d)"), *SkinId, bOk ? TEXT("ok") : TEXT("fail"), Progression->GetCredits());
+	}
+}
+
+void AAshlinePlayerController::AshEquipSkin(const FString& WeaponId, const FString& SkinId)
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const bool bOk = Progression->EquipSkin(FName(*WeaponId), FName(*SkinId));
+		UE_LOG(LogAshline, Log, TEXT("AshEquipSkin %s on %s -> %s"), *SkinId, *WeaponId, bOk ? TEXT("ok") : TEXT("fail"));
+	}
+}
+
+void AAshlinePlayerController::AshBuyCosmetic(const FString& CosmeticId)
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const bool bOk = Progression->PurchaseCosmetic(FName(*CosmeticId));
+		UE_LOG(LogAshline, Log, TEXT("AshBuyCosmetic %s -> %s (credits %d)"), *CosmeticId, bOk ? TEXT("ok") : TEXT("fail"), Progression->GetCredits());
+	}
+}
+
+void AAshlinePlayerController::AshEquipCosmetic(const FString& SlotName, const FString& CosmeticId)
+{
+	EAshlineCosmeticSlot Slot = EAshlineCosmeticSlot::Camo;
+	if (!UAshlineMetaCatalog::SlotFromName(FName(*SlotName), Slot))
+	{
+		UE_LOG(LogAshline, Warning, TEXT("AshEquipCosmetic: unknown slot %s"), *SlotName);
+		return;
+	}
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const bool bOk = Progression->EquipCosmetic(Slot, FName(*CosmeticId));
+		UE_LOG(LogAshline, Log, TEXT("AshEquipCosmetic %s in %s -> %s"), *CosmeticId, *SlotName, bOk ? TEXT("ok") : TEXT("fail"));
+	}
+}
+
+void AAshlinePlayerController::AshUnlockMeta()
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		Progression->UnlockAllMeta();
+		UE_LOG(LogAshline, Log, TEXT("AshUnlockMeta: catalog owned (prestige-gated items still require prestige). Credits=%d"), Progression->GetCredits());
+	}
+}
+
+void AAshlinePlayerController::AshListMeta()
+{
+	UE_LOG(LogAshline, Log, TEXT("=== Ashline cosmetics ==="));
+	for (const FAshlineCosmeticDefinition& Item : UAshlineMetaCatalog::BuildCosmetics())
+	{
+		UE_LOG(LogAshline, Log, TEXT("  %s  %s  rank%d  %dcr  P%d"),
+			*Item.CosmeticId.ToString(), *Item.DisplayName.ToString(), Item.UnlockRank, Item.CreditCost, Item.RequiredPrestige);
+	}
+	UE_LOG(LogAshline, Log, TEXT("=== Ashline weapon skins ==="));
+	for (const FAshlineWeaponSkinDefinition& Item : UAshlineMetaCatalog::BuildWeaponSkins())
+	{
+		UE_LOG(LogAshline, Log, TEXT("  %s  %s  weapon=%s  %dcr"),
+			*Item.SkinId.ToString(), *Item.DisplayName.ToString(),
+			Item.WeaponId.IsNone() ? TEXT("*") : *Item.WeaponId.ToString(), Item.CreditCost);
 	}
 }

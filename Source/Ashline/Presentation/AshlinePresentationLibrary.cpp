@@ -496,6 +496,10 @@ void UAshlinePresentationLibrary::ApplyHumanoidBlockout(ACharacter* Character, c
 		{
 			if (MeshComp && MeshComp->GetFName() == Name)
 			{
+				if (UMaterialInstanceDynamic* MID = MakeTintedMaterial(Character, EAshlineSurface::Plastic, Color))
+				{
+					MeshComp->SetMaterial(0, MID);
+				}
 				return;
 			}
 		}
@@ -524,4 +528,25 @@ void UAshlinePresentationLibrary::ApplyHumanoidBlockout(ACharacter* Character, c
 	Part(TEXT("AshlineBlock_ArmR"), Cube, FVector(0.f, -22.f, 18.f), FVector(0.12f, 0.12f, 0.42f), Dark);
 	Part(TEXT("AshlineBlock_LegL"), Cyl ? Cyl : Cube, FVector(0.f, 10.f, -40.f), FVector(0.16f, 0.16f, 0.45f), Dark);
 	Part(TEXT("AshlineBlock_LegR"), Cyl ? Cyl : Cube, FVector(0.f, -10.f, -40.f), FVector(0.16f, 0.16f, 0.45f), Dark);
+}
+
+void UAshlinePresentationLibrary::TintNamedStaticMesh(AActor* Actor, FName ComponentName, const FLinearColor& Tint, EAshlineSurface Surface)
+{
+	if (!Actor)
+	{
+		return;
+	}
+	TArray<UStaticMeshComponent*> Meshes;
+	Actor->GetComponents<UStaticMeshComponent>(Meshes);
+	for (UStaticMeshComponent* MeshComp : Meshes)
+	{
+		if (MeshComp && MeshComp->GetFName() == ComponentName)
+		{
+			if (UMaterialInstanceDynamic* MID = MakeTintedMaterial(Actor, Surface, Tint))
+			{
+				MeshComp->SetMaterial(0, MID);
+			}
+			return;
+		}
+	}
 }

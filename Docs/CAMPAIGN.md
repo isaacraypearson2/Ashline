@@ -4,7 +4,7 @@ Runtime source of truth: `UAshlineMissionCatalog::BuildCampaign()`.
 Designer mirror: `Content/Ashline/Data/Campaign.json`.
 Environment mood / kit: `UAshlinePresentationLibrary::MoodForMission` + `UAshlineEnvironmentKit`.
 
-Saves between missions in slot `AshlineCampaign`. Completing a mission unlocks the next, grants XP, and awards crate tokens.
+Saves between missions in slot `AshlineCampaign` (v2). Completing a mission unlocks the next, grants XP, **credits**, and crate tokens. Rank / prestige / locker live in the same save (`Docs/META.md`).
 
 | Code | Title | Location | Lighting mood |
 | --- | --- | --- | --- |
@@ -34,5 +34,6 @@ Walk into the markers. The extract / final required volume completes the mission
 | Compound weapon + muzzle light + impact decals | Fab / Lyra weapon meshes + Niagara |
 | Humanoid blockout or mannequin/MetaHuman if present | Unique AI wardrobe |
 | Audio **slots** (silent until cues exist) | Fire / reload / music beds |
+| Credits, rank curve, cosmetics, skins, prestige | UMG locker + MetaHuman wardrobe |
 | `Ashline_PC_Ultra` / Balanced | Profile on the 9070 GRE |
-| Ads off | Stay off |
+| Ads off, no MP | Stay off / still no netcode |

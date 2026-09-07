@@ -25,12 +25,25 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 
 - [ ] PIE opens campaign select (not an empty void)
 - [ ] WASD / mouse / jump / crouch / fire / aim / reload / swap / V toggle
-- [ ] ASH-01 INFIL → CUT → EXFIL awards XP and unlocks ASH-02
+- [ ] ASH-01 INFIL → CUT → EXFIL awards XP **and credits** and unlocks ASH-02
+- [ ] Frontend shows Rank / Prestige / Credits / equipped camo + primary skin
 - [ ] Difficulty Left/Right changes AI pressure (Veteran/Extreme extra bots)
 - [ ] Esc pause → Enter resume; Esc twice aborts to select
 - [ ] `AshUnlockAll` then `AshDeploy 12` reaches the finale
 - [ ] After ASH-12, **ASHLINE CUT** and save slot `AshlineCampaign` persists
 - [ ] Ads stay off
+
+## SP meta (locker / economy / prestige)
+
+- [ ] New save starts at 750 credits, `CAMO_FIELD`, `SKIN_FACTORY`
+- [ ] `AshGrantCredits 5000` then `AshBuySkin SKIN_FDE` then `AshEquipSkin WPN_AR_ASH16 SKIN_FDE` — redeploy and the ASH-16 tints tan
+- [ ] `AshBuyCosmetic CAMO_NIGHT` + `AshEquipCosmetic Camo CAMO_NIGHT` — TPS / blockout body reads darker blue
+- [ ] `AshUnlockMeta` owns the catalog; prestige-gated gilt stays locked until prestige
+- [ ] `AshSetRank 50` then `AshPrestige` grants/equips `CAMO_PRESTIGE`, `SKIN_GOLD`, `CHARM_SPINE`; rank returns to 1
+- [ ] Weapon upgrade spends credits (`UpgradeWeapon` / armory path)
+- [ ] 1.x save slot migrates to 2.0.0 without wiping missions
+- [ ] `AshListMeta` dumps cosmetic + skin ids
+- [ ] No multiplayer / listen-server objects were added
 
 ## Presentation (Phase 1 bar)
 

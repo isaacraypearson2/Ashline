@@ -14,6 +14,8 @@ AI is the same with `BodyMeshOverride` + per-archetype DataAssets + a tint so ri
 
 When a skeletal mesh is assigned, the cube `GrayboxBody` is hidden.
 
+Equipped operator cosmetics (`Docs/META.md`) tint the hero mesh (or the head/torso/limb blockout) from catalog `PreviewTint`. If a camo `MeshOverride` / `MaterialOverride` is assigned and the asset exists, it wins. Voice packs are ids only until MetaSounds land.
+
 ## MetaHuman Creator import (Phase 2)
 
 These assets are **not shipped in git**.

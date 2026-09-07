@@ -30,6 +30,9 @@ struct FAshlineRuntimeWeapon
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Weapons")
 	int32 UpgradeTier = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Weapons")
+	FName SkinId = TEXT("SKIN_FACTORY");
 };
 
 UCLASS(ClassGroup = (Ashline), meta = (BlueprintSpawnableComponent))
@@ -70,6 +73,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
 	void RefreshVisuals();
 
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
+	void ApplyEquippedSkin();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
+	void ApplyCharm(FName CharmId);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	float TraceDistance = 20000.f;
 
@@ -91,6 +100,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Weapons")
 	TObjectPtr<UPointLightComponent> MuzzleLight;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Weapons")
+	TObjectPtr<UStaticMeshComponent> CharmMesh;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	TSoftObjectPtr<UAshlineWeaponVisual> VisualOverride;
 
@@ -110,8 +122,11 @@ private:
 	void AttachVisuals();
 	void BuildCompoundPlaceholder();
 	void ApplyVisualAsset(UAshlineWeaponVisual* Visual);
+	void ApplyTintToWeaponMeshes(const FLinearColor& Tint, UMaterialInterface* Override);
 	void PlayFireAudio();
 	void PlayReloadAudio();
+
+	FName EquippedCharmId;
 
 	UPROPERTY()
 	FAshlineRuntimeWeapon PrimaryWeapon;

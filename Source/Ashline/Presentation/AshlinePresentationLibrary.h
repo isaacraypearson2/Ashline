@@ -14,6 +14,7 @@ class UAshlineEnvironmentKit;
 class UAshlineCharacterPresentation;
 class UAshlineWeaponVisual;
 class UObject;
+class AActor;
 class ACharacter;
 
 /** Runtime resolver: authored DataAssets → StarterContent → Engine fallbacks. Never assumes Fab binaries exist. */
@@ -68,4 +69,7 @@ public:
 	/** AAA-style mannequin blockout (head/torso/limbs) when no skeletal mesh is available. */
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
 	static void ApplyHumanoidBlockout(ACharacter* Character, const FLinearColor& Tint);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static void TintNamedStaticMesh(AActor* Actor, FName ComponentName, const FLinearColor& Tint, EAshlineSurface Surface);
 };

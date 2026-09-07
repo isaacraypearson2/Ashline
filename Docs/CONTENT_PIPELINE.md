@@ -47,6 +47,7 @@ Maps never hard-crash when a Fab mesh is missing.
 | `UAshlineEnvironmentKit` | `/Game/Ashline/Data/Kits/DA_Kit_ASH01` … `ASH12` | Mood + ground/wall/foliage/decal + prop slots + music bed |
 | `UAshlineWeaponVisual` | `/Game/Ashline/Data/Kits/DA_WPN_WPN_AR_ASH16` | World mesh, muzzle FX, impact decal, fire/reload/hit cues |
 | `UAshlineCharacterPresentation` | `/Game/Ashline/Data/Kits/DA_Hero_Operator` | MetaHuman/mannequin + anim class |
+| `UAshlineMetaCatalog` | `Content/Ashline/Data/Meta.json` (designer mirror) | Cosmetics, skins, rank curve, prestige. C++ is source of truth. |
 
 Create them with `Scripts/import_fab_kits.py` inside the editor (does **not** download Fab).
 

@@ -178,6 +178,7 @@ void AAshlineGameMode::CompleteActiveMission(int32 Stars, bool bOptionalComplete
 	LastAwardedStars = FMath::Clamp(Stars, 0, 3);
 	LastAwardedXP = 0;
 	LastAwardedCrates = 0;
+	LastAwardedCredits = 0;
 
 	if (UGameInstance* GI = GetGameInstance())
 	{
@@ -185,12 +186,12 @@ void AAshlineGameMode::CompleteActiveMission(int32 Stars, bool bOptionalComplete
 		{
 			if (UAshlineSaveGame* Save = Progression->GetSave())
 			{
-				const int32 XPBefore = Save->Operator.XP;
-				const int32 RankBefore = Save->Operator.Rank;
 				const int32 TokensBefore = Save->CrateTokens;
+				const int32 CreditsBefore = Save->Credits;
 				Progression->CompleteMission(ActiveMission, LastAwardedStars, bOptionalComplete);
-				LastAwardedXP = (Save->Operator.Rank - RankBefore) * 1000 + (Save->Operator.XP - XPBefore);
+				LastAwardedXP = ActiveDefinition.XPReward + LastAwardedStars * 50;
 				LastAwardedCrates = Save->CrateTokens - TokensBefore;
+				LastAwardedCredits = Save->Credits - CreditsBefore;
 			}
 			else
 			{

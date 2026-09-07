@@ -123,6 +123,7 @@ protected:
 	void EnsureDefaultLoadout();
 	void ApplyGrayboxMeshes();
 	void ApplyPresentationMesh();
+	void ApplyOperatorLook();
 	void TickFootsteps(float DeltaSeconds);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Mesh")

@@ -18,6 +18,9 @@ public:
 	static TArray<FName> GetCamos();
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Operator")
+	static TArray<FName> GetCosmeticsForSlot(EAshlineCosmeticSlot Slot);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Operator")
 	static FAshlineOperatorProfile MakeDefault();
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Operator")
