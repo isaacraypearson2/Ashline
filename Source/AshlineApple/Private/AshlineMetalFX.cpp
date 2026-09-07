@@ -68,7 +68,7 @@ void UAshlineMetalFXSubsystem::ApplyUpscaler(int32 Mode)
 	{
 		if (IConsoleVariable* CVar = IConsoleManager::Get().FindConsoleVariable(Name))
 		{
-			CVar->Set(Value, ECVF_SetByCode);
+			CVar->Set(*FString::FromInt(Value), ECVF_SetByCode);
 		}
 	};
 
