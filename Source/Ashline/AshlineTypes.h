@@ -103,6 +103,16 @@ enum class EAshlineGraphicsPreset : uint8
 };
 
 UENUM(BlueprintType)
+enum class EAshlinePlayPhase : uint8
+{
+	Frontend,
+	InMission,
+	Paused,
+	MissionComplete,
+	CampaignComplete
+};
+
+UENUM(BlueprintType)
 enum class EAshlineUpscaler : uint8
 {
 	Off,

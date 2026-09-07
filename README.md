@@ -14,9 +14,45 @@ This repository is a full C++ Unreal project (modules, config, campaign/weapon/A
 4. Double-click `Ashline.uproject` (associated with **5.8**) or *File → Open* from the Epic Launcher / Unreal Editor.
 5. If the editor says the project could not be compiled, rebuild from source with `Build.sh` (below), then reopen.
 
-First launch uses the engine Entry map. Create graybox campaign maps under `/Game/Ashline/Maps/` as listed in `Content/Ashline/README.md`, then set `GameDefaultMap` in Project Settings when you are ready.
+First Play lands in the **runtime campaign select** (no `.umap` or Input Action assets required). `AAshlineGrayboxBuilder` hosts ASH-01…ASH-12 in the current world. If `/Game/Ashline/Maps/ASH_Playable` does not exist yet, the module remaps startup to `/Engine/Maps/Entry` and still builds the playable campaign there.
 
 Do not expect a Windows DX12 workflow; this project is authored for Metal.
+
+## Play the full campaign on Mac (bug test)
+
+1. Install **UE 5.8.2** (Mac) + **Xcode** + **Metal Toolchain** (Xcode → Settings → Components).
+2. Clone this repo. Double-click `Ashline.uproject` (engine **5.8**).
+3. If the editor asks to rebuild, let it, or compile first:
+
+```bash
+UE58="/Users/Shared/Epic Games/UE_5.8/Engine/Build/BatchFiles/Mac/Build.sh"
+"$UE58" AshlineEditor Mac Development -Project="$(pwd)/Ashline.uproject" -WaitMutex
+```
+
+4. If a dialog says `ASH_Playable` is missing, dismiss it. Play still works on the engine host world.
+5. Click **Play** (PIE) in the toolbar. You should see the **ASHLINE** campaign list, not an empty Entry void.
+6. **Up/Down** highlight ASH-01 Wire Cut (READY). **Left/Right** set difficulty. **Enter** deploys.
+7. In mission:
+   - **WASD** move, **mouse** look, **Space** jump, **C** crouch
+   - **LMB** fire, **RMB** aim, **R** reload, **Q** swap, **V** FPS/TPS
+   - Walk into **glowing cubes** to complete objectives. The last / extract cube finishes the mission.
+   - Red capsules are AI — they can be shot and will push/shoot back.
+8. On **MISSION COMPLETE**, note XP / crate tokens, press **Enter** to return to campaign select. ASH-02 is now READY.
+9. Repeat through **ASH-12**. After the finale, **ASHLINE CUT** means the save unlocked the whole spine.
+10. Progress lives in save slot `AshlineCampaign` (Saved/SaveGames). Delete that file to start a new operator.
+
+**Smoke-test checklist**
+
+- [ ] PIE opens campaign select without authored maps
+- [ ] WASD / mouse / jump / crouch / fire / aim / reload / swap / V toggle
+- [ ] ASH-01 INFIL → CUT → EXFIL awards XP and unlocks ASH-02
+- [ ] Difficulty Left/Right changes AI pressure (Veteran/Extreme spawn extra bots)
+- [ ] Esc pause → Enter resume; Esc twice aborts to select
+- [ ] `AshUnlockAll` then `AshDeploy 12` reaches the finale graybox
+- [ ] DualSense still rumbles on fire if one is paired (AshlineApple)
+- [ ] Ads stay off
+
+Optional: `Scripts/create_ashline_play_assets.py` in the editor creates `/Game/Ashline/Maps/ASH_Playable` plus IA/IMC assets. Not required for Play.
 
 ### Rebuild from source (Mac)
 
@@ -72,7 +108,7 @@ After a successful `AshlineEditor` build, open `Ashline.uproject` again. Check `
 | FPS / TPS | V | Touch pad | Camera toggle |
 | Swap weapon | Q or 1/2 | Triangle / Y | Swap |
 
-Enhanced Input assets live under `/Game/Ashline/Input/` once created in the editor. C++ binds are on `AAshlineCharacter`. See `Config/DefaultInput.ini`.
+Input is created at runtime (`UAshlineRuntimeInput`) so Play works with no `.uasset` Input Actions. C++ binds are on `AAshlineCharacter`. Optional editor assets: `Scripts/create_ashline_play_assets.py`. See `Docs/CONTROLS.md`.
 
 ## Campaign
 
@@ -115,10 +151,11 @@ Content/Ashline/                Graybox scaffolding + JSON data
 
 ## Honest limits
 
-- **Graybox art.** No shipped characters, weapons meshes, audio, or finished lighting. Maps are created in editor from the folder plan.
+- **Graybox art.** Capsules/cubes/engine primitives. No shipped characters, weapon meshes, audio, or finished lighting. All 12 missions are playable as code-built grayboxes.
 - **Hardware RT is gated.** `UAshlineMetalFXSubsystem` reads `GRHISupportsRayTracing`. If the device does not report RT, the setting refuses to enable. Most Apple GPUs will stay on software Lumen / no RT.
 - **MetalFX is optional.** Weak-linked. Spatial/Temporal only when `MTLFX*ScalerDescriptor` exists (typically macOS 13+ / iOS 16+ on supported GPUs).
-- **Input actions** must be created once in the editor and assigned on the character/controller defaults.
+- **No authored `.umap` required.** Startup prefers `/Game/Ashline/Maps/ASH_Playable`; if that package is missing, Play hosts on `/Engine/Maps/Entry` and still runs the campaign.
+- **Frontend UMG / armory / operator screens** are still stubs. Campaign select is a Canvas HUD.
 - This repo is not a packaged App Store build. You still need Apple Developer signing for iOS devices.
 
 ## License

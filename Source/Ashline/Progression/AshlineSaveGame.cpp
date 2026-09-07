@@ -41,7 +41,13 @@ void UAshlineSaveGame::SeedNewCampaign()
 
 FAshlineMissionProgress* UAshlineSaveGame::FindMissionProgress(EAshlineMissionId MissionId)
 {
-	for (FAshlineMissionProgress& Progress : Missions)
+	return const_cast<FAshlineMissionProgress*>(
+		static_cast<const UAshlineSaveGame*>(this)->FindMissionProgress(MissionId));
+}
+
+const FAshlineMissionProgress* UAshlineSaveGame::FindMissionProgress(EAshlineMissionId MissionId) const
+{
+	for (const FAshlineMissionProgress& Progress : Missions)
 	{
 		if (Progress.MissionId == MissionId)
 		{

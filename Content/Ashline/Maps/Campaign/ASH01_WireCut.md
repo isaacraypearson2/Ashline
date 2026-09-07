@@ -1,5 +1,6 @@
 # ASH-01 — WireCut
 
-Graybox map target: `/Game/Ashline/Maps/Campaign/ASH01_WireCut`
+**Playable at runtime** via `AAshlineGrayboxBuilder::BuildWireCut` (night compound,
+comms hut, creek exfil, 3 AI, INFIL / CUT / EXFIL / GHOST).
 
-Create this level in UE 5.8.2, set GameMode to `AAshlineGameMode`, and assign `ActiveMission` to the matching enum. Place `AAshlineObjectiveTrigger` volumes using the objective ids from `UAshlineMissionCatalog` / `Content/Ashline/Data/Campaign.json`.
+Optional authored map: `/Game/Ashline/Maps/Campaign/ASH01_WireCut`

@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "AshlineTypes.h"
 #include "AshlineGameInstance.generated.h"
 
 UCLASS()
@@ -17,4 +18,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Campaign")
 	void TravelToMission(FName MapAsset);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Campaign")
+	void StartMissionById(EAshlineMissionId MissionId);
 };

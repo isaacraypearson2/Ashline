@@ -27,7 +27,8 @@ public class Ashline : ModuleRules
 		{
 			"ApplicationCore",
 			"RHI",
-			"RenderCore"
+			"RenderCore",
+			"EngineSettings"
 		});
 
 		PublicIncludePaths.AddRange(new string[]
