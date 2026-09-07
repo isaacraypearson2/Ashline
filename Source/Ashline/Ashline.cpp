@@ -16,18 +16,14 @@ public:
 			const FString Playable = TEXT("/Game/Ashline/Maps/ASH_Playable");
 			if (FPackageName::DoesPackageExist(Playable))
 			{
-				Maps->SetGameDefaultMap(Playable);
-#if WITH_EDITOR
-				Maps->SetEditorStartupMap(Playable);
-#endif
+				UGameMapsSettings::SetGameDefaultMap(Playable);
+				Maps->EditorStartupMap = FSoftObjectPath(Playable);
 				UE_LOG(LogAshline, Log, TEXT("Startup map: %s"), *Playable);
 			}
 			else
 			{
-				Maps->SetGameDefaultMap(TEXT("/Engine/Maps/Entry"));
-#if WITH_EDITOR
-				Maps->SetEditorStartupMap(TEXT("/Engine/Maps/Entry"));
-#endif
+				UGameMapsSettings::SetGameDefaultMap(TEXT("/Engine/Maps/Entry"));
+				Maps->EditorStartupMap = FSoftObjectPath(TEXT("/Engine/Maps/Entry"));
 				UE_LOG(LogAshline, Log, TEXT("ASH_Playable.umap not in Content yet — hosting the runtime campaign on /Engine/Maps/Entry. Press Play."));
 			}
 		}

@@ -2,6 +2,7 @@
 
 #include "Ashline.h"
 #include "AI/AshlineAICatalog.h"
+#include "Camera/CameraActor.h"
 #include "Campaign/AshlineMissionCatalog.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
@@ -363,7 +364,7 @@ void AAshlineGameMode::ApplyFrontendView(APlayerController* PC)
 	PC->SetInputMode(FInputModeGameOnly());
 	if (Builder && Builder->FrontendCamera)
 	{
-		PC->SetViewTarget(Builder->FrontendCamera);
+		PC->SetViewTarget(static_cast<AActor*>(Builder->FrontendCamera.Get()));
 	}
 }
 
