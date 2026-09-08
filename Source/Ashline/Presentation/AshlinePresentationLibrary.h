@@ -103,14 +103,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
 	static UMaterialInterface* GetMasterEnvironmentMaterial();
 
+	/** Class-scaled master MID. Unique UFUNCTION name — UHT rejects overloads of MakeWeaponMaterial. */
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
-	static UMaterialInstanceDynamic* MakeWeaponMaterial(UObject* Outer, EAshlineWeaponClass Class, const FLinearColor& Tint);
+	static UMaterialInstanceDynamic* MakeWeaponMaterialForClass(UObject* Outer, EAshlineWeaponClass Class, const FLinearColor& Tint);
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
 	static UMaterialInstanceDynamic* MakeSkinMaterialInstance(UObject* Outer, const FAshlineWeaponSkinDefinition& Skin);
-
-	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
-	static UMaterialInstanceDynamic* MakeCharacterMaterial(UObject* Outer, const FLinearColor& Tint);
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
 	static void ApplyMasterParameters(UMaterialInstanceDynamic* MID, const FLinearColor& Tint, float Roughness, float Metallic);

@@ -972,18 +972,18 @@ UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeEnvironmentMaterial(U
 	return MID;
 }
 
-UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeWeaponMaterial(UObject* Outer, EAshlineWeaponClass Class, const FLinearColor& Tint)
+UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeWeaponMaterialForClass(UObject* Outer, EAshlineWeaponClass Class, const FLinearColor& Tint)
 {
 	UMaterialInterface* Base = GetMasterWeaponMaterialForClass(Class);
-	if (!Base)
+	if (Base)
 	{
-		return nullptr;
+		UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Base, Outer);
+		FAshlineMaterialParams Applied = DefaultParamsForWeaponClass(Class);
+		Applied.Tint = Tint;
+		ApplyMaterialParams(MID, Applied);
+		return MID;
 	}
-	UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Base, Outer);
-	FAshlineMaterialParams Applied = DefaultParamsForWeaponClass(Class);
-	Applied.Tint = Tint;
-	ApplyMaterialParams(MID, Applied);
-	return MID;
+	return MakeWeaponMaterial(Outer, Tint, FAshlineTextureSet());
 }
 
 UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeSkinMaterialInstance(UObject* Outer, const FAshlineWeaponSkinDefinition& Skin)
