@@ -217,6 +217,10 @@ void AAshlineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 			EIC->BindAction(SprintAction, ETriggerEvent::Started, this, &AAshlineCharacter::StartSprint);
 			EIC->BindAction(SprintAction, ETriggerEvent::Completed, this, &AAshlineCharacter::StopSprint);
 		}
+		if (FireModeAction)
+		{
+			EIC->BindAction(FireModeAction, ETriggerEvent::Started, this, &AAshlineCharacter::CycleFireMode);
+		}
 	}
 	else
 	{
@@ -434,6 +438,14 @@ void AAshlineCharacter::StopAim()
 	SetAiming(false);
 }
 
+void AAshlineCharacter::CycleFireMode()
+{
+	if (WeaponComponent)
+	{
+		WeaponComponent->CycleFireMode();
+	}
+}
+
 void AAshlineCharacter::StartCrouch()
 {
 	Crouch();
@@ -577,6 +589,10 @@ void AAshlineCharacter::ApplyRuntimeInputActions()
 		{
 			SprintAction = Input->Sprint;
 		}
+		if (!FireModeAction)
+		{
+			FireModeAction = Input->FireMode;
+		}
 	}
 }
 
@@ -612,6 +628,7 @@ void AAshlineCharacter::BindLegacyKeys(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::F, IE_Pressed, this, &AAshlineCharacter::Interact);
 	PlayerInputComponent->BindKey(EKeys::LeftShift, IE_Pressed, this, &AAshlineCharacter::StartSprint);
 	PlayerInputComponent->BindKey(EKeys::LeftShift, IE_Released, this, &AAshlineCharacter::StopSprint);
+	PlayerInputComponent->BindKey(EKeys::B, IE_Pressed, this, &AAshlineCharacter::CycleFireMode);
 }
 
 void AAshlineCharacter::LegacyMoveForward(float Value)

@@ -15,6 +15,7 @@
 #include "Settings/AshlineGameUserSettings.h"
 #include "Settings/AshlineGraphicsSettings.h"
 #include "UI/AshlineCombatFeedback.h"
+#include "Weapons/AshlineWeaponCatalog.h"
 #include "Weapons/AshlineWeaponComponent.h"
 
 namespace
@@ -66,6 +67,10 @@ namespace
 		case EAshlineWeaponClass::Sidearm: return TEXT("PISTOL");
 		case EAshlineWeaponClass::DMR: return TEXT("DMR");
 		case EAshlineWeaponClass::LMG: return TEXT("LMG");
+		case EAshlineWeaponClass::Launcher: return TEXT("GL");
+		case EAshlineWeaponClass::Melee: return TEXT("MELEE");
+		case EAshlineWeaponClass::BattleRifle: return TEXT("BR");
+		case EAshlineWeaponClass::PDW: return TEXT("PDW");
 		default: return TEXT("WPN");
 		}
 	}
@@ -345,10 +350,12 @@ void AAshlineHUD::DrawFrontend(AAshlineGameMode* GameMode, UAshlineSaveGame* Sav
 	DrawTextScaled(FString::Printf(TEXT("Difficulty  < %s >     Rank %d  P%d  XP %d  Credits %d  Crates %d"),
 		DifficultyName(Difficulty), Rank, Prestige, XP, Credits, Tokens),
 		Pad, Bottom - 80.f, Palette.Health, 0.95f * Metrics.Scale);
-	DrawTextScaled(FString::Printf(TEXT("Operator %s   Camo %s   Primary skin %s"),
+	DrawTextScaled(FString::Printf(TEXT("Operator %s   Camo %s   Primary skin %s   Lethal %s   Tactical %s"),
 		Save ? *Save->Operator.Callsign : TEXT("ASH-0"),
 		*CamoId.ToString(),
-		*SkinName),
+		*SkinName,
+		Save ? *Save->Operator.LethalId.ToString() : TEXT("EQ_FRAG"),
+		Save ? *Save->Operator.TacticalId.ToString() : TEXT("EQ_FLASH")),
 		Pad, Bottom - 58.f, Palette.Dim, 0.9f * Metrics.Scale);
 
 	FString PresetLine = TEXT("Graphics: Ashline_PC_Ultra");
@@ -459,7 +466,11 @@ void AAshlineHUD::DrawWeaponPlate(AAshlineCharacter* Character)
 	FillRect(X - 10.f, Y - 10.f, PlateW + 20.f, 78.f, Palette.Panel);
 
 	DrawTextScaled(Weapon.Definition.DisplayName.ToString(), X, Y, Palette.White, 1.05f * Metrics.Scale);
-	DrawTextScaled(FString::Printf(TEXT("%s   %s   %s"), ClassShort(Weapon.Definition.Class), *FireMode, *SkinName),
+	DrawTextScaled(FString::Printf(TEXT("%s   %s   %s   %s"),
+		ClassShort(Weapon.Definition.Class),
+		*FireMode,
+		*UAshlineWeaponCatalog::AmmoTypeName(Weapon.Stats.AmmoType),
+		*SkinName),
 		X, Y + 20.f, Palette.Dim, 0.85f * Metrics.Scale);
 
 	const FLinearColor AmmoColor = bEmpty ? Palette.Danger : (Weapon.AmmoInMag <= 5 ? Palette.Gold : Palette.White);

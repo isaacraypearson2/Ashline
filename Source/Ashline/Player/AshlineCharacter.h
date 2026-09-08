@@ -55,6 +55,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Combat")
 	void NotifyWeaponFired();
 
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Combat")
+	void CycleFireMode();
+
 	UFUNCTION(BlueprintPure, Category = "Ashline|Combat")
 	bool IsDowned() const { return bDowned; }
 
@@ -115,6 +118,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
 	TObjectPtr<UInputAction> SprintAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
+	TObjectPtr<UInputAction> FireModeAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Movement")
 	float AimWalkMul = 0.55f;

@@ -13,6 +13,7 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -22,7 +23,6 @@
 #include "Presentation/AshlineAudioDirector.h"
 #include "Presentation/AshlineCombatFX.h"
 #include "Presentation/AshlineContentManifest.h"
-#include "Presentation/AshlineLoad.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlineWeaponVisual.h"
 #include "Perception/AISense_Hearing.h"
@@ -56,6 +56,7 @@ void UAshlineWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	}
 
 	FireCooldown = FMath::Max(0.f, FireCooldown - DeltaTime);
+	TickGunfeel(DeltaTime);
 	if (bReloading)
 	{
 		ReloadRemaining -= DeltaTime;
@@ -74,9 +75,18 @@ void UAshlineWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	if (bWantsFire && FireCooldown <= 0.f)
 	{
 		FireShot();
-		if (!GetActiveWeapon().Stats.bAutomatic)
+		const EAshlineFireMode Mode = GetActiveWeapon().Stats.FireMode;
+		if (Mode == EAshlineFireMode::Semi)
 		{
 			bWantsFire = false;
+		}
+		else if (Mode == EAshlineFireMode::Burst)
+		{
+			--BurstRemaining;
+			if (BurstRemaining <= 0)
+			{
+				bWantsFire = false;
+			}
 		}
 	}
 
@@ -90,6 +100,16 @@ void UAshlineWeaponComponent::LoadFromLoadout(const FAshlineLoadoutSlot& Primary
 		FAshlineRuntimeWeapon Runtime;
 		UAshlineWeaponCatalog::FindWeapon(Slot.WeaponId, Runtime.Definition);
 		Runtime.Stats = UAshlineWeaponCatalog::ComposeStats(Runtime.Definition, Slot.Attachments);
+		UAshlineWeaponCatalog::ApplyAmmoType(Runtime.Stats, Slot.AmmoType);
+		if (Runtime.Definition.SupportedFireModes.Contains(Slot.FireMode))
+		{
+			Runtime.Stats.FireMode = Slot.FireMode;
+		}
+		else if (Runtime.Definition.SupportedFireModes.Num() > 0)
+		{
+			Runtime.Stats.FireMode = Runtime.Definition.SupportedFireModes[0];
+		}
+		Runtime.Stats.bAutomatic = Runtime.Stats.FireMode == EAshlineFireMode::Auto;
 		Runtime.UpgradeTier = Upgrade;
 		Runtime.Stats.Damage += Upgrade * 1.5f;
 		Runtime.Stats.RecoilPitch = FMath::Max(0.05f, Runtime.Stats.RecoilPitch - Upgrade * 0.04f);
@@ -108,11 +128,20 @@ void UAshlineWeaponComponent::LoadFromLoadout(const FAshlineLoadoutSlot& Primary
 void UAshlineWeaponComponent::StartFire()
 {
 	bWantsFire = true;
+	const FAshlineRuntimeWeapon& Active = GetActiveWeapon();
+	if (Active.Stats.FireMode == EAshlineFireMode::Burst)
+	{
+		BurstRemaining = FMath::Max(1, Active.Stats.BurstCount);
+	}
 }
 
 void UAshlineWeaponComponent::StopFire()
 {
 	bWantsFire = false;
+	if (GetActiveWeapon().Stats.FireMode != EAshlineFireMode::Burst)
+	{
+		BurstRemaining = 0;
+	}
 }
 
 void UAshlineWeaponComponent::Reload()
@@ -124,15 +153,12 @@ void UAshlineWeaponComponent::Reload()
 	}
 	bReloading = true;
 	bWantsFire = false;
-	ReloadRemaining = Active.Stats.ReloadSeconds;
+	BurstRemaining = 0;
+	ConsecutiveShots = 0;
+	const bool bEmpty = Active.AmmoInMag <= 0;
+	const float Mul = bEmpty ? Active.Stats.EmptyReloadMul : Active.Stats.TacticalReloadMul;
+	ReloadRemaining = Active.Stats.ReloadSeconds * Mul;
 	PlayReloadAudio();
-	if (UAshlineWeaponVisual* Visual = UAshlinePresentationLibrary::FindWeaponVisual(Active.Definition.WeaponId))
-	{
-		if (UNiagaraSystem* Niagara = AshlineLoad::Soft(Visual->ReloadFX))
-		{
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Niagara, GetOwner()->GetActorLocation(), GetAimRotation());
-		}
-	}
 }
 
 void UAshlineWeaponComponent::SwapWeapon()
@@ -143,6 +169,8 @@ void UAshlineWeaponComponent::SwapWeapon()
 	}
 	bUsingPrimary = !bUsingPrimary;
 	bWantsFire = false;
+	BurstRemaining = 0;
+	ConsecutiveShots = 0;
 	RefreshVisuals();
 }
 
@@ -168,7 +196,7 @@ float UAshlineWeaponComponent::GetReloadAlpha() const
 
 FString UAshlineWeaponComponent::GetFireModeLabel() const
 {
-	return GetActiveWeapon().Stats.bAutomatic ? TEXT("AUTO") : TEXT("SEMI");
+	return UAshlineWeaponCatalog::FireModeName(GetActiveWeapon().Stats.FireMode);
 }
 
 void UAshlineWeaponComponent::FireShot()
@@ -191,9 +219,9 @@ void UAshlineWeaponComponent::FireShot()
 	}
 
 	const int32 Pellets = FMath::Clamp(Active.Stats.PelletCount, 1, 12);
-	const float DamageEach = Active.Stats.Damage / static_cast<float>(Pellets);
-	const float Spread = (bAiming ? Active.Stats.ADSSpread : Active.Stats.HipFireSpread) + SpreadBloom;
+	const FRotator BaseAim = GetAimRotation();
 	const FVector Start = GetMuzzleLocation();
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(AshlineShot), false, Owner);
 
 	bool bFlesh = false;
 	bool bKilled = false;
@@ -203,14 +231,15 @@ void UAshlineWeaponComponent::FireShot()
 
 	for (int32 i = 0; i < Pellets; ++i)
 	{
-		FRotator Aim = GetAimRotation();
+		const float Spread = CurrentSpread() + SpreadBloom;
+		FRotator Aim = BaseAim;
 		Aim.Yaw += FMath::FRandRange(-Spread, Spread) + RecoilYawAccum * 0.15f;
 		Aim.Pitch += FMath::FRandRange(-Spread * 0.6f, Spread * 0.6f) + RecoilPitchAccum * 0.1f;
 
 		FHitResult Hit;
-		const FVector End = Start + Aim.Vector() * TraceDistance;
+		const float MaxCm = FMath::Clamp(Active.Stats.RangeMeters * 150.f, 180.f, TraceDistance);
+		const FVector End = Start + Aim.Vector() * MaxCm;
 		LastEnd = End;
-		FCollisionQueryParams Params(SCENE_QUERY_STAT(AshlineShot), false, Owner);
 		World->LineTraceSingleByChannel(Hit, Start, End, TraceChannel, Params);
 
 		if (Hit.bBlockingHit)
@@ -223,7 +252,9 @@ void UAshlineWeaponComponent::FireShot()
 					AI = HitAI;
 					bFlesh = true;
 				}
-				UGameplayStatics::ApplyDamage(Hit.GetActor(), DamageEach, Owner->GetInstigatorController(), Owner, nullptr);
+				const float DistM = Hit.Distance / 100.f;
+				const float Damage = UAshlineWeaponCatalog::DamageAtRange(Active.Stats, DistM);
+				UGameplayStatics::ApplyDamage(Hit.GetActor(), Damage, Owner->GetInstigatorController(), Owner, nullptr);
 				if (AI)
 				{
 					bKilled = AI->bDead;
@@ -271,6 +302,7 @@ void UAshlineWeaponComponent::FireShot()
 	ReportGunshotNoise();
 	SpreadBloom = FMath::Min(4.5f, SpreadBloom + (bAiming ? 0.12f : 0.28f));
 	KickOffset += FVector(-2.4f, FMath::FRandRange(-0.6f, 0.6f), 0.8f);
+	++ConsecutiveShots;
 
 	if (AAshlineCharacter* Shooter = Cast<AAshlineCharacter>(Owner))
 	{
@@ -297,8 +329,9 @@ void UAshlineWeaponComponent::ApplyRecoil()
 	RecoilYawAccum = FMath::Clamp(RecoilYawAccum + FMath::FRandRange(-Stats.RecoilYaw, Stats.RecoilYaw) * 0.35f * AimMul, -4.f, 4.f);
 	if (APlayerController* PC = Cast<APlayerController>(GetOwner()->GetInstigatorController()))
 	{
-		PC->AddPitchInput(-Stats.RecoilPitch * 0.12f * AimMul);
-		PC->AddYawInput(FMath::FRandRange(-Stats.RecoilYaw, Stats.RecoilYaw) * 0.12f * AimMul);
+		const FVector2D Kick = UAshlineWeaponCatalog::RecoilKick(Stats, ConsecutiveShots, bAiming);
+		PC->AddPitchInput(-Kick.X * 0.14f);
+		PC->AddYawInput(Kick.Y * 0.14f + FMath::FRandRange(-Stats.RecoilYaw, Stats.RecoilYaw) * 0.04f);
 	}
 }
 
@@ -408,7 +441,6 @@ void UAshlineWeaponComponent::AttachVisuals()
 	if (!MuzzleLight)
 	{
 		MuzzleLight = NewObject<UPointLightComponent>(Character, TEXT("AshlineMuzzleLight"));
-		MuzzleLight->SetMobility(EComponentMobility::Movable);
 		MuzzleLight->SetIntensity(0.f);
 		MuzzleLight->SetAttenuationRadius(180.f);
 		MuzzleLight->SetLightColor(FLinearColor(1.f, 0.72f, 0.35f));
@@ -457,7 +489,7 @@ void UAshlineWeaponComponent::RefreshVisuals()
 		AttachVisuals();
 	}
 
-	UAshlineWeaponVisual* Visual = AshlineLoad::Soft(VisualOverride);
+	UAshlineWeaponVisual* Visual = VisualOverride.LoadSynchronous();
 	if (!Visual)
 	{
 		Visual = UAshlinePresentationLibrary::FindWeaponVisual(GetActiveWeapon().Definition.WeaponId);
@@ -482,7 +514,7 @@ void UAshlineWeaponComponent::ApplyVisualAsset(UAshlineWeaponVisual* Visual)
 		return;
 	}
 
-	UStaticMesh* Mesh = AshlineLoad::Soft(Visual->WorldMesh);
+	UStaticMesh* Mesh = Visual->WorldMesh.LoadSynchronous();
 	if (!Mesh)
 	{
 		Mesh = UAshlinePresentationLibrary::LoadStaticMesh({
@@ -522,8 +554,8 @@ void UAshlineWeaponComponent::ApplyVisualAsset(UAshlineWeaponVisual* Visual)
 
 void UAshlineWeaponComponent::BuildCompoundPlaceholder()
 {
-	UStaticMesh* Cube = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cube.Cube"));
-	UStaticMesh* Cyl = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+	UStaticMesh* Cube = UAshlinePresentationLibrary::LoadStaticMesh({ TEXT("/Engine/BasicShapes/Cube.Cube") });
+	UStaticMesh* Cyl = UAshlinePresentationLibrary::LoadStaticMesh({ TEXT("/Engine/BasicShapes/Cylinder.Cylinder") });
 	if (!Cube || !WeaponMesh)
 	{
 		return;
@@ -562,6 +594,20 @@ void UAshlineWeaponComponent::BuildCompoundPlaceholder()
 		ReceiverScale = FVector(0.36f, 0.12f, 0.12f);
 		BarrelScale = FVector(0.08f, 0.08f, 0.5f);
 		MagScale = FVector(0.16f, 0.1f, 0.18f);
+	}
+	else if (Class == EAshlineWeaponClass::Launcher)
+	{
+		ReceiverScale = FVector(0.32f, 0.14f, 0.14f);
+		BarrelScale = FVector(0.12f, 0.12f, 0.55f);
+		StockScale = FVector(0.16f, 0.08f, 0.1f);
+		MagScale = FVector(0.1f, 0.1f, 0.1f);
+	}
+	else if (Class == EAshlineWeaponClass::Melee)
+	{
+		ReceiverScale = FVector(0.04f, 0.03f, 0.18f);
+		BarrelScale = FVector(0.03f, 0.01f, 0.28f);
+		StockScale = FVector(0.05f, 0.03f, 0.08f);
+		MagScale = FVector(0.02f, 0.02f, 0.02f);
 	}
 
 	WeaponMesh->SetStaticMesh(Cube);
@@ -618,9 +664,12 @@ void UAshlineWeaponComponent::ApplyEquippedSkin()
 	{
 		Tint = Def.Tint;
 		Override = UAshlinePresentationLibrary::ResolveSkinMaterial(Def);
-		if (!Override)
+		if (UStaticMesh* SkinMesh = UAshlinePresentationLibrary::ResolveSkinMesh(Def))
 		{
-			Override = AshlineLoad::Soft(Def.MaterialOverride);
+			if (WeaponMesh)
+			{
+				WeaponMesh->SetStaticMesh(SkinMesh);
+			}
 		}
 	}
 	if (!Override)
@@ -637,6 +686,11 @@ void UAshlineWeaponComponent::ApplyEquippedSkin()
 				}
 			}
 		}
+	}
+	if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeSkinMaterialInstance(this, Def))
+	{
+		ApplyTintToWeaponMeshes(Tint, MID);
+		return;
 	}
 	ApplyTintToWeaponMeshes(Tint, Override);
 }
@@ -667,7 +721,7 @@ void UAshlineWeaponComponent::ApplyCharm(FName CharmId)
 	}
 	if (!CharmAsset)
 	{
-		CharmAsset = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cube.Cube"));
+		CharmAsset = UAshlinePresentationLibrary::LoadStaticMesh({ TEXT("/Engine/BasicShapes/Cube.Cube") });
 	}
 	if (CharmAsset)
 	{
@@ -751,27 +805,108 @@ void UAshlineWeaponComponent::TickCombatFeel(float DeltaTime)
 	KickOffset = FMath::VInterpTo(KickOffset, FVector::ZeroVector, DeltaTime, 14.f);
 	SwayTime += DeltaTime;
 	BobTime += DeltaTime;
+}
 
+void UAshlineWeaponComponent::CycleFireMode()
+{
+	FAshlineRuntimeWeapon& Active = MutableActive();
+	Active.Stats.FireMode = UAshlineWeaponCatalog::CycleFireMode(Active.Definition, Active.Stats.FireMode);
+	Active.Stats.bAutomatic = Active.Stats.FireMode == EAshlineFireMode::Auto;
+	BurstRemaining = 0;
+	ConsecutiveShots = 0;
+}
+
+EAshlineFireMode UAshlineWeaponComponent::GetFireMode() const
+{
+	return GetActiveWeapon().Stats.FireMode;
+}
+
+EAshlineAmmoType UAshlineWeaponComponent::GetAmmoType() const
+{
+	return GetActiveWeapon().Stats.AmmoType;
+}
+
+FAshlineRuntimeWeapon& UAshlineWeaponComponent::MutableActive()
+{
+	return bUsingPrimary ? PrimaryWeapon : SecondaryWeapon;
+}
+
+float UAshlineWeaponComponent::CurrentSpread() const
+{
+	const FAshlineWeaponStats& Stats = GetActiveWeapon().Stats;
+	float Spread = bAiming ? Stats.ADSSpread : Stats.HipFireSpread;
+	if (const ACharacter* Character = Cast<ACharacter>(GetOwner()))
+	{
+		const float Speed = Character->GetVelocity().Size2D();
+		if (Speed > 40.f)
+		{
+			Spread *= Stats.MovementSpreadMul;
+		}
+		if (Character->bIsCrouched)
+		{
+			Spread *= Stats.CrouchSpreadMul;
+		}
+	}
+	Spread *= 1.f + ConsecutiveShots * 0.04f;
+	return Spread;
+}
+
+void UAshlineWeaponComponent::TickGunfeel(float DeltaTime)
+{
+	const FAshlineWeaponStats& Stats = GetActiveWeapon().Stats;
+	if (!bWantsFire || FireCooldown > 0.12f)
+	{
+		ConsecutiveShots = FMath::Max(0, ConsecutiveShots - 1);
+		const float Recover = Stats.RecoilRecoveryPerSecond * DeltaTime;
+		RecoilPitchAccum = FMath::Max(0.f, RecoilPitchAccum - Recover * 0.12f);
+		RecoilYawAccum = FMath::Lerp(RecoilYawAccum, 0.f, FMath::Clamp(Recover * 0.08f, 0.f, 1.f));
+		if (APlayerController* PC = Cast<APlayerController>(GetOwner() ? GetOwner()->GetInstigatorController() : nullptr))
+		{
+			if (RecoilPitchAccum > 0.f)
+			{
+				const float Step = FMath::Min(RecoilPitchAccum, Recover * 0.08f);
+				PC->AddPitchInput(Step);
+				RecoilPitchAccum -= Step;
+			}
+		}
+	}
+	ApplySwayAndAdsPose(DeltaTime);
+}
+
+void UAshlineWeaponComponent::ApplySwayAndAdsPose(float DeltaTime)
+{
 	if (!WeaponMesh)
 	{
 		return;
 	}
 
-	const FVector TargetBase = bAiming ? AdsOffset : HipOffset;
+	const FAshlineWeaponStats& Stats = GetActiveWeapon().Stats;
+	const float AdsTarget = bAiming ? 1.f : 0.f;
+	const float AdsSpeed = 1.f / FMath::Max(0.08f, Stats.ADSTimeSeconds);
+	AdsAlpha = FMath::FInterpTo(AdsAlpha, AdsTarget, DeltaTime, AdsSpeed * 6.f);
+
 	FVector Bob = FVector::ZeroVector;
 	if (const ACharacter* Character = Cast<ACharacter>(GetOwner()))
 	{
 		const float Speed2D = Character->GetVelocity().Size2D();
 		if (Speed2D > 40.f)
 		{
-			const float BobScale = bAiming ? 0.35f : 1.f;
+			const float BobScale = FMath::Lerp(1.f, 0.35f, AdsAlpha);
 			Bob.Z = FMath::Sin(BobTime * 10.f) * 0.55f * BobScale;
 			Bob.Y = FMath::Cos(BobTime * 5.f) * 0.35f * BobScale;
 		}
 	}
-	const float SwayScale = bAiming ? 0.15f : 0.45f;
-	const FVector Sway(0.f, FMath::Sin(SwayTime * 1.15f) * 0.35f * SwayScale, FMath::Cos(SwayTime * 0.85f) * 0.22f * SwayScale);
-	WeaponMesh->SetRelativeLocation(TargetBase + KickOffset + Bob + Sway);
+
+	const float SwayAmp = FMath::Lerp(Stats.SwayHipDegrees, Stats.SwayAdsDegrees, AdsAlpha);
+	float MoveMul = 1.f;
+	if (const ACharacter* Character = Cast<ACharacter>(GetOwner()))
+	{
+		MoveMul = 1.f + Character->GetVelocity().Size2D() / 600.f;
+	}
+	const float SwayY = FMath::Sin(SwayTime * 1.7f) * SwayAmp * 0.35f * MoveMul;
+	const float SwayZ = FMath::Cos(SwayTime * 1.15f) * SwayAmp * 0.22f * MoveMul;
+	const FVector Target = FMath::Lerp(HipOffset, AdsOffset, AdsAlpha) + KickOffset + Bob + FVector(0.f, SwayY, SwayZ);
+	WeaponMesh->SetRelativeLocation(Target);
 	WeaponMesh->SetRelativeRotation(FRotator(-RecoilPitchAccum * 0.35f, RecoilYawAccum * 0.25f, 8.f));
 }
 

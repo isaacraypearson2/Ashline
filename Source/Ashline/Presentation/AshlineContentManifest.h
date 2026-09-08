@@ -99,6 +99,21 @@ public:
 	static FString SkinMaterialPath(FName SkinId);
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString SkinMeshPath(FName SkinId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString MasterWeaponMaterialPath();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString MasterSkinMaterialPath();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString MasterCharacterMaterialPath();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString MasterEnvironmentMaterialPath();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
 	static FString SkinDataAssetPath(FName SkinId);
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
@@ -126,6 +141,15 @@ public:
 	static FString SlotFolderName(EAshlineCosmeticSlot Slot);
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString EquipmentMeshPath(FName EquipmentId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString EquipmentMaterialPath(FName EquipmentId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString EquipmentDataAssetPath(FName EquipmentId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
 	static FString SurfaceSlug(EAshlineSurface Surface);
 
 	/** Authored master + MI. Missing packages fail quiet — Engine fallbacks remain valid. */
@@ -134,4 +158,17 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
 	static FString SurfaceInstancePath(EAshlineSurface Surface);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString WeaponClassSlug(EAshlineWeaponClass Class);
+
+	/** Class MI first (`MI_WPN_AR`), then master. Quiet if missing. */
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> WeaponClassMasterCandidates(EAshlineWeaponClass Class);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> SkinMasterCandidates();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> CharacterMasterCandidates();
 };

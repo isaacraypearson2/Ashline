@@ -59,6 +59,7 @@ void UAshlineRuntimeInput::EnsureBuilt()
 	Crouch = MakeAction(TEXT("IA_Ashline_Crouch"), static_cast<uint8>(EInputActionValueType::Boolean));
 	Interact = MakeAction(TEXT("IA_Ashline_Interact"), static_cast<uint8>(EInputActionValueType::Boolean));
 	Sprint = MakeAction(TEXT("IA_Ashline_Sprint"), static_cast<uint8>(EInputActionValueType::Boolean));
+	FireMode = MakeAction(TEXT("IA_Ashline_FireMode"), static_cast<uint8>(EInputActionValueType::Boolean));
 
 	KeyboardMouseContext = NewObject<UInputMappingContext>(this, TEXT("IMC_Ashline_KBM_Runtime"));
 	GamepadContext = NewObject<UInputMappingContext>(this, TEXT("IMC_Ashline_Gamepad_Runtime"));
@@ -115,6 +116,7 @@ void UAshlineRuntimeInput::MapButtons()
 	KeyboardMouseContext->MapKey(Interact, EKeys::E);
 	KeyboardMouseContext->MapKey(Interact, EKeys::F);
 	KeyboardMouseContext->MapKey(Sprint, EKeys::LeftShift);
+	KeyboardMouseContext->MapKey(FireMode, EKeys::B);
 }
 
 void UAshlineRuntimeInput::MapGamepad()
@@ -138,6 +140,7 @@ void UAshlineRuntimeInput::MapGamepad()
 	GamepadContext->MapKey(Interact, EKeys::Gamepad_LeftShoulder);
 	GamepadContext->MapKey(Interact, EKeys::Gamepad_DPad_Down);
 	GamepadContext->MapKey(Sprint, EKeys::Gamepad_LeftThumbstick);
+	GamepadContext->MapKey(FireMode, EKeys::Gamepad_DPad_Right);
 
 	// Touch context mirrors fire/aim/jump so a later UMG HUD can inject the same actions.
 	TouchContext->MapKey(Fire, EKeys::LeftMouseButton);

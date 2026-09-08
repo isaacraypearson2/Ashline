@@ -62,7 +62,7 @@ void AAshlineAICharacter::ApplyArchetype(EAshlineAIArchetype InArchetype, EAshli
 	Archetype = InArchetype;
 	ArchetypeDef = UAshlineAICatalog::GetArchetype(Archetype);
 	const FAshlineDifficultyTuning Tuning = UAshlineAICatalog::GetDifficulty(Difficulty);
-	Health = ArchetypeDef.MaxHealth * Tuning.AIHealthMul;
+	Health = ArchetypeDef.MaxHealth * Tuning.AIHealthMul * FMath::Max(0.5f, ArchetypeDef.ArmorMul);
 	GetCharacterMovement()->MaxWalkSpeed = ArchetypeDef.MoveSpeed;
 }
 
@@ -94,20 +94,25 @@ void AAshlineAICharacter::ApplyPresentationMesh()
 		Body = UAshlinePresentationLibrary::ResolveHumanoidMesh();
 	}
 
-	FLinearColor Tint(0.45f, 0.12f, 0.1f);
-	switch (Archetype)
+	FLinearColor Tint = ArchetypeDef.BodyTint;
+	if (Tint.A <= 0.f || Tint.Equals(FLinearColor::Black))
 	{
-	case EAshlineAIArchetype::Officer: Tint = FLinearColor(0.15f, 0.16f, 0.22f); break;
-	case EAshlineAIArchetype::Marksman: Tint = FLinearColor(0.22f, 0.2f, 0.12f); break;
-	case EAshlineAIArchetype::Heavy: Tint = FLinearColor(0.12f, 0.12f, 0.12f); break;
-	case EAshlineAIArchetype::Breacher: Tint = FLinearColor(0.28f, 0.12f, 0.08f); break;
-	case EAshlineAIArchetype::Scout: Tint = FLinearColor(0.16f, 0.2f, 0.12f); break;
-	case EAshlineAIArchetype::MachineGunner: Tint = FLinearColor(0.18f, 0.14f, 0.1f); break;
-	case EAshlineAIArchetype::CivilianIrregular: Tint = FLinearColor(0.32f, 0.24f, 0.16f); break;
-	case EAshlineAIArchetype::Grenadier: Tint = FLinearColor(0.22f, 0.18f, 0.1f); break;
-	case EAshlineAIArchetype::RadioOp: Tint = FLinearColor(0.14f, 0.18f, 0.2f); break;
-	case EAshlineAIArchetype::CQBSpecialist: Tint = FLinearColor(0.2f, 0.1f, 0.1f); break;
-	default: break;
+		switch (Archetype)
+		{
+		case EAshlineAIArchetype::Officer: Tint = FLinearColor(0.15f, 0.16f, 0.22f); break;
+		case EAshlineAIArchetype::Marksman: Tint = FLinearColor(0.22f, 0.2f, 0.12f); break;
+		case EAshlineAIArchetype::Heavy: Tint = FLinearColor(0.12f, 0.12f, 0.12f); break;
+		case EAshlineAIArchetype::Breacher: Tint = FLinearColor(0.28f, 0.12f, 0.08f); break;
+		case EAshlineAIArchetype::Scout: Tint = FLinearColor(0.16f, 0.2f, 0.12f); break;
+		case EAshlineAIArchetype::MachineGunner: Tint = FLinearColor(0.18f, 0.14f, 0.1f); break;
+		case EAshlineAIArchetype::CivilianIrregular: Tint = FLinearColor(0.32f, 0.24f, 0.16f); break;
+		case EAshlineAIArchetype::Grenadier: Tint = FLinearColor(0.22f, 0.18f, 0.1f); break;
+		case EAshlineAIArchetype::Elite: Tint = FLinearColor(0.08f, 0.09f, 0.1f); break;
+		case EAshlineAIArchetype::Spotter: Tint = FLinearColor(0.2f, 0.22f, 0.16f); break;
+		case EAshlineAIArchetype::RadioOp: Tint = FLinearColor(0.14f, 0.18f, 0.2f); break;
+		case EAshlineAIArchetype::CQBSpecialist: Tint = FLinearColor(0.2f, 0.1f, 0.1f); break;
+		default: Tint = FLinearColor(0.45f, 0.12f, 0.1f); break;
+		}
 	}
 
 	if (Body && GetMesh())

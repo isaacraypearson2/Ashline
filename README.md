@@ -19,7 +19,7 @@ This repository is a full C++ Unreal project: campaign loop, weapons, AI, progre
 | RT | Hardware ray tracing **ON when the RHI reports it** |
 | Upscaling | **FSR 3** (Temporal Upscale). TSR is the built-in fallback. DLSS is optional and never required. |
 
-Named presets: **`Ashline_PC_Ultra`** (default on Isaac's desktop), **`PC_High`**, **`PC_Balanced`**, **`PC_Performance`**, **`SteamDeck`** (800p / FSR / 40 fps), **`Laptop`**. Auto-detect on boot (`AshGfxAuto`); cycle with **F8** / `AshGfxCycle`. CVars: `Docs/GRAPHICS.md`.
+Named presets: **`Ashline_PC_Ultra`** (default on Isaac's desktop), **`PC_High`**, **`PC_Balanced`**, **`PC_Performance`** (`AshPCPerf`), **`SteamDeck`** (800p / FSR), **`Laptop`**. Auto-detect on boot (`AshGfxAuto`); cycle with **F8** / `AshGfxCycle`. CVars: `Docs/GRAPHICS.md`. Overnight armory: `Docs/PHASE_OVERNIGHT.md`.
 
 ## Open on Windows (UE 5.8.2)
 
@@ -51,7 +51,7 @@ set PROJ=%CD%\Ashline.uproject
 2. **Up/Down** highlight ASH-01 Wire Cut (READY). **Left/Right** set difficulty. **Enter** opens the **mission brief**; **Enter** again deploys. **Esc** opens Settings (graphics incl. Steam Deck, HUD scale, colorblind).
 3. In mission:
    - **WASD** move, **mouse** look, **Space** jump, **C** crouch
-   - **LMB** fire, **RMB** aim, **R** reload, **Q** swap, **Left Shift** sprint, **V** FPS/TPS, **F / E** interact
+   - **LMB** fire, **RMB** aim, **R** reload, **B** fire-mode, **Q** swap, **Left Shift** sprint, **V** FPS/TPS, **F / E** interact
    - COD-style HUD: ammo / firemode / skin, HP+armor, objective diamond, hit markers
    - Walk into **glowing objective markers** (or press F when prompted). The extract / last required volume finishes the mission.
    - Hostiles use a **humanoid mesh when one can be resolved** (mannequin / MetaHuman / assigned DataAsset); otherwise a tinted blockout body.
@@ -71,10 +71,10 @@ Ads stay off (`UAshlineMonetizationHooks`).
 | Playable ASH-01…12 campaign loop | Quixel / Fab Megascans environment kits |
 | Themed lighting, fog, PP, decals, foliage blockout | Authored `.umap` art passes per mission |
 | PBR-tinted Engine/StarterContent materials | Unique scanned surfaces |
-| Compound weapon meshes + muzzle light + impact decals | Fab military weapon packs (soft-ref swap) |
+| Weapons — 45-gun armory + attachments + gunfeel + skin tints | Fab military weapon packs (soft-ref swap) |
 | Hero/AI skeletal hooks (MetaHuman / mannequin) | MetaHuman Creator characters + AnimBPs |
 | Audio **slots** (fire / reload / hit / footsteps / music) | Authored MetaSounds / Sound Cues |
-| SP meta: credits, rank 1–50, cosmetics, weapon skins, prestige | MetaHuman wardrobe + Fab skin materials |
+| SP meta: credits, rank 1–50, cosmetics, weapon skins, equipment, prestige | MetaHuman wardrobe + Fab skin materials |
 | AAA-scale graybox ASH-01…12 (infil / compound / exfil, trim, lamps, crates) | Quixel kits on the same footprints |
 | Master-material **paths** (`MI_AshlineConcrete` etc.) + Engine fallbacks | Authored Nanite MIs / Megascans in `Content/Ashline/Materials/PBR/` |
 | `Ashline_PC_Ultra` / High / Balanced / Perf / **SteamDeck** / Laptop | Profile on 9070 GRE **and** a Deck; FSR3 plugin from Fab |
@@ -83,7 +83,7 @@ Ads stay off (`UAshlineMonetizationHooks`).
 **This repo does not contain Quixel, Fab, or MetaHuman binary packs.** If those folders are empty, that is expected.
 
 Install next: `Docs/PHASE2_FAB.md` (evening clock) · `Docs/MATERIALS.md` (MI_Ashline parameter contract)  
-Also: `Docs/FAB_PACKS.md`, `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Docs/TEST_PLAN.md`, `Docs/RELEASE_CHECKLIST.md`, `Docs/STEAM_DECK.md`, `Docs/PACKAGING.md`.
+Also: `Docs/FAB_PACKS.md`, `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Docs/PHASE_OVERNIGHT.md`, `Docs/TEST_PLAN.md`, `Docs/RELEASE_CHECKLIST.md`, `Docs/STEAM_DECK.md`, `Docs/PACKAGING.md`.
 
 ## Campaign
 
@@ -103,17 +103,17 @@ Also: `Docs/FAB_PACKS.md`, `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Do
 | ASH-12 | Ashline | Finale — red buried terminus |
 
 Briefings, XP, and crate tokens: `UAshlineMissionCatalog` + `Content/Ashline/Data/Campaign.json`.  
-Locker / economy / prestige: `UAshlineMetaCatalog` + `Content/Ashline/Data/Meta.json` (`Docs/META.md`). Save: `UAshlineProgressionSubsystem`.
+Locker / economy / prestige: `UAshlineMetaCatalog` + `Content/Ashline/Data/Meta.json` (`Docs/META.md`). Armory: `Docs/PHASE_OVERNIGHT.md`. Save: `UAshlineProgressionSubsystem`.
 
 ## Systems
 
 - **FPS/TPS toggle** — first-person camera vs spring-arm third-person. Preference is saved.
-- **Weapons** — 13 guns (AR/SMG/PDW/BR/DMR/LMG/shotgun/pistol), attachments including ammo types, skins, upgrade tiers, muzzle/reload FX slots, pellet traces on shotguns.
-- **Operator locker** — clothing slots (incl. headset/backpack), camos, faces, voice packs, charms. Equipped ids tint the hero / blockout and hang a charm on the gun.
-- **Economy / prestige** — credits from missions and rank-ups; spend on cosmetics, skins, weapon upgrades; prestige at rank 50 keeps the locker and grants gilt.
-- **AI** — eleven archetypes (incl. grenadier / radio / CQB), perception + push/hold, humanoid mesh when assigned.
+- **Weapons** — AR, SMG, PDW, BR, sniper, shotgun, sidearm, DMR, LMG, launcher, melee. Compound mesh + muzzle + impacts + fire modes + recoil patterns + equipped skin tint on `UAshlineWeaponComponent`.
+- **Operator locker** — clothing slots (incl. headset/backpack), camos, faces, voice packs, charms, lethals/tacticals/field. Equipped ids tint the hero / blockout and hang a charm on the gun.
+- **Economy / prestige** — credits from missions and rank-ups; spend on cosmetics, skins, paid guns, attachments, equipment, weapon upgrades; prestige at rank 50 keeps the locker and grants gilt (prestige 2 diamond).
+- **AI** — thirteen archetypes (incl. grenadier / elite / spotter / radio / CQB), perception + push/hold, humanoid mesh when assigned.
 - **Difficulty** — Recruit, Regular, Veteran, Extreme.
-- **Graphics** — `UAshlineGraphicsSettings` (Windows FSR3/TSR/RT; Steam Deck 800p profile; Apple MetalFX still gated). Auto-detect + F8 cycle.
+- **Graphics** — `UAshlineGraphicsSettings` (Windows FSR3/TSR/RT; Steam Deck 800p; Apple MetalFX still gated). Auto-detect + F8 cycle.
 - **MonetizationHooks** — stub only. Ads stay off. No multiplayer.
 
 ## Source layout

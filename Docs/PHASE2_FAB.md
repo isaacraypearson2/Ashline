@@ -201,5 +201,6 @@ After art lands, re-run `Docs/TEST_PLAN.md`:
 | `Scripts/fab_install_plan.py` | Print the evening clock (no UE) |
 | `Scripts/assign_interim_meshes.py` | After Starter / GASP / Manny exist |
 | `Scripts/create_ashline_play_assets.py` | Optional `ASH_Playable` map |
+| `Scripts/generate_overnight_catalogs.py` | After C++ catalog edits | Regenerates JSON mirrors |
 | `Scripts/validate_meta_catalog.py` | CI / pre-commit (no UE) |
 | `Scripts/validate_content_layout.py` | CI / pre-commit (no UE) |

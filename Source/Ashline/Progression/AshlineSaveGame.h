@@ -102,6 +102,9 @@ public:
 	TArray<FName> OwnedSkinIds;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ashline|Save")
+	TArray<FName> OwnedEquipmentIds;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ashline|Save")
 	int32 CrateTokens = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ashline|Save")
@@ -127,4 +130,5 @@ public:
 	void GrantXP(int32 Amount);
 	bool OwnsCosmetic(FName CosmeticId) const;
 	bool OwnsSkin(FName SkinId) const;
+	bool OwnsEquipment(FName EquipmentId) const;
 };

@@ -89,6 +89,54 @@ public:
 	static UMaterialInterface* ResolveSkinMaterial(const FAshlineWeaponSkinDefinition& Skin);
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UStaticMesh* ResolveSkinMesh(const FAshlineWeaponSkinDefinition& Skin);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInterface* GetMasterWeaponMaterial();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInterface* GetMasterSkinMaterial();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInterface* GetMasterCharacterMaterial();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInterface* GetMasterEnvironmentMaterial();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInstanceDynamic* MakeWeaponMaterial(UObject* Outer, EAshlineWeaponClass Class, const FLinearColor& Tint);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInstanceDynamic* MakeSkinMaterialInstance(UObject* Outer, const FAshlineWeaponSkinDefinition& Skin);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInstanceDynamic* MakeCharacterMaterial(UObject* Outer, const FLinearColor& Tint);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static void ApplyMasterParameters(UMaterialInstanceDynamic* MID, const FLinearColor& Tint, float Roughness, float Metallic);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static void ApplyMaterialParams(UMaterialInstanceDynamic* MID, const FAshlineMaterialParams& Params);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInstanceDynamic* MakeEnvironmentMaterial(UObject* Outer, EAshlineSurface Surface, const FLinearColor& Tint);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Presentation")
+	static FAshlineMaterialParams DefaultParamsForSurface(EAshlineSurface Surface);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Presentation")
+	static FAshlineMaterialParams DefaultParamsForWeaponClass(EAshlineWeaponClass Class);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Presentation")
+	static FAshlineMaterialParams DefaultParamsForSkin(const FAshlineWeaponSkinDefinition& Skin);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Presentation")
+	static FAshlineMaterialParams DefaultParamsForCosmeticSlot(EAshlineCosmeticSlot Slot, const FLinearColor& Tint);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInterface* GetMasterWeaponMaterialForClass(EAshlineWeaponClass Class);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
 	static UStaticMesh* ResolveFoliageMesh();
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")

@@ -56,6 +56,30 @@ struct FAshlineAIArchetypeDef
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
 	float PreferredEngageDistance = 1400.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	FLinearColor BodyTint = FLinearColor(0.45f, 0.12f, 0.1f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	FName AlternateWeaponId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	float ArmorMul = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	float Threat = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	int32 GrenadeCount = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	FName PresentationId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	bool bElite = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	FText VoiceLine;
 };
 
 UCLASS()
