@@ -14,6 +14,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Presentation/AshlineCharacterPresentation.h"
 #include "Presentation/AshlineContentManifest.h"
+#include "Presentation/AshlineLoad.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlinePresentationSettings.h"
 #include "Progression/AshlineProgressionSubsystem.h"
@@ -64,19 +65,19 @@ void AAshlineAICharacter::ApplyArchetype(EAshlineAIArchetype InArchetype, EAshli
 
 void AAshlineAICharacter::ApplyPresentationMesh()
 {
-	USkeletalMesh* Body = BodyMeshOverride.LoadSynchronous();
+	USkeletalMesh* Body = AshlineLoad::Soft(BodyMeshOverride);
 	if (!Body)
 	{
 		if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
 		{
-			Body = Settings->DefaultAIMesh.LoadSynchronous();
+			Body = AshlineLoad::Soft(Settings->DefaultAIMesh);
 		}
 	}
 	if (!Body)
 	{
 		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(false, Archetype))
 		{
-			Body = Pres->BodyMesh.LoadSynchronous();
+			Body = AshlineLoad::Soft(Pres->BodyMesh);
 		}
 	}
 	if (!Body)

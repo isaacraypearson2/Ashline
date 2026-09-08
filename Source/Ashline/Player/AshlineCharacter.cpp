@@ -26,6 +26,7 @@
 #include "Meta/AshlineMetaCatalog.h"
 #include "Presentation/AshlineAudioDirector.h"
 #include "Presentation/AshlineCharacterPresentation.h"
+#include "Presentation/AshlineLoad.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlinePresentationSettings.h"
 #include "Weapons/AshlineWeaponComponent.h"
@@ -499,18 +500,18 @@ void AAshlineCharacter::ApplyPresentationMesh()
 
 	if (!HeroMeshOverride.IsNull())
 	{
-		Hero = HeroMeshOverride.LoadSynchronous();
+		Hero = AshlineLoad::Soft(HeroMeshOverride);
 	}
 	if (!Hero)
 	{
 		if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
 		{
-			Hero = Settings->DefaultHeroMesh.LoadSynchronous();
-			if (!Hero && Settings->HeroPresentation.IsValid())
+			Hero = AshlineLoad::Soft(Settings->DefaultHeroMesh);
+			if (!Hero)
 			{
-				if (UAshlineCharacterPresentation* Pres = Settings->HeroPresentation.LoadSynchronous())
+				if (UAshlineCharacterPresentation* Pres = AshlineLoad::Soft(Settings->HeroPresentation))
 				{
-					Hero = Pres->BodyMesh.LoadSynchronous();
+					Hero = AshlineLoad::Soft(Pres->BodyMesh);
 					RelLoc = Pres->MeshRelativeLocation;
 					RelRot = Pres->MeshRelativeRotation;
 					RelScale = Pres->MeshScale;
@@ -522,7 +523,7 @@ void AAshlineCharacter::ApplyPresentationMesh()
 	{
 		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(true, EAshlineAIArchetype::Rifleman))
 		{
-			Hero = Pres->BodyMesh.LoadSynchronous();
+			Hero = AshlineLoad::Soft(Pres->BodyMesh);
 			RelLoc = Pres->MeshRelativeLocation;
 			RelRot = Pres->MeshRelativeRotation;
 			RelScale = Pres->MeshScale;
@@ -543,7 +544,7 @@ void AAshlineCharacter::ApplyPresentationMesh()
 				FAshlineCosmeticDefinition CamoDef;
 				if (UAshlineMetaCatalog::FindCosmetic(CamoId, CamoDef))
 				{
-					if (USkeletalMesh* OverrideMesh = CamoDef.MeshOverride.LoadSynchronous())
+					if (USkeletalMesh* OverrideMesh = AshlineLoad::Soft(CamoDef.MeshOverride))
 					{
 						Hero = OverrideMesh;
 					}

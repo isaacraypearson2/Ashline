@@ -186,9 +186,9 @@ TArray<FString> UAshlineContentManifest::FoliageMeshCandidates()
 {
 	return {
 		TEXT("/Game/Ashline/Environments/Shared/SM_Bush.SM_Bush"),
+		TEXT("/Engine/BasicShapes/Sphere.Sphere"),
 		TEXT("/Game/StarterContent/Props/SM_Bush.SM_Bush"),
-		TEXT("/Game/StarterContent/Props/SM_Rock.SM_Rock"),
-		TEXT("/Engine/BasicShapes/Sphere.Sphere")
+		TEXT("/Game/StarterContent/Props/SM_Rock.SM_Rock")
 	};
 }
 
@@ -196,8 +196,8 @@ TArray<FString> UAshlineContentManifest::TreeMeshCandidates()
 {
 	return {
 		TEXT("/Game/Ashline/Environments/Shared/SM_Tree.SM_Tree"),
-		TEXT("/Game/StarterContent/Props/SM_Rock.SM_Rock"),
-		TEXT("/Engine/BasicShapes/Cylinder.Cylinder")
+		TEXT("/Engine/BasicShapes/Cylinder.Cylinder"),
+		TEXT("/Game/StarterContent/Props/SM_Rock.SM_Rock")
 	};
 }
 

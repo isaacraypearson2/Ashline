@@ -11,6 +11,8 @@ class APlayerStart;
 class UStaticMesh;
 class UMaterialInterface;
 class UAshlineEnvironmentKit;
+class UDirectionalLightComponent;
+class USceneComponent;
 
 /** Runtime graybox world for the campaign frontend and ASH-01..12. */
 UCLASS()
@@ -48,7 +50,13 @@ protected:
 	void SpawnFullAtmosphere();
 	void SpawnPostProcess();
 	void DressMission(EAshlineMissionId MissionId);
+	void ConfigureDynamicWorldLighting();
+	void MakeRuntimeMovable(USceneComponent* Component) const;
+	void ConfigureSun(UDirectionalLightComponent* Light) const;
+	void ConfigureSecondaryDirectional(UDirectionalLightComponent* Light) const;
 	void Practical(const FVector& Location, const FLinearColor& Color, float Intensity, float Radius, bool bCastShadows = false);
+	void Spot(const FVector& Location, const FRotator& Rotation, const FLinearColor& Color, float Intensity, float Radius, float InnerCone = 20.f, float OuterCone = 42.f, bool bCastShadows = false);
+	void InteriorVolume(const FVector& Location, const FVector& Extent, float ExtraVignette, float ExposureBias);
 	void DecalMark(const FVector& Location, const FRotator& Rotation, const FVector& Size);
 	void Tree(const FVector& Location, float Height = 420.f);
 	void Bush(const FVector& Location);
@@ -57,6 +65,14 @@ protected:
 	void VehicleHull(const FVector& Location, const FRotator& Rotation, const FLinearColor& Color, float Length = 5.2f);
 	void WindowStrip(const FVector& Location, int32 Count, float Spacing, const FLinearColor& Glow);
 	void Doorway(const FVector& Location, const FRotator& Rotation = FRotator::ZeroRotator);
+	void CoverLine(const FVector& From, const FVector& To, int32 Count);
+	void TreeBelt(const FVector& From, const FVector& To, int32 Count, float Height = 380.f);
+	void ScatterFoliage(const FVector& Center, float Radius, int32 Trees, int32 Bushes);
+	void Watchtower(const FVector& Location, float Height = 900.f);
+	void Building(const FVector& Location, const FVector2D& Footprint, float Height, const FLinearColor& Color);
+	void WalledYard(const FVector& Center, const FVector2D& HalfExtent, float WallHeight, const FLinearColor& Color, int32 OpenSide, float GateWidth = 600.f);
+	void RoadStrip(const FVector& From, const FVector& To, float Width = 700.f);
+	void ScatterKitProps(const FVector& Center, float Radius, int32 Count);
 
 	AActor* Box(const FVector& Location, const FVector& Scale, const FLinearColor& Color, bool bCollision = true, EAshlineSurface Surface = EAshlineSurface::Auto);
 	AActor* Cylinder(const FVector& Location, const FVector& Scale, const FLinearColor& Color, EAshlineSurface Surface = EAshlineSurface::Auto);

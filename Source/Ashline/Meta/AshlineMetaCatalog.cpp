@@ -2,6 +2,7 @@
 
 #include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlineCosmeticVisual.h"
+#include "Presentation/AshlineLoad.h"
 #include "Engine/SkeletalMesh.h"
 #include "Materials/MaterialInterface.h"
 #include "UObject/SoftObjectPath.h"
@@ -321,8 +322,8 @@ void UAshlineMetaCatalog::BindSkinContentPaths(FAshlineWeaponSkinDefinition& Ski
 
 void UAshlineMetaCatalog::OverlayCosmeticDataAsset(FAshlineCosmeticDefinition& Cosmetic)
 {
-	if (UAshlineCosmeticVisual* Visual = LoadObject<UAshlineCosmeticVisual>(
-		nullptr, *UAshlineContentManifest::CosmeticDataAssetPath(Cosmetic.CosmeticId)))
+	if (UAshlineCosmeticVisual* Visual = AshlineLoad::Object<UAshlineCosmeticVisual>(
+		UAshlineContentManifest::CosmeticDataAssetPath(Cosmetic.CosmeticId)))
 	{
 		if (!Visual->MeshOverride.IsNull())
 		{
@@ -337,8 +338,8 @@ void UAshlineMetaCatalog::OverlayCosmeticDataAsset(FAshlineCosmeticDefinition& C
 
 void UAshlineMetaCatalog::OverlaySkinDataAsset(FAshlineWeaponSkinDefinition& Skin)
 {
-	if (UAshlineCosmeticVisual* Visual = LoadObject<UAshlineCosmeticVisual>(
-		nullptr, *UAshlineContentManifest::SkinDataAssetPath(Skin.SkinId)))
+	if (UAshlineCosmeticVisual* Visual = AshlineLoad::Object<UAshlineCosmeticVisual>(
+		UAshlineContentManifest::SkinDataAssetPath(Skin.SkinId)))
 	{
 		if (!Visual->MaterialOverride.IsNull())
 		{

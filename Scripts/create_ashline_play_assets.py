@@ -66,6 +66,11 @@ def create_playable_map():
         return
 
     unreal.EditorLevelLibrary.new_level(MAP_PATH)
+    world = unreal.EditorLevelLibrary.get_editor_world()
+    if world:
+        settings = world.get_world_settings()
+        if settings:
+            settings.set_editor_property("force_no_precomputed_lighting", True)
     subsystem = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
     if subsystem:
         subsystem.save_current_level()

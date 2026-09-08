@@ -17,7 +17,7 @@ class UObject;
 class AActor;
 class ACharacter;
 
-/** Runtime resolver: authored DataAssets → StarterContent → Engine fallbacks. Never assumes Fab binaries exist. */
+/** Runtime resolver: Engine materials/meshes first, then authored DataAssets / StarterContent only if the package exists. Never assumes Fab binaries exist. */
 UCLASS()
 class ASHLINE_API UAshlinePresentationLibrary : public UBlueprintFunctionLibrary
 {

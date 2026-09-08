@@ -4,6 +4,7 @@
 #include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlineCosmeticVisual.h"
 #include "Presentation/AshlineEnvironmentKit.h"
+#include "Presentation/AshlineLoad.h"
 #include "Presentation/AshlinePresentationSettings.h"
 #include "Presentation/AshlineWeaponVisual.h"
 #include "Meta/AshlineMetaCatalog.h"
@@ -25,11 +26,7 @@ namespace AshlinePres
 	{
 		for (const FString& Path : Paths)
 		{
-			if (Path.IsEmpty())
-			{
-				continue;
-			}
-			if (T* Obj = LoadObject<T>(nullptr, *Path))
+			if (T* Obj = AshlineLoad::Object<T>(Path))
 			{
 				return Obj;
 			}
@@ -60,57 +57,57 @@ UMaterialInterface* UAshlinePresentationLibrary::GetSurfaceMaterial(EAshlineSurf
 	{
 	case EAshlineSurface::Ground:
 		return LoadMaterial({
-			TEXT("/Game/StarterContent/Materials/M_Ground_Grass.M_Ground_Grass"),
-			TEXT("/Game/StarterContent/Materials/M_Ground_Moss.M_Ground_Moss"),
 			TEXT("/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"),
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
-			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+			TEXT("/Game/StarterContent/Materials/M_Ground_Grass.M_Ground_Grass"),
+			TEXT("/Game/StarterContent/Materials/M_Ground_Moss.M_Ground_Moss")
 		});
 	case EAshlineSurface::Concrete:
 		return LoadMaterial({
-			TEXT("/Game/StarterContent/Materials/M_Concrete_Tiles.M_Concrete_Tiles"),
-			TEXT("/Game/StarterContent/Materials/M_Concrete_Poured.M_Concrete_Poured"),
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
-			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+			TEXT("/Game/StarterContent/Materials/M_Concrete_Tiles.M_Concrete_Tiles"),
+			TEXT("/Game/StarterContent/Materials/M_Concrete_Poured.M_Concrete_Poured")
 		});
 	case EAshlineSurface::Metal:
 		return LoadMaterial({
-			TEXT("/Game/StarterContent/Materials/M_Metal_Steel.M_Metal_Steel"),
-			TEXT("/Game/StarterContent/Materials/M_Metal_Brushed.M_Metal_Brushed"),
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
-			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+			TEXT("/Game/StarterContent/Materials/M_Metal_Steel.M_Metal_Steel"),
+			TEXT("/Game/StarterContent/Materials/M_Metal_Brushed.M_Metal_Brushed")
 		});
 	case EAshlineSurface::Wood:
 		return LoadMaterial({
-			TEXT("/Game/StarterContent/Materials/M_Wood_Floor_Walnut_Polished.M_Wood_Floor_Walnut_Polished"),
-			TEXT("/Game/StarterContent/Materials/M_Wood_Oak.M_Wood_Oak"),
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
-			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+			TEXT("/Game/StarterContent/Materials/M_Wood_Floor_Walnut_Polished.M_Wood_Floor_Walnut_Polished"),
+			TEXT("/Game/StarterContent/Materials/M_Wood_Oak.M_Wood_Oak")
 		});
 	case EAshlineSurface::Sand:
 		return LoadMaterial({
-			TEXT("/Game/StarterContent/Materials/M_Ground_Gravel.M_Ground_Gravel"),
 			TEXT("/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"),
-			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
+			TEXT("/Game/StarterContent/Materials/M_Ground_Gravel.M_Ground_Gravel")
 		});
 	case EAshlineSurface::Snow:
 		return LoadMaterial({
-			TEXT("/Game/StarterContent/Materials/M_Rock_Marble.M_Rock_Marble"),
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
-			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+			TEXT("/Game/StarterContent/Materials/M_Rock_Marble.M_Rock_Marble")
 		});
 	case EAshlineSurface::Water:
 		return LoadMaterial({
-			TEXT("/Game/StarterContent/Materials/M_Water_Ocean.M_Water_Ocean"),
-			TEXT("/Game/StarterContent/Materials/M_Water_Lake.M_Water_Lake"),
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
-			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+			TEXT("/Game/StarterContent/Materials/M_Water_Ocean.M_Water_Ocean"),
+			TEXT("/Game/StarterContent/Materials/M_Water_Lake.M_Water_Lake")
 		});
 	case EAshlineSurface::Foliage:
 		return LoadMaterial({
-			TEXT("/Game/StarterContent/Materials/M_Ground_Grass.M_Ground_Grass"),
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
-			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+			TEXT("/Game/StarterContent/Materials/M_Ground_Grass.M_Ground_Grass")
 		});
 	case EAshlineSurface::Emissive:
 		return LoadMaterial({
@@ -122,8 +119,8 @@ UMaterialInterface* UAshlinePresentationLibrary::GetSurfaceMaterial(EAshlineSurf
 	case EAshlineSurface::Auto:
 	default:
 		return LoadMaterial({
-			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
-			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
+			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial")
 		});
 	}
 }
@@ -199,10 +196,10 @@ FAshlineLightingMood UAshlinePresentationLibrary::MoodForMission(EAshlineMission
 		Mood.SunIntensity = 2.4f;
 		Mood.SunRotation = FRotator(-12.f, -40.f, 0.f);
 		Mood.FogColor = FLinearColor(0.03f, 0.05f, 0.09f);
-		Mood.FogDensity = 0.038f;
-		Mood.FogStartDistance = 200.f;
+		Mood.FogDensity = 0.024f;
+		Mood.FogStartDistance = 2200.f;
 		Mood.FogHeightFalloff = 0.12f;
-		Mood.VolumetricFogExtinction = 0.85f;
+		Mood.VolumetricFogExtinction = 0.7f;
 		Mood.VolumetricScattering = 0.22f;
 		Mood.SkyLightIntensity = 0.45f;
 		Mood.SkyZenith = FLinearColor(0.01f, 0.02f, 0.06f);
@@ -222,7 +219,7 @@ FAshlineLightingMood UAshlinePresentationLibrary::MoodForMission(EAshlineMission
 		Mood.FillLightRotation = FRotator(-8.f, 130.f, 0.f);
 		Mood.MoonColor = FLinearColor(0.32f, 0.42f, 0.78f);
 		Mood.MoonIntensity = 1.6f;
-		Mood.FoliageDensity = 12;
+		Mood.FoliageDensity = 16;
 		Mood.AutoExposureBias = -0.4f;
 		Mood.bNight = true;
 		Mood.GroundTint = FLinearColor(0.07f, 0.09f, 0.06f);
@@ -276,7 +273,7 @@ FAshlineLightingMood UAshlinePresentationLibrary::MoodForMission(EAshlineMission
 		Mood.SunRotation = FRotator(-8.f, 160.f, 0.f);
 		Mood.FogColor = FLinearColor(0.03f, 0.04f, 0.08f);
 		Mood.FogDensity = 0.042f;
-		Mood.FogStartDistance = 160.f;
+		Mood.FogStartDistance = 1800.f;
 		Mood.VolumetricFogExtinction = 0.9f;
 		Mood.SkyLightIntensity = 0.35f;
 		Mood.BloomIntensity = 0.7f;
@@ -332,7 +329,7 @@ FAshlineLightingMood UAshlinePresentationLibrary::MoodForMission(EAshlineMission
 		Mood.SunRotation = FRotator(-18.f, 10.f, 0.f);
 		Mood.FogColor = FLinearColor(0.78f, 0.82f, 0.88f);
 		Mood.FogDensity = 0.075f;
-		Mood.FogStartDistance = 40.f;
+		Mood.FogStartDistance = 900.f;
 		Mood.VolumetricFogExtinction = 1.15f;
 		Mood.VolumetricScattering = 0.55f;
 		Mood.SkyLightIntensity = 2.2f;
@@ -429,7 +426,7 @@ FAshlineLightingMood UAshlinePresentationLibrary::MoodForMission(EAshlineMission
 		Mood.SunRotation = FRotator(-16.f, 30.f, 0.f);
 		Mood.FogColor = FLinearColor(0.12f, 0.02f, 0.015f);
 		Mood.FogDensity = 0.048f;
-		Mood.FogStartDistance = 120.f;
+		Mood.FogStartDistance = 1400.f;
 		Mood.VolumetricFogExtinction = 0.95f;
 		Mood.SkyLightIntensity = 0.55f;
 		Mood.BloomIntensity = 0.85f;
@@ -462,13 +459,13 @@ UAshlineEnvironmentKit* UAshlinePresentationLibrary::FindEnvironmentKit(EAshline
 	{
 		if (const TSoftObjectPtr<UAshlineEnvironmentKit>* Found = Settings->MissionKits.Find(MissionId))
 		{
-			if (UAshlineEnvironmentKit* Kit = Found->LoadSynchronous())
+			if (UAshlineEnvironmentKit* Kit = AshlineLoad::Soft(*Found))
 			{
 				return Kit;
 			}
 		}
 	}
-	return LoadObject<UAshlineEnvironmentKit>(nullptr, *UAshlineContentManifest::KitDataAssetPath(MissionId));
+	return AshlineLoad::Object<UAshlineEnvironmentKit>(UAshlineContentManifest::KitDataAssetPath(MissionId));
 }
 
 UAshlineCharacterPresentation* UAshlinePresentationLibrary::FindCharacterPresentation(bool bHero, EAshlineAIArchetype Archetype)
@@ -477,20 +474,20 @@ UAshlineCharacterPresentation* UAshlinePresentationLibrary::FindCharacterPresent
 	{
 		if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
 		{
-			if (UAshlineCharacterPresentation* Hero = Settings->HeroPresentation.LoadSynchronous())
+			if (UAshlineCharacterPresentation* Hero = AshlineLoad::Soft(Settings->HeroPresentation))
 			{
 				return Hero;
 			}
 		}
-		return LoadObject<UAshlineCharacterPresentation>(nullptr, TEXT("/Game/Ashline/Data/Kits/DA_Hero_Operator.DA_Hero_Operator"));
+		return AshlineLoad::Object<UAshlineCharacterPresentation>(TEXT("/Game/Ashline/Data/Kits/DA_Hero_Operator.DA_Hero_Operator"));
 	}
 
-	if (UAshlineCharacterPresentation* Named = LoadObject<UAshlineCharacterPresentation>(
-		nullptr, *UAshlineContentManifest::AIPresentationPath(Archetype)))
+	if (UAshlineCharacterPresentation* Named = AshlineLoad::Object<UAshlineCharacterPresentation>(
+		UAshlineContentManifest::AIPresentationPath(Archetype)))
 	{
 		return Named;
 	}
-	return LoadObject<UAshlineCharacterPresentation>(nullptr, TEXT("/Game/Ashline/Data/Kits/DA_AI_Rifleman.DA_AI_Rifleman"));
+	return AshlineLoad::Object<UAshlineCharacterPresentation>(TEXT("/Game/Ashline/Data/Kits/DA_AI_Rifleman.DA_AI_Rifleman"));
 }
 
 UAshlineWeaponVisual* UAshlinePresentationLibrary::FindWeaponVisual(FName WeaponId)
@@ -499,21 +496,21 @@ UAshlineWeaponVisual* UAshlinePresentationLibrary::FindWeaponVisual(FName Weapon
 	{
 		if (const TSoftObjectPtr<UAshlineWeaponVisual>* Found = Settings->WeaponVisuals.Find(WeaponId))
 		{
-			if (UAshlineWeaponVisual* Visual = Found->LoadSynchronous())
+			if (UAshlineWeaponVisual* Visual = AshlineLoad::Soft(*Found))
 			{
 				return Visual;
 			}
 		}
 	}
 	const FString Path = FString::Printf(TEXT("/Game/Ashline/Data/Kits/DA_WPN_%s.DA_WPN_%s"), *WeaponId.ToString(), *WeaponId.ToString());
-	return LoadObject<UAshlineWeaponVisual>(nullptr, *Path);
+	return AshlineLoad::Object<UAshlineWeaponVisual>(Path);
 }
 
 USkeletalMesh* UAshlinePresentationLibrary::ResolveHumanoidMesh()
 {
 	if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
 	{
-		if (USkeletalMesh* Configured = Settings->DefaultHeroMesh.LoadSynchronous())
+		if (USkeletalMesh* Configured = AshlineLoad::Soft(Settings->DefaultHeroMesh))
 		{
 			return Configured;
 		}
@@ -525,7 +522,7 @@ UStaticMesh* UAshlinePresentationLibrary::ResolveWeaponPlaceholderMesh()
 {
 	if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
 	{
-		if (UStaticMesh* Configured = Settings->PlaceholderWeaponMesh.LoadSynchronous())
+		if (UStaticMesh* Configured = AshlineLoad::Soft(Settings->PlaceholderWeaponMesh))
 		{
 			return Configured;
 		}
@@ -533,23 +530,23 @@ UStaticMesh* UAshlinePresentationLibrary::ResolveWeaponPlaceholderMesh()
 	return LoadStaticMesh({
 		UAshlineContentManifest::WeaponMeshPath(TEXT("WPN_AR_ASH16")),
 		TEXT("/Game/Ashline/Weapons/Meshes/SM_ASH16.SM_ASH16"),
-		TEXT("/Game/StarterContent/Props/SM_CornerFrame.SM_CornerFrame"),
-		TEXT("/Engine/BasicShapes/Cube.Cube")
+		TEXT("/Engine/BasicShapes/Cube.Cube"),
+		TEXT("/Game/StarterContent/Props/SM_CornerFrame.SM_CornerFrame")
 	});
 }
 
 UMaterialInterface* UAshlinePresentationLibrary::ResolveImpactDecalMaterial()
 {
 	return LoadMaterial({
+		TEXT("/Engine/EngineMaterials/DefaultDeferredDecalMaterial.DefaultDeferredDecalMaterial"),
 		TEXT("/Game/Ashline/Materials/Decals/M_Impact_Bullet.M_Impact_Bullet"),
-		TEXT("/Game/StarterContent/Decals/M_Decal_BulletHole.M_Decal_BulletHole"),
-		TEXT("/Engine/EngineMaterials/DefaultDeferredDecalMaterial.DefaultDeferredDecalMaterial")
+		TEXT("/Game/StarterContent/Decals/M_Decal_BulletHole.M_Decal_BulletHole")
 	});
 }
 
 FString UAshlinePresentationLibrary::DescribeFallbackChain()
 {
-	return TEXT("Authored /Game/Ashline DataAssets → StarterContent (if Add Content Pack) → Engine materials/meshes. Fab/Quixel/MetaHuman binaries are not in git.");
+	return TEXT("Engine WorldGrid/BasicShape first. Authored /Game/Ashline DataAssets and StarterContent load only when the package exists (no log flood). Fab/Quixel/MetaHuman binaries are not in git.");
 }
 
 void UAshlinePresentationLibrary::ApplyHumanoidBlockout(ACharacter* Character, const FLinearColor& Tint)
@@ -559,9 +556,9 @@ void UAshlinePresentationLibrary::ApplyHumanoidBlockout(ACharacter* Character, c
 		return;
 	}
 
-	UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
-	UStaticMesh* Sphere = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Sphere.Sphere"));
-	UStaticMesh* Cyl = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+	UStaticMesh* Cube = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cube.Cube"));
+	UStaticMesh* Sphere = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
+	UStaticMesh* Cyl = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
 	if (!Cube)
 	{
 		return;
@@ -638,7 +635,7 @@ void UAshlinePresentationLibrary::TintNamedStaticMesh(AActor* Actor, FName Compo
 
 USkeletalMesh* UAshlinePresentationLibrary::ResolveCosmeticMesh(const FAshlineCosmeticDefinition& Cosmetic)
 {
-	if (USkeletalMesh* Mesh = Cosmetic.MeshOverride.LoadSynchronous())
+	if (USkeletalMesh* Mesh = AshlineLoad::Soft(Cosmetic.MeshOverride))
 	{
 		return Mesh;
 	}
@@ -649,10 +646,10 @@ USkeletalMesh* UAshlinePresentationLibrary::ResolveCosmeticMesh(const FAshlineCo
 
 UStaticMesh* UAshlinePresentationLibrary::ResolveCosmeticPartMesh(const FAshlineCosmeticDefinition& Cosmetic)
 {
-	if (UAshlineCosmeticVisual* Visual = LoadObject<UAshlineCosmeticVisual>(
-		nullptr, *UAshlineContentManifest::CosmeticDataAssetPath(Cosmetic.CosmeticId)))
+	if (UAshlineCosmeticVisual* Visual = AshlineLoad::Object<UAshlineCosmeticVisual>(
+		UAshlineContentManifest::CosmeticDataAssetPath(Cosmetic.CosmeticId)))
 	{
-		if (UStaticMesh* Part = Visual->PartMesh.LoadSynchronous())
+		if (UStaticMesh* Part = AshlineLoad::Soft(Visual->PartMesh))
 		{
 			return Part;
 		}
@@ -665,7 +662,7 @@ UStaticMesh* UAshlinePresentationLibrary::ResolveCosmeticPartMesh(const FAshline
 
 UMaterialInterface* UAshlinePresentationLibrary::ResolveCosmeticMaterial(const FAshlineCosmeticDefinition& Cosmetic)
 {
-	if (UMaterialInterface* Mat = Cosmetic.MaterialOverride.LoadSynchronous())
+	if (UMaterialInterface* Mat = AshlineLoad::Soft(Cosmetic.MaterialOverride))
 	{
 		return Mat;
 	}
@@ -676,7 +673,7 @@ UMaterialInterface* UAshlinePresentationLibrary::ResolveCosmeticMaterial(const F
 
 UMaterialInterface* UAshlinePresentationLibrary::ResolveSkinMaterial(const FAshlineWeaponSkinDefinition& Skin)
 {
-	if (UMaterialInterface* Mat = Skin.MaterialOverride.LoadSynchronous())
+	if (UMaterialInterface* Mat = AshlineLoad::Soft(Skin.MaterialOverride))
 	{
 		return Mat;
 	}
@@ -806,8 +803,8 @@ void UAshlinePresentationLibrary::ApplyClothingPart(ACharacter* Character, EAshl
 		break;
 	}
 
-	if (UAshlineCosmeticVisual* Visual = LoadObject<UAshlineCosmeticVisual>(
-		nullptr, *UAshlineContentManifest::CosmeticDataAssetPath(CosmeticId)))
+	if (UAshlineCosmeticVisual* Visual = AshlineLoad::Object<UAshlineCosmeticVisual>(
+		UAshlineContentManifest::CosmeticDataAssetPath(CosmeticId)))
 	{
 		if (!Visual->RelativeLocation.IsNearlyZero())
 		{
