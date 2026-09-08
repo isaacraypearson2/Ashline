@@ -126,6 +126,7 @@ void AAshlinePlayerController::BindMenuKeys()
 	BindPaused(EKeys::Gamepad_DPad_Left, &AAshlinePlayerController::MenuLeft);
 	BindPaused(EKeys::Gamepad_DPad_Right, &AAshlinePlayerController::MenuRight);
 	BindPaused(EKeys::Gamepad_Special_Right, &AAshlinePlayerController::MenuBack);
+	BindPaused(EKeys::Gamepad_FaceButton_Bottom, &AAshlinePlayerController::MenuConfirm);
 	BindPaused(EKeys::F8, &AAshlinePlayerController::AshGfxCycle);
 	BindPaused(EKeys::Gamepad_Special_Left, &AAshlinePlayerController::AshGfxCycle);
 }
@@ -270,6 +271,11 @@ void AAshlinePlayerController::AshSteamDeck()
 	}
 }
 
+void AAshlinePlayerController::AshDeck()
+{
+	AshSteamDeck();
+}
+
 void AAshlinePlayerController::AshLaptop()
 {
 	if (UGameInstance* GI = GetGameInstance())
@@ -326,6 +332,7 @@ void AAshlinePlayerController::AshFPS(int32 Target)
 		}
 	}
 }
+
 
 namespace
 {

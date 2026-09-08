@@ -25,12 +25,17 @@
 #include "Player/AshlinePlayerController.h"
 #include "Progression/AshlineProgressionSubsystem.h"
 #include "Meta/AshlineMetaCatalog.h"
+#include "Campaign/AshlineObjectiveTrigger.h"
+#include "CollisionQueryParams.h"
+#include "Engine/World.h"
 #include "Presentation/AshlineAudioDirector.h"
 #include "Presentation/AshlineCharacterPresentation.h"
 #include "Presentation/AshlineLoad.h"
 #include "Presentation/AshlineMaterialFactory.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlinePresentationSettings.h"
+#include "Settings/AshlineGameUserSettings.h"
+#include "UI/AshlineCombatFeedback.h"
 #include "Weapons/AshlineWeaponComponent.h"
 
 AAshlineCharacter::AAshlineCharacter()
@@ -119,16 +124,35 @@ void AAshlineCharacter::BeginPlay()
 	ApplyGrayboxMeshes();
 	ApplyOperatorLook();
 	Health = MaxHealth;
+	Armor = MaxArmor;
+	bDowned = false;
+	CurrentFOV = HipFOV;
+	if (UAshlineGameUserSettings* User = UAshlineGameUserSettings::GetAshlineSettings())
+	{
+		HipFOV = User->Feel.HipFOV;
+		CurrentFOV = HipFOV;
+	}
+	if (FirstPersonCamera)
+	{
+		BaseFPSCamLoc = FirstPersonCamera->GetRelativeLocation();
+		FirstPersonCamera->SetFieldOfView(CurrentFOV);
+	}
 	SetCameraMode(CameraMode);
 }
 
 void AAshlineCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	if (bDowned)
+	{
+		TickDeathCam(DeltaSeconds);
+		return;
+	}
 	const float Target = bIsAiming ? 430.f * AimWalkMul : (bIsCrouched ? 220.f : 430.f);
 	GetCharacterMovement()->MaxWalkSpeed = Target;
 	TickFootsteps(DeltaSeconds);
-	TickCombatCamera(DeltaSeconds);
+	TickCameraFeel(DeltaSeconds);
+	ScanInteract();
 }
 
 void AAshlineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -177,6 +201,10 @@ void AAshlineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		{
 			EIC->BindAction(CrouchAction, ETriggerEvent::Started, this, &AAshlineCharacter::StartCrouch);
 			EIC->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AAshlineCharacter::StopCrouch);
+		}
+		if (InteractAction)
+		{
+			EIC->BindAction(InteractAction, ETriggerEvent::Started, this, &AAshlineCharacter::Interact);
 		}
 	}
 	else
@@ -242,6 +270,10 @@ void AAshlineCharacter::ToggleCameraMode()
 
 void AAshlineCharacter::StartFire()
 {
+	if (bDowned)
+	{
+		return;
+	}
 	if (WeaponComponent)
 	{
 		WeaponComponent->StartFire();
@@ -258,6 +290,10 @@ void AAshlineCharacter::StopFire()
 
 void AAshlineCharacter::Reload()
 {
+	if (bDowned)
+	{
+		return;
+	}
 	if (WeaponComponent)
 	{
 		WeaponComponent->Reload();
@@ -279,10 +315,60 @@ void AAshlineCharacter::SetAiming(bool bNewAiming)
 
 void AAshlineCharacter::SwapWeapon()
 {
+	if (bDowned)
+	{
+		return;
+	}
 	if (WeaponComponent)
 	{
 		WeaponComponent->SwapWeapon();
 	}
+}
+
+void AAshlineCharacter::Interact()
+{
+	if (bDowned)
+	{
+		return;
+	}
+
+	TArray<AActor*> Triggers;
+	UGameplayStatics::GetAllActorsOfClass(this, AAshlineObjectiveTrigger::StaticClass(), Triggers);
+	AAshlineObjectiveTrigger* Best = nullptr;
+	float BestDist = 280.f;
+	const FVector Here = GetActorLocation();
+	for (AActor* Actor : Triggers)
+	{
+		AAshlineObjectiveTrigger* Trigger = Cast<AAshlineObjectiveTrigger>(Actor);
+		if (!Trigger || Trigger->IsConsumed())
+		{
+			continue;
+		}
+		const float Dist = FVector::Dist(Here, Trigger->GetActorLocation());
+		if (Dist < BestDist)
+		{
+			BestDist = Dist;
+			Best = Trigger;
+		}
+	}
+	if (Best)
+	{
+		Best->CompleteFromInteract(this);
+	}
+}
+
+void AAshlineCharacter::NotifyWeaponFired()
+{
+	const FAshlineFeelSettings Feel = GetFeel();
+	if (!Feel.bCameraShake)
+	{
+		return;
+	}
+	const float Kick = bIsAiming ? 0.55f : 1.f;
+	CameraKick += FVector(
+		FMath::FRandRange(-1.2f, 1.2f) * Kick,
+		FMath::FRandRange(-0.8f, 0.8f) * Kick,
+		FMath::FRandRange(1.4f, 2.6f) * Kick);
 }
 
 void AAshlineCharacter::Move(const FInputActionValue& Value)
@@ -307,6 +393,10 @@ void AAshlineCharacter::Look(const FInputActionValue& Value)
 
 void AAshlineCharacter::StartAim()
 {
+	if (bDowned)
+	{
+		return;
+	}
 	SetAiming(true);
 }
 
@@ -327,6 +417,11 @@ void AAshlineCharacter::StopCrouch()
 
 float AAshlineCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (bDowned)
+	{
+		return 0.f;
+	}
+
 	const float Applied = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	float Incoming = Applied > 0.f ? Applied : DamageAmount;
 
@@ -341,16 +436,55 @@ float AAshlineCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 		}
 	}
 
-	Health = FMath::Max(0.f, Health - Incoming);
+	const float ArmorAbsorb = FMath::Min(Armor, Incoming * 0.65f);
+	Armor = FMath::Max(0.f, Armor - ArmorAbsorb);
+	Health = FMath::Max(0.f, Health - (Incoming - ArmorAbsorb));
 	HitFlinch = FMath::Min(1.f, HitFlinch + Incoming * 0.02f);
-	AddControllerPitchInput(FMath::FRandRange(-0.15f, 0.05f) * HitFlinch);
-	AddControllerYawInput(FMath::FRandRange(-0.12f, 0.12f) * HitFlinch);
+
+	if (UWorld* World = GetWorld())
+	{
+		if (UAshlineCombatFeedback* Feedback = World->GetSubsystem<UAshlineCombatFeedback>())
+		{
+			Feedback->NotifyDamageTaken(MaxHealth > 0.f ? Health / MaxHealth : 0.f);
+		}
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (UAshlineAudioDirector* Audio = GI->GetSubsystem<UAshlineAudioDirector>())
+			{
+				Audio->NotifyCombat(this);
+			}
+		}
+	}
+
+	const FAshlineFeelSettings Feel = GetFeel();
+	if (Feel.bCameraShake)
+	{
+		CameraKick += FVector(FMath::FRandRange(-3.f, 3.f), FMath::FRandRange(-2.f, 2.f), FMath::FRandRange(2.f, 5.f));
+	}
+
 	if (Health <= 0.f)
 	{
-		Health = MaxHealth;
-		if (AAshlineGameMode* GameMode = Cast<AAshlineGameMode>(UGameplayStatics::GetGameMode(this)))
+		bDowned = true;
+		DeathCamRemaining = DeathCamSeconds;
+		if (WeaponComponent)
 		{
-			GameMode->RespawnPlayer(this);
+			WeaponComponent->StopFire();
+		}
+		if (UWorld* World = GetWorld())
+		{
+			if (UAshlineCombatFeedback* Feedback = World->GetSubsystem<UAshlineCombatFeedback>())
+			{
+				Feedback->SetSubtitle(TEXT("KIA — standing by for extract..."), DeathCamSeconds);
+			}
+		}
+		if (FirstPersonCamera && ThirdPersonCamera)
+		{
+			FirstPersonCamera->SetActive(false);
+			ThirdPersonCamera->SetActive(true);
+		}
+		if (GetMesh())
+		{
+			GetMesh()->SetOwnerNoSee(false);
 		}
 	}
 	return Incoming;
@@ -406,6 +540,10 @@ void AAshlineCharacter::ApplyRuntimeInputActions()
 		{
 			CrouchAction = Input->Crouch;
 		}
+		if (!InteractAction)
+		{
+			InteractAction = Input->Interact;
+		}
 	}
 }
 
@@ -437,6 +575,8 @@ void AAshlineCharacter::BindLegacyKeys(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::C, IE_Released, this, &AAshlineCharacter::StopCrouch);
 	PlayerInputComponent->BindKey(EKeys::LeftControl, IE_Pressed, this, &AAshlineCharacter::StartCrouch);
 	PlayerInputComponent->BindKey(EKeys::LeftControl, IE_Released, this, &AAshlineCharacter::StopCrouch);
+	PlayerInputComponent->BindKey(EKeys::E, IE_Pressed, this, &AAshlineCharacter::Interact);
+	PlayerInputComponent->BindKey(EKeys::F, IE_Pressed, this, &AAshlineCharacter::Interact);
 }
 
 void AAshlineCharacter::LegacyMoveForward(float Value)
@@ -624,7 +764,7 @@ void AAshlineCharacter::TickFootsteps(float DeltaSeconds)
 		{
 			if (UAshlineAudioDirector* Audio = GI->GetSubsystem<UAshlineAudioDirector>())
 			{
-				Audio->PlayFootstep(this, GetActorLocation());
+				Audio->PlayFootstep(this, GetActorLocation(), TraceGroundSurface());
 			}
 		}
 	}
@@ -751,4 +891,147 @@ void AAshlineCharacter::ApplyOperatorLook()
 	{
 		WeaponComponent->ApplyCharm(CharmId);
 	}
+}
+
+void AAshlineCharacter::TickCameraFeel(float DeltaSeconds)
+{
+	const FAshlineFeelSettings Feel = GetFeel();
+	float AdsMul = Feel.ADSFOVMul;
+	if (WeaponComponent)
+	{
+		switch (WeaponComponent->GetActiveWeapon().Definition.Class)
+		{
+		case EAshlineWeaponClass::Sniper: AdsMul = 0.42f; break;
+		case EAshlineWeaponClass::DMR: AdsMul = 0.55f; break;
+		case EAshlineWeaponClass::Sidearm: AdsMul = 0.82f; break;
+		case EAshlineWeaponClass::SMG: AdsMul = 0.78f; break;
+		default: break;
+		}
+	}
+	const float TargetFOV = bIsAiming ? (HipFOV * AdsMul) : HipFOV;
+	CurrentFOV = FMath::FInterpTo(CurrentFOV, TargetFOV, DeltaSeconds, bIsAiming ? 14.f : 10.f);
+	if (FirstPersonCamera)
+	{
+		FirstPersonCamera->SetFieldOfView(CurrentFOV);
+	}
+	if (ThirdPersonCamera)
+	{
+		ThirdPersonCamera->SetFieldOfView(CurrentFOV + 4.f);
+	}
+
+	CameraKick = FMath::VInterpTo(CameraKick, FVector::ZeroVector, DeltaSeconds, 16.f);
+	if (FirstPersonCamera)
+	{
+		FirstPersonCamera->SetRelativeLocation(BaseFPSCamLoc + CameraKick);
+	}
+}
+
+void AAshlineCharacter::TickDeathCam(float DeltaSeconds)
+{
+	DeathCamRemaining -= DeltaSeconds;
+	if (ThirdPersonArm)
+	{
+		ThirdPersonArm->TargetArmLength = FMath::FInterpTo(ThirdPersonArm->TargetArmLength, 340.f, DeltaSeconds, 2.2f);
+		ThirdPersonArm->SocketOffset = FMath::VInterpTo(ThirdPersonArm->SocketOffset, FVector(0.f, 40.f, 90.f), DeltaSeconds, 2.f);
+	}
+	if (DeathCamRemaining <= 0.f)
+	{
+		if (AAshlineGameMode* GameMode = Cast<AAshlineGameMode>(UGameplayStatics::GetGameMode(this)))
+		{
+			GameMode->RespawnPlayer(this);
+		}
+	}
+}
+
+void AAshlineCharacter::RestoreAfterRespawn()
+{
+	bDowned = false;
+	Health = MaxHealth;
+	Armor = MaxArmor;
+	DeathCamRemaining = 0.f;
+	CameraKick = FVector::ZeroVector;
+	if (ThirdPersonArm)
+	{
+		ThirdPersonArm->TargetArmLength = bIsAiming ? 140.f : 220.f;
+		ThirdPersonArm->SocketOffset = FVector(0.f, 55.f, 55.f);
+	}
+	SetCameraMode(CameraMode);
+}
+
+void AAshlineCharacter::ScanInteract()
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+	UAshlineCombatFeedback* Feedback = World->GetSubsystem<UAshlineCombatFeedback>();
+	if (!Feedback)
+	{
+		return;
+	}
+
+	TArray<AActor*> Triggers;
+	UGameplayStatics::GetAllActorsOfClass(this, AAshlineObjectiveTrigger::StaticClass(), Triggers);
+	AAshlineObjectiveTrigger* Best = nullptr;
+	float BestDist = 280.f;
+	const FVector Here = GetActorLocation();
+	for (AActor* Actor : Triggers)
+	{
+		AAshlineObjectiveTrigger* Trigger = Cast<AAshlineObjectiveTrigger>(Actor);
+		if (!Trigger || Trigger->IsConsumed())
+		{
+			continue;
+		}
+		const float Dist = FVector::Dist(Here, Trigger->GetActorLocation());
+		if (Dist < BestDist)
+		{
+			BestDist = Dist;
+			Best = Trigger;
+		}
+	}
+	if (Best)
+	{
+		Feedback->SetInteractPrompt(Best->GetPromptText());
+	}
+}
+
+EAshlineSurface AAshlineCharacter::TraceGroundSurface() const
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return EAshlineSurface::Ground;
+	}
+	FHitResult Hit;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(AshlineFoot), false, this);
+	const FVector Start = GetActorLocation();
+	if (World->LineTraceSingleByChannel(Hit, Start, Start - FVector(0.f, 0.f, 140.f), ECC_Visibility, Params))
+	{
+		FString Name;
+		if (Hit.GetComponent())
+		{
+			Name += Hit.GetComponent()->GetName();
+		}
+		if (Hit.GetActor())
+		{
+			Name += Hit.GetActor()->GetName();
+		}
+		if (Name.Contains(TEXT("Metal"))) return EAshlineSurface::Metal;
+		if (Name.Contains(TEXT("Wood"))) return EAshlineSurface::Wood;
+		if (Name.Contains(TEXT("Sand")) || Name.Contains(TEXT("Dust"))) return EAshlineSurface::Sand;
+		if (Name.Contains(TEXT("Snow")) || Name.Contains(TEXT("White"))) return EAshlineSurface::Snow;
+		if (Name.Contains(TEXT("Water"))) return EAshlineSurface::Water;
+		if (Name.Contains(TEXT("Conc"))) return EAshlineSurface::Concrete;
+	}
+	return EAshlineSurface::Ground;
+}
+
+FAshlineFeelSettings AAshlineCharacter::GetFeel() const
+{
+	if (UAshlineGameUserSettings* User = UAshlineGameUserSettings::GetAshlineSettings())
+	{
+		return User->Feel;
+	}
+	return FAshlineFeelSettings();
 }

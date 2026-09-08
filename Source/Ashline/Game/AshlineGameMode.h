@@ -64,6 +64,27 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Campaign")
 	void UnlockAllMissions();
 
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Campaign")
+	void EnterBriefing(EAshlineMissionId MissionId);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Campaign")
+	void CycleGraphicsPreset(int32 Delta);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Campaign")
+	void AdjustSetting(int32 Delta);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Campaign")
+	EAshlineMenuLayer MenuLayer = EAshlineMenuLayer::None;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Campaign")
+	int32 MenuCursor = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Campaign")
+	int32 SettingsCursor = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Campaign")
+	int32 MissionKills = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Campaign")
 	EAshlineMissionId ActiveMission = EAshlineMissionId::ASH_01_WireCut;
 

@@ -48,6 +48,36 @@ public:
 	static FString MusicBedPath(EAshlineMissionId MissionId);
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString AmbiencePath(EAshlineMissionId MissionId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString CombatStingerPath();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString FootstepCuePath(EAshlineSurface Surface);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString ReloadCuePath();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> EngineFireSoundCandidates();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> EngineHitSoundCandidates();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> EngineReloadSoundCandidates();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> EngineFootstepSoundCandidates();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> EngineExplosionSoundCandidates();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> EngineUISoundCandidates();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
 	static TArray<FString> HumanoidMeshCandidates();
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")

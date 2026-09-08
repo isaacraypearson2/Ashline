@@ -17,7 +17,17 @@ AAshlineObjectiveTrigger::AAshlineObjectiveTrigger()
 
 void AAshlineObjectiveTrigger::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (bConsumed || !Cast<AAshlineCharacter>(OtherActor))
+	(void)OverlappedComponent;
+	(void)OtherComp;
+	(void)OtherBodyIndex;
+	(void)bFromSweep;
+	(void)SweepResult;
+	CompleteFromInteract(OtherActor);
+}
+
+void AAshlineObjectiveTrigger::CompleteFromInteract(AActor* InstigatorActor)
+{
+	if (bConsumed || !Cast<AAshlineCharacter>(InstigatorActor))
 	{
 		return;
 	}
@@ -33,4 +43,13 @@ void AAshlineObjectiveTrigger::OnOverlap(UPrimitiveComponent* OverlappedComponen
 		}
 	}
 	bConsumed = true;
+}
+
+FString AAshlineObjectiveTrigger::GetPromptText() const
+{
+	if (bCompleteMissionOnEnter)
+	{
+		return TEXT("EXTRACT");
+	}
+	return ObjectiveId.IsNone() ? TEXT("INTERACT") : ObjectiveId.ToString();
 }

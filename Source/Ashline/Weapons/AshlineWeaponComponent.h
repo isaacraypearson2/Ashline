@@ -70,6 +70,18 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
 	bool IsFiring() const { return bWantsFire; }
 
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	bool IsReloading() const { return bReloading; }
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	bool IsAiming() const { return bAiming; }
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	float GetReloadAlpha() const;
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	FString GetFireModeLabel() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
 	void RefreshVisuals();
 

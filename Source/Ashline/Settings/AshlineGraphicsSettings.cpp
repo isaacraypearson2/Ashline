@@ -120,6 +120,12 @@ void UAshlineGraphicsSettings::ApplyPreset(EAshlineGraphicsPreset Preset)
 	{
 		State.FrameTarget = EAshlineFrameTarget::FPS_40;
 		State.Upscaler = State.bFSR3Available ? EAshlineUpscaler::FSR3 : EAshlineUpscaler::TSR;
+		if (UAshlineGameUserSettings* User = UAshlineGameUserSettings::GetAshlineSettings())
+		{
+			User->Feel.bForceHandheldHUD = true;
+			User->Feel.HUDScale = FMath::Max(User->Feel.HUDScale, 1.2f);
+			User->Feel.SafeZone = FMath::Max(User->Feel.SafeZone, 0.08f);
+		}
 	}
 	else if (Preset == EAshlineGraphicsPreset::Laptop || Preset == EAshlineGraphicsPreset::PC_Performance)
 	{
@@ -448,6 +454,10 @@ void UAshlineGraphicsSettings::ApplyCVars()
 	{
 		ApplyNamedMachinePreset(State.Preset);
 	}
+	else if (State.Preset == EAshlineGraphicsPreset::SteamDeck)
+	{
+		ApplyHandheldPreset();
+	}
 	else
 	{
 		SetCVarInt(TEXT("r.VSync"), 1);
@@ -619,7 +629,7 @@ void UAshlineGraphicsSettings::ApplyRayTracingCVars()
 	SetCVarInt(TEXT("r.Lumen.HardwareRayTracing.LightingMode"), On ? 2 : 0);
 	if (On)
 	{
-		SetCVarInt(TEXT("r.RayTracing.Shadows"), State.Preset == EAshlineGraphicsPreset::PC_Ultra ? 1 : 0);
+		SetCVarInt(TEXT("r.RayTracing.Shadows"), (State.Preset == EAshlineGraphicsPreset::PC_Ultra) ? 1 : 0);
 		SetCVarInt(TEXT("r.RayTracing.Skylight"), 1);
 	}
 	else
@@ -744,6 +754,9 @@ void UAshlineGraphicsSettings::RegisterConsoleCommands()
 		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplyPerformancePreset), ECVF_Default));
 	ConsoleObjects.Add(CM.RegisterConsoleCommand(
 		TEXT("AshSteamDeck"), TEXT("Apply Ashline_SteamDeck (800p / FSR / 40 fps)."),
+		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplySteamDeckPreset), ECVF_Default));
+	ConsoleObjects.Add(CM.RegisterConsoleCommand(
+		TEXT("AshDeck"), TEXT("Alias for AshSteamDeck (handheld HUD + FSR)."),
 		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplySteamDeckPreset), ECVF_Default));
 	ConsoleObjects.Add(CM.RegisterConsoleCommand(
 		TEXT("AshLaptop"), TEXT("Apply Ashline_Laptop (iGPU fallback)."),

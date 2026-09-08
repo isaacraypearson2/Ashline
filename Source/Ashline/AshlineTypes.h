@@ -155,7 +155,85 @@ enum class EAshlinePlayPhase : uint8
 	InMission,
 	Paused,
 	MissionComplete,
-	CampaignComplete
+	CampaignComplete,
+	Briefing
+};
+
+UENUM(BlueprintType)
+enum class EAshlineColorBlindMode : uint8
+{
+	Off,
+	Protanopia,
+	Deuteranopia,
+	Tritanopia,
+	HighContrast
+};
+
+UENUM(BlueprintType)
+enum class EAshlineMenuLayer : uint8
+{
+	None,
+	PauseRoot,
+	Settings
+};
+
+UENUM(BlueprintType)
+enum class EAshlineCrosshairState : uint8
+{
+	Hip,
+	ADS,
+	Hit,
+	Kill,
+	Empty,
+	Reload
+};
+
+USTRUCT(BlueprintType)
+struct FAshlineFeelSettings
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	float HUDScale = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	float SafeZone = 0.05f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	EAshlineColorBlindMode ColorBlind = EAshlineColorBlindMode::Off;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	float HipFOV = 90.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	float ADSFOVMul = 0.72f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	bool bCameraShake = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	bool bHitMarkers = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	bool bDamageVignette = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	bool bKillConfirm = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	bool bSubtitles = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	bool bForceHandheldHUD = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	float MasterVolume = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	float SFXVolume = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	float MusicVolume = 0.7f;
 };
 
 UENUM(BlueprintType)

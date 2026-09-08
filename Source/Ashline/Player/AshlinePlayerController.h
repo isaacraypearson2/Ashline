@@ -50,6 +50,9 @@ public:
 	void AshSteamDeck();
 
 	UFUNCTION(Exec)
+	void AshDeck();
+
+	UFUNCTION(Exec)
 	void AshLaptop();
 
 	UFUNCTION(Exec)

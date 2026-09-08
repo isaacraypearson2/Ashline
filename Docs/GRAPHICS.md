@@ -14,7 +14,7 @@ On **Apple** it still asks `IAshlineMetalFX` for MetalFX + RT and refuses to for
 | `Ashline_PC_High` | Mid discrete (8 GB class) | 1440p/1080p | 67 / 77 | On if supported | Uncapped | Pool 4200, cheaper VSM/Lumen. |
 | `Ashline_PC_Balanced` | Same PC, extra headroom | 1440p | 59 / 70 | On if supported | Uncapped | Cheaper Lumen gather, pool 3800. |
 | `Ashline_PC_Performance` | 6 GB / last-gen | 1080p-class | 50 / 59 | Off | 60 | Software Lumen, pool 2200. |
-| `Ashline_SteamDeck` | Deck LCD/OLED, Proton later | **1280×800** | 59 / 67 | Off | **40** | Aggressive Nanite/VSM/Lumen, HUD safe zone 7%. `AshFPS 30/40/60`. |
+| `Ashline_SteamDeck` | Deck LCD/OLED, Proton later | **1280×800** | 59 / 67 | Off | **40** | Aggressive Nanite/VSM/Lumen, HUD safe zone 7%. `AshFPS 30/40/60`. `AshDeck` alias. |
 | `Ashline_Laptop` | iGPU / Intel / AMD APU | panel | 59 / 67 | Off | 60 | Pool 1400. |
 | Epic / Cinematic | Generic | 100 | TSR | Off unless asked | — | Scalability 3 |
 | High / Medium / Low | Mac / leftover | 100–67 | MetalFX or TSR | Off | — | Mac default is High |
@@ -38,6 +38,7 @@ AshPCHigh
 AshPCBalanced
 AshPCPerf
 AshSteamDeck
+AshDeck
 AshLaptop
 AshGfxAuto
 AshGfxCycle          ; also F8 / gamepad Select

@@ -7,6 +7,7 @@
 #include "Misc/PackageName.h"
 #include "Progression/AshlineProgressionSubsystem.h"
 #include "Settings/AshlineGraphicsSettings.h"
+#include "Settings/AshlineGameUserSettings.h"
 
 void UAshlineGameInstance::Init()
 {
@@ -20,6 +21,11 @@ void UAshlineGameInstance::Init()
 	if (UAshlineGraphicsSettings* Graphics = GetSubsystem<UAshlineGraphicsSettings>())
 	{
 		Graphics->ApplySavedOrDetect();
+	}
+
+	if (UAshlineGameUserSettings* User = UAshlineGameUserSettings::GetAshlineSettings())
+	{
+		User->ApplyFeelToAudio();
 	}
 
 	UE_LOG(LogAshline, Log, TEXT("Ashline game instance ready (Windows-first AAA presentation, UE 5.8.2)."));

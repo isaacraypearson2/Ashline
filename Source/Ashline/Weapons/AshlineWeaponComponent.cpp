@@ -1,5 +1,7 @@
 #include "Weapons/AshlineWeaponComponent.h"
 
+#include "AI/AshlineAICharacter.h"
+#include "AI/AshlineAICatalog.h"
 #include "Ashline.h"
 #include "AshlineDualSense.h"
 #include "Camera/CameraComponent.h"
@@ -14,16 +16,16 @@
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraSystem.h"
-#include "Particles/ParticleSystem.h"
+#include "Meta/AshlineMetaCatalog.h"
+#include "Player/AshlineCharacter.h"
 #include "Presentation/AshlineAudioDirector.h"
+#include "Presentation/AshlineCombatFX.h"
 #include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlineLoad.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlineWeaponVisual.h"
-#include "Meta/AshlineMetaCatalog.h"
 #include "Perception/AISense_Hearing.h"
+#include "UI/AshlineCombatFeedback.h"
 #include "Weapons/AshlineWeaponCatalog.h"
 
 UAshlineWeaponComponent::UAshlineWeaponComponent()
@@ -153,6 +155,21 @@ const FAshlineRuntimeWeapon& UAshlineWeaponComponent::GetActiveWeapon() const
 	return bUsingPrimary ? PrimaryWeapon : SecondaryWeapon;
 }
 
+float UAshlineWeaponComponent::GetReloadAlpha() const
+{
+	if (!bReloading)
+	{
+		return 0.f;
+	}
+	const float Total = FMath::Max(0.05f, GetActiveWeapon().Stats.ReloadSeconds);
+	return FMath::Clamp(1.f - (ReloadRemaining / Total), 0.f, 1.f);
+}
+
+FString UAshlineWeaponComponent::GetFireModeLabel() const
+{
+	return GetActiveWeapon().Stats.bAutomatic ? TEXT("AUTO") : TEXT("SEMI");
+}
+
 void UAshlineWeaponComponent::FireShot()
 {
 	FAshlineRuntimeWeapon& Active = bUsingPrimary ? PrimaryWeapon : SecondaryWeapon;
@@ -177,6 +194,12 @@ void UAshlineWeaponComponent::FireShot()
 	const float Spread = (bAiming ? Active.Stats.ADSSpread : Active.Stats.HipFireSpread) + SpreadBloom;
 	const FVector Start = GetMuzzleLocation();
 
+	bool bFlesh = false;
+	bool bKilled = false;
+	AAshlineAICharacter* AI = nullptr;
+	FHitResult LastHit;
+	FVector LastEnd = Start;
+
 	for (int32 i = 0; i < Pellets; ++i)
 	{
 		FRotator Aim = GetAimRotation();
@@ -185,17 +208,60 @@ void UAshlineWeaponComponent::FireShot()
 
 		FHitResult Hit;
 		const FVector End = Start + Aim.Vector() * TraceDistance;
+		LastEnd = End;
 		FCollisionQueryParams Params(SCENE_QUERY_STAT(AshlineShot), false, Owner);
 		World->LineTraceSingleByChannel(Hit, Start, End, TraceChannel, Params);
 
 		if (Hit.bBlockingHit)
 		{
+			LastHit = Hit;
 			if (Hit.GetActor())
 			{
+				if (AAshlineAICharacter* HitAI = Cast<AAshlineAICharacter>(Hit.GetActor()))
+				{
+					AI = HitAI;
+					bFlesh = true;
+				}
 				UGameplayStatics::ApplyDamage(Hit.GetActor(), DamageEach, Owner->GetInstigatorController(), Owner, nullptr);
+				if (AI)
+				{
+					bKilled = AI->bDead;
+				}
 			}
 			SpawnImpact(Hit);
 		}
+	}
+
+	UAshlineCombatFX::SpawnTracer(this, Active.Definition.WeaponId, Start, LastHit.bBlockingHit ? LastHit.ImpactPoint : LastEnd);
+
+	if (UWorld* W = GetWorld())
+	{
+		if (UAshlineCombatFeedback* Feedback = W->GetSubsystem<UAshlineCombatFeedback>())
+		{
+			if (LastHit.bBlockingHit && bFlesh)
+			{
+				Feedback->NotifyHitMarker(bKilled);
+				if (bKilled)
+				{
+					Feedback->NotifyKillConfirm(AI ? AI->ArchetypeDef.DisplayName.ToString() : TEXT("HOSTILE"));
+				}
+			}
+		}
+		if (UGameInstance* GI = W->GetGameInstance())
+		{
+			if (UAshlineAudioDirector* Audio = GI->GetSubsystem<UAshlineAudioDirector>())
+			{
+				if (bFlesh)
+				{
+					Audio->NotifyCombat(this);
+				}
+			}
+		}
+	}
+
+	if (bKilled && AI && AI->Archetype == EAshlineAIArchetype::Heavy)
+	{
+		UAshlineCombatFX::SpawnExplosion(this, LastHit.ImpactPoint, 0.45f);
 	}
 
 	SpawnMuzzleFX();
@@ -204,6 +270,11 @@ void UAshlineWeaponComponent::FireShot()
 	ReportGunshotNoise();
 	SpreadBloom = FMath::Min(4.5f, SpreadBloom + (bAiming ? 0.12f : 0.28f));
 	KickOffset += FVector(-2.4f, FMath::FRandRange(-0.6f, 0.6f), 0.8f);
+
+	if (AAshlineCharacter* Shooter = Cast<AAshlineCharacter>(Owner))
+	{
+		Shooter->NotifyWeaponFired();
+	}
 
 	if (UAshlineDualSense* DualSense = GEngine ? GEngine->GetEngineSubsystem<UAshlineDualSense>() : nullptr)
 	{
@@ -264,58 +335,13 @@ void UAshlineWeaponComponent::SpawnMuzzleFX()
 		MuzzleLight->SetIntensity(9000.f);
 	}
 
-	UAshlineWeaponVisual* Visual = VisualOverride.Get();
-	if (!Visual)
-	{
-		Visual = UAshlinePresentationLibrary::FindWeaponVisual(GetActiveWeapon().Definition.WeaponId);
-	}
-	if (Visual)
-	{
-		if (UNiagaraSystem* Niagara = AshlineLoad::Soft(Visual->MuzzleFX))
-		{
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Niagara, Muzzle, GetAimRotation());
-			return;
-		}
-		if (UParticleSystem* Cascade = AshlineLoad::Soft(Visual->MuzzleCascadeFX))
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Cascade, Muzzle, GetAimRotation());
-			return;
-		}
-	}
-
-	if (UNiagaraSystem* Niagara = AshlineLoad::Object<UNiagaraSystem>(UAshlineContentManifest::WeaponMuzzleFXPath(GetActiveWeapon().Definition.WeaponId)))
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Niagara, Muzzle, GetAimRotation());
-		return;
-	}
-	if (UParticleSystem* Cascade = AshlineLoad::Object<UParticleSystem>(TEXT("/Game/StarterContent/Particles/P_Explosion.P_Explosion")))
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Cascade, Muzzle, GetAimRotation(), FVector(0.15f), true);
-	}
+	UAshlineCombatFX::SpawnMuzzle(this, GetActiveWeapon().Definition.WeaponId, Muzzle, GetAimRotation());
 }
 
 void UAshlineWeaponComponent::SpawnImpact(const FHitResult& Hit)
 {
-	UMaterialInterface* DecalMat = nullptr;
-	if (UAshlineWeaponVisual* Visual = UAshlinePresentationLibrary::FindWeaponVisual(GetActiveWeapon().Definition.WeaponId))
-	{
-		DecalMat = AshlineLoad::Soft(Visual->ImpactDecal);
-	}
-	if (!DecalMat)
-	{
-		DecalMat = UAshlinePresentationLibrary::ResolveImpactDecalMaterial();
-	}
-	if (DecalMat)
-	{
-		const FRotator DecalRot = Hit.ImpactNormal.Rotation();
-		UGameplayStatics::SpawnDecalAtLocation(
-			this,
-			DecalMat,
-			FVector(ImpactDecalSize, ImpactDecalSize, 4.f),
-			Hit.ImpactPoint + Hit.ImpactNormal * 1.5f,
-			DecalRot,
-			12.f);
-	}
+	const bool bFlesh = Cast<AAshlineAICharacter>(Hit.GetActor()) != nullptr;
+	UAshlineCombatFX::SpawnImpact(this, GetActiveWeapon().Definition.WeaponId, Hit, bFlesh);
 
 	if (UWorld* World = GetWorld())
 	{
@@ -323,7 +349,7 @@ void UAshlineWeaponComponent::SpawnImpact(const FHitResult& Hit)
 		{
 			if (UAshlineAudioDirector* Audio = GI->GetSubsystem<UAshlineAudioDirector>())
 			{
-				Audio->PlayHit(this, Hit.ImpactPoint);
+				Audio->PlayHit(this, Hit.ImpactPoint, bFlesh);
 			}
 		}
 	}

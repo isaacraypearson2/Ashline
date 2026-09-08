@@ -23,7 +23,9 @@ Saves between missions in slot `AshlineCampaign` (v2). Completing a mission unlo
 
 `AAshlineGrayboxBuilder` spawns a unique **themed blockout** for every mission: PBR-tinted surfaces, Sky Atmosphere, volumetric fog, fill/moon lights, unbound post-process (grain, dirt, chromatic, local exposure), practical lights, foliage (Starter / kit meshes when present), vehicles/sandbags/doors, glowing objective markers. Empty `DA_Kit_*` stubs do **not** flatten lighting (`bOverrideMood` defaults false).
 
-Walk into the markers. The extract / final required volume completes the mission.
+Walk into the markers (or **F / E / LB** when the prompt appears). The extract / final required volume completes the mission.
+
+Enter on campaign select opens a **briefing screen**; Enter again deploys. Esc on the frontend is Settings. Overnight HUD/feel notes: `Docs/PHASE_OVERNIGHT_HUD.md`.
 
 ### What is playable vs Phase 2
 

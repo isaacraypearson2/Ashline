@@ -88,6 +88,87 @@ FString UAshlineContentManifest::MusicBedPath(EAshlineMissionId MissionId)
 	return FString::Printf(TEXT("/Game/Ashline/Audio/Music/SC_Bed_ASH%02d.SC_Bed_ASH%02d"), Index, Index);
 }
 
+FString UAshlineContentManifest::AmbiencePath(EAshlineMissionId MissionId)
+{
+	const int32 Index = static_cast<int32>(MissionId);
+	return FString::Printf(TEXT("/Game/Ashline/Audio/Ambience/SC_Amb_ASH%02d.SC_Amb_ASH%02d"), Index, Index);
+}
+
+FString UAshlineContentManifest::CombatStingerPath()
+{
+	return TEXT("/Game/Ashline/Audio/Stingers/SC_Combat_Stinger.SC_Combat_Stinger");
+}
+
+FString UAshlineContentManifest::FootstepCuePath(EAshlineSurface Surface)
+{
+	const TCHAR* Tag = TEXT("Default");
+	switch (Surface)
+	{
+	case EAshlineSurface::Concrete: Tag = TEXT("Concrete"); break;
+	case EAshlineSurface::Metal: Tag = TEXT("Metal"); break;
+	case EAshlineSurface::Wood: Tag = TEXT("Wood"); break;
+	case EAshlineSurface::Sand: Tag = TEXT("Sand"); break;
+	case EAshlineSurface::Snow: Tag = TEXT("Snow"); break;
+	case EAshlineSurface::Water: Tag = TEXT("Water"); break;
+	case EAshlineSurface::Foliage: Tag = TEXT("Dirt"); break;
+	case EAshlineSurface::Ground: Tag = TEXT("Dirt"); break;
+	default: break;
+	}
+	return FString::Printf(TEXT("/Game/Ashline/Audio/Footsteps/SC_Footstep_%s.SC_Footstep_%s"), Tag, Tag);
+}
+
+FString UAshlineContentManifest::ReloadCuePath()
+{
+	return TEXT("/Game/Ashline/Audio/Weapons/SC_Reload_Default.SC_Reload_Default");
+}
+
+TArray<FString> UAshlineContentManifest::EngineFireSoundCandidates()
+{
+	return {
+		TEXT("/Game/StarterContent/Audio/Explosion01.Explosion01"),
+		TEXT("/Game/StarterContent/Audio/Explosion_01.Explosion_01"),
+		TEXT("/Game/StarterContent/Audio/Fire01.Fire01")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::EngineHitSoundCandidates()
+{
+	return {
+		TEXT("/Game/StarterContent/Audio/Explosion01.Explosion01"),
+		TEXT("/Game/StarterContent/Audio/Explosion_01.Explosion_01")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::EngineReloadSoundCandidates()
+{
+	return {
+		TEXT("/Game/StarterContent/Audio/Starter_Music_Cue.Starter_Music_Cue")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::EngineFootstepSoundCandidates()
+{
+	return {
+		TEXT("/Game/StarterContent/Audio/Fire01.Fire01")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::EngineExplosionSoundCandidates()
+{
+	return {
+		TEXT("/Game/StarterContent/Audio/Explosion01.Explosion01"),
+		TEXT("/Game/StarterContent/Audio/Explosion_01.Explosion_01")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::EngineUISoundCandidates()
+{
+	return {
+		TEXT("/Game/StarterContent/Audio/Starter_Music_Cue.Starter_Music_Cue"),
+		TEXT("/Game/StarterContent/Audio/Fire01.Fire01")
+	};
+}
+
 TArray<FString> UAshlineContentManifest::HumanoidMeshCandidates()
 {
 	return {
