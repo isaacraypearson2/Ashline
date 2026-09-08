@@ -13,6 +13,6 @@ Do these on the 9070 GRE machine:
 7. Replace runtime blockouts with **authored `.umap`s** once kits land (`MapAsset` already points at `/Game/Ashline/Maps/Campaign/ASH##_*`).
 8. Locomotion AnimBPs, navmesh, behavior trees.
 9. UMG frontend / **armory / operator locker** (Canvas HUD + C++ meta remain playable). Bind `MeshOverride` / `MaterialOverride` on `FAshlineCosmeticDefinition` and `FAshlineWeaponSkinDefinition`.
-10. Package a **Win64 Development** build and profile Lumen/RT at 1440p.
+10. Package a **Win64 Shipping** build (`Docs/PACKAGING.md`) and profile Lumen/RT at 1440p plus Steam Deck (`Docs/STEAM_DECK.md`, `Docs/PERFORMANCE.md`). Public-release gate: `Docs/RELEASE_CHECKLIST.md`.
 
 Still do **not** add ads. Still do **not** add multiplayer netcode.

@@ -1,6 +1,7 @@
 #include "Progression/AshlineSaveGame.h"
 #include "Campaign/AshlineMissionCatalog.h"
 #include "Meta/AshlineMetaCatalog.h"
+#include "Weapons/AshlineWeaponCatalog.h"
 
 void UAshlineSaveGame::SeedNewCampaign()
 {
@@ -48,6 +49,7 @@ void UAshlineSaveGame::SeedNewCampaign()
 		W.UpgradeTier = 0;
 		W.EquippedSkinId = TEXT("SKIN_FACTORY");
 		W.UnlockedSkins.Add(TEXT("SKIN_FACTORY"));
+		W.UnlockedAttachments = UAshlineWeaponCatalog::StarterAttachmentIds(Id);
 		Armory.Add(W);
 	};
 	Own(TEXT("WPN_AR_ASH16"));
@@ -85,6 +87,10 @@ void UAshlineSaveGame::MigrateIfNeeded()
 			Weapon.EquippedSkinId = TEXT("SKIN_FACTORY");
 		}
 		Weapon.UnlockedSkins.AddUnique(TEXT("SKIN_FACTORY"));
+		for (const FName& AttachmentId : UAshlineWeaponCatalog::StarterAttachmentIds(Weapon.WeaponId))
+		{
+			Weapon.UnlockedAttachments.AddUnique(AttachmentId);
+		}
 	}
 	if (Primary.SkinId.IsNone())
 	{

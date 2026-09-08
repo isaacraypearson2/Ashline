@@ -14,7 +14,8 @@ Console cheats (Output Log or `~` if enabled):
 
 - `AshUnlockAll` — every mission becomes playable
 - `AshDeploy 3` — jump to ASH-03 (also unlocks all)
-- `AshPCUltra` / `AshPCBalanced` — named 1440p presets for the 9070 GRE
+- `AshPCUltra` / `AshPCHigh` / `AshPCBalanced` / `AshPCPerf` / `AshDeck` — named presets
+- `AshFSR` / `AshTSR` — upscaler toggle (FSR3 falls back to TSR if the plugin is missing)
 - `AshComplete` — finish the active mission and grant XP + credits
 - `AshFrontend` — abort back to campaign select
 - `AshGrantCredits 5000` / `AshSetRank 50` / `AshPrestige` / `AshOpenCrate`
@@ -31,17 +32,23 @@ Console cheats (Output Log or `~` if enabled):
 - **R** — reload
 - **Space** — jump
 - **C** or **Left Ctrl** — crouch
+- **Left Shift** — sprint (cancelled by aim)
 - **V** — FPS / TPS (saved)
 - **Q** or **1 / 2** — swap weapon
 - **Esc** — pause (Enter resume, Esc again abort to campaign)
 
-## DualSense (`IMC_Ashline_Gamepad`, still applied on Mac/iOS)
+Debug execs (`AshUnlockAll`, `AshGrantCredits`, …) are **no-ops in Shipping**.
 
-- Left stick move, right stick look
-- **R2** fire, **L2** aim
-- **Square** reload, **Cross** jump, **Circle** crouch, **Triangle** swap
-- Share / D-pad up — camera toggle
-- Adaptive triggers and haptics: `UAshlineDualSense` → `AshlineGameController.mm`
+## DualSense / Xbox / Steam Deck (`IMC_Ashline_Gamepad`)
+
+- Left stick move (radial deadzone 0.20), right stick look (0.18 / 0.92)
+- **RT / R2** fire, **LT / L2** aim
+- **A / Cross** jump + campaign confirm, **B / Circle** crouch
+- **X / Square** reload, **Y / Triangle** swap, **LB** swap
+- **LS click** sprint, **RS click** / Share / D-pad up — camera toggle
+- **Start / Options** pause / back
+- Trackpads: leave as mouse (Steam Input). See `Docs/STEAM_DECK.md`.
+- Adaptive triggers and haptics: `UAshlineDualSense` → `AshlineGameController.mm` (Apple path)
 
 ## iOS touch (`IMC_Ashline_Touch`)
 

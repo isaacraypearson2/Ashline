@@ -24,4 +24,19 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
 	static FAshlineWeaponStats ComposeStats(const FAshlineWeaponDefinition& Weapon, const TMap<EAshlineAttachmentSlot, FName>& Attachments);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	static bool IsWeaponUnlockedAtRank(FName WeaponId, int32 Rank);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	static bool IsAttachmentUnlockedAtRank(FName AttachmentId, int32 Rank);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	static bool IsAttachmentCompatible(FName WeaponId, FName AttachmentId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	static TArray<FName> StarterAttachmentIds(FName WeaponId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	static TArray<FName> AttachmentsUnlockedByRank(FName WeaponId, int32 Rank);
 };

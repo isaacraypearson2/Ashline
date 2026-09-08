@@ -74,6 +74,15 @@ public:
 	void SetFrameGeneration(bool bEnable);
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Graphics")
+	static bool DetectSteamDeckHardware();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Graphics")
+	void ToggleFSR3();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Graphics")
+	void ToggleTSR();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Graphics")
 	FAshlineGraphicsState GetState() const { return State; }
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Graphics")
@@ -93,7 +102,10 @@ private:
 	static bool HasCVar(const TCHAR* Name);
 
 	void ApplyUltraPreset();
+	void ApplyHighPreset();
 	void ApplyBalancedPreset();
+	void ApplyPerfPreset();
+	void ApplyDeckPreset();
 	void RegisterConsoleCommands();
 	void UnregisterConsoleCommands();
 

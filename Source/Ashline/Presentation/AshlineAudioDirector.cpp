@@ -1,6 +1,7 @@
 #include "Presentation/AshlineAudioDirector.h"
 
 #include "Ashline.h"
+#include "Core/AshlineSoftLoad.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Presentation/AshlineContentManifest.h"
@@ -18,14 +19,14 @@ USoundBase* UAshlineAudioDirector::Resolve(const TSoftObjectPtr<USoundBase>& Sof
 {
 	if (!Soft.IsNull())
 	{
-		if (USoundBase* Loaded = Soft.LoadSynchronous())
+		if (USoundBase* Loaded = AshlineSoftLoad::TryLoadSoft(Soft))
 		{
 			return Loaded;
 		}
 	}
 	for (const FString& Path : FallbackPaths)
 	{
-		if (USoundBase* Cue = LoadObject<USoundBase>(nullptr, *Path))
+		if (USoundBase* Cue = AshlineSoftLoad::TryLoadPath<USoundBase>(Path))
 		{
 			return Cue;
 		}
@@ -38,7 +39,7 @@ void UAshlineAudioDirector::PlayFire(UObject* WorldContext, FName WeaponId, cons
 	USoundBase* Cue = nullptr;
 	if (UAshlineWeaponVisual* Visual = UAshlinePresentationLibrary::FindWeaponVisual(WeaponId))
 	{
-		Cue = Visual->FireCue.LoadSynchronous();
+		Cue = AshlineSoftLoad::TryLoadSoft(Visual->FireCue);
 	}
 	if (!Cue)
 	{
@@ -59,7 +60,7 @@ void UAshlineAudioDirector::PlayReload(UObject* WorldContext, FName WeaponId, co
 	USoundBase* Cue = nullptr;
 	if (UAshlineWeaponVisual* Visual = UAshlinePresentationLibrary::FindWeaponVisual(WeaponId))
 	{
-		Cue = Visual->ReloadCue.LoadSynchronous();
+		Cue = AshlineSoftLoad::TryLoadSoft(Visual->ReloadCue);
 	}
 	if (!Cue)
 	{
@@ -78,7 +79,7 @@ void UAshlineAudioDirector::PlayHit(UObject* WorldContext, const FVector& Locati
 	USoundBase* Cue = nullptr;
 	if (UAshlineWeaponVisual* Visual = UAshlinePresentationLibrary::FindWeaponVisual(NAME_None))
 	{
-		Cue = Visual->HitCue.LoadSynchronous();
+		Cue = AshlineSoftLoad::TryLoadSoft(Visual->HitCue);
 	}
 	if (!Cue)
 	{
@@ -109,11 +110,11 @@ void UAshlineAudioDirector::StartMusicBed(UObject* WorldContext, EAshlineMission
 	USoundBase* Bed = nullptr;
 	if (UAshlineEnvironmentKit* Kit = UAshlinePresentationLibrary::FindEnvironmentKit(MissionId))
 	{
-		Bed = Kit->MusicBed.LoadSynchronous();
+		Bed = AshlineSoftLoad::TryLoadSoft(Kit->MusicBed);
 	}
 	if (!Bed)
 	{
-		Bed = LoadObject<USoundBase>(nullptr, *UAshlineContentManifest::MusicBedPath(MissionId));
+		Bed = AshlineSoftLoad::TryLoadPath<USoundBase>(UAshlineContentManifest::MusicBedPath(MissionId));
 	}
 	if (!Bed)
 	{

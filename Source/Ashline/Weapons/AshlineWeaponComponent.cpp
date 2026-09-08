@@ -1,6 +1,7 @@
 #include "Weapons/AshlineWeaponComponent.h"
 
 #include "Ashline.h"
+#include "Core/AshlineSoftLoad.h"
 #include "AshlineDualSense.h"
 #include "Camera/CameraComponent.h"
 #include "CollisionQueryParams.h"
@@ -81,7 +82,10 @@ void UAshlineWeaponComponent::LoadFromLoadout(const FAshlineLoadoutSlot& Primary
 	auto Build = [](const FAshlineLoadoutSlot& Slot, int32 Upgrade) -> FAshlineRuntimeWeapon
 	{
 		FAshlineRuntimeWeapon Runtime;
-		UAshlineWeaponCatalog::FindWeapon(Slot.WeaponId, Runtime.Definition);
+		if (!UAshlineWeaponCatalog::FindWeapon(Slot.WeaponId, Runtime.Definition))
+		{
+			UAshlineWeaponCatalog::FindWeapon(TEXT("WPN_AR_ASH16"), Runtime.Definition);
+		}
 		Runtime.Stats = UAshlineWeaponCatalog::ComposeStats(Runtime.Definition, Slot.Attachments);
 		Runtime.UpgradeTier = Upgrade;
 		Runtime.Stats.Damage += Upgrade * 1.5f;
@@ -250,24 +254,24 @@ void UAshlineWeaponComponent::SpawnMuzzleFX()
 	}
 	if (Visual)
 	{
-		if (UNiagaraSystem* Niagara = Visual->MuzzleFX.LoadSynchronous())
+		if (UNiagaraSystem* Niagara = AshlineSoftLoad::TryLoadSoft(Visual->MuzzleFX))
 		{
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Niagara, Muzzle, GetAimRotation());
 			return;
 		}
-		if (UParticleSystem* Cascade = Visual->MuzzleCascadeFX.LoadSynchronous())
+		if (UParticleSystem* Cascade = AshlineSoftLoad::TryLoadSoft(Visual->MuzzleCascadeFX))
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Cascade, Muzzle, GetAimRotation());
 			return;
 		}
 	}
 
-	if (UNiagaraSystem* Niagara = LoadObject<UNiagaraSystem>(nullptr, *UAshlineContentManifest::WeaponMuzzleFXPath(GetActiveWeapon().Definition.WeaponId)))
+	if (UNiagaraSystem* Niagara = AshlineSoftLoad::TryLoadPath<UNiagaraSystem>(UAshlineContentManifest::WeaponMuzzleFXPath(GetActiveWeapon().Definition.WeaponId)))
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Niagara, Muzzle, GetAimRotation());
 		return;
 	}
-	if (UParticleSystem* Cascade = LoadObject<UParticleSystem>(nullptr, TEXT("/Game/StarterContent/Particles/P_Explosion.P_Explosion")))
+	if (UParticleSystem* Cascade = AshlineSoftLoad::TryLoadPath<UParticleSystem>(TEXT("/Game/StarterContent/Particles/P_Explosion.P_Explosion")))
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Cascade, Muzzle, GetAimRotation(), FVector(0.15f), true);
 	}
@@ -278,7 +282,7 @@ void UAshlineWeaponComponent::SpawnImpact(const FHitResult& Hit)
 	UMaterialInterface* DecalMat = nullptr;
 	if (UAshlineWeaponVisual* Visual = UAshlinePresentationLibrary::FindWeaponVisual(GetActiveWeapon().Definition.WeaponId))
 	{
-		DecalMat = Visual->ImpactDecal.LoadSynchronous();
+		DecalMat = AshlineSoftLoad::TryLoadSoft(Visual->ImpactDecal);
 	}
 	if (!DecalMat)
 	{
@@ -408,7 +412,7 @@ void UAshlineWeaponComponent::RefreshVisuals()
 		AttachVisuals();
 	}
 
-	UAshlineWeaponVisual* Visual = VisualOverride.LoadSynchronous();
+	UAshlineWeaponVisual* Visual = AshlineSoftLoad::TryLoadSoft(VisualOverride);
 	if (!Visual)
 	{
 		Visual = UAshlinePresentationLibrary::FindWeaponVisual(GetActiveWeapon().Definition.WeaponId);
@@ -433,7 +437,7 @@ void UAshlineWeaponComponent::ApplyVisualAsset(UAshlineWeaponVisual* Visual)
 		return;
 	}
 
-	UStaticMesh* Mesh = Visual->WorldMesh.LoadSynchronous();
+	UStaticMesh* Mesh = AshlineSoftLoad::TryLoadSoft(Visual->WorldMesh);
 	if (!Mesh)
 	{
 		Mesh = UAshlinePresentationLibrary::LoadStaticMesh({
@@ -471,8 +475,8 @@ void UAshlineWeaponComponent::ApplyVisualAsset(UAshlineWeaponVisual* Visual)
 
 void UAshlineWeaponComponent::BuildCompoundPlaceholder()
 {
-	UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
-	UStaticMesh* Cyl = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+	UStaticMesh* Cube = AshlineSoftLoad::TryLoadPath<UStaticMesh>(TEXT("/Engine/BasicShapes/Cube.Cube"));
+	UStaticMesh* Cyl = AshlineSoftLoad::TryLoadPath<UStaticMesh>(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
 	if (!Cube || !WeaponMesh)
 	{
 		return;
@@ -569,7 +573,7 @@ void UAshlineWeaponComponent::ApplyEquippedSkin()
 		Override = UAshlinePresentationLibrary::ResolveSkinMaterial(Def);
 		if (!Override)
 		{
-			Override = Def.MaterialOverride.LoadSynchronous();
+			Override = AshlineSoftLoad::TryLoadSoft(Def.MaterialOverride);
 		}
 	}
 	ApplyTintToWeaponMeshes(Tint, Override);
@@ -601,7 +605,7 @@ void UAshlineWeaponComponent::ApplyCharm(FName CharmId)
 	}
 	if (!CharmAsset)
 	{
-		CharmAsset = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+		CharmAsset = AshlineSoftLoad::TryLoadPath<UStaticMesh>(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	}
 	if (CharmAsset)
 	{

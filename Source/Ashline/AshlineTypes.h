@@ -120,7 +120,13 @@ enum class EAshlineGraphicsPreset : uint8
 	/** 1440p high-refresh on Radeon 9070-class (FSR3 Balanced + cheaper Lumen). */
 	PC_Balanced UMETA(DisplayName = "Ashline_PC_Balanced"),
 	/** Default Windows target: 1440p Ultra, Nanite/Lumen/VSM, HW RT when supported. */
-	PC_Ultra UMETA(DisplayName = "Ashline_PC_Ultra")
+	PC_Ultra UMETA(DisplayName = "Ashline_PC_Ultra"),
+	/** 1440p High — FSR Quality / no RT shadows. Append-only (saved enum). */
+	PC_High UMETA(DisplayName = "Ashline_PC_High"),
+	/** 1080p-class / low VRAM — FSR Perf, RT off. */
+	PC_Perf UMETA(DisplayName = "Ashline_PC_Perf"),
+	/** Steam Deck / Proton handheld-safe (800p, 60 cap, RT off). */
+	SteamDeck UMETA(DisplayName = "Ashline_SteamDeck")
 };
 
 UENUM(BlueprintType)
@@ -260,6 +266,33 @@ struct FAshlineWeaponStats
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	bool bAutomatic = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float ADSSpeedMul = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float MoveSpeedMul = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float SprintToFireSeconds = 0.2f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float SwayDegrees = 0.35f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float ArmorPenetration = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float HeadshotMultiplier = 1.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float RecoilRecovery = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float NoiseMeters = 40.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float ADSFovScale = 1.f;
 };
 
 USTRUCT(BlueprintType)
@@ -284,6 +317,9 @@ struct FAshlineWeaponDefinition
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	int32 UnlockLevel = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	int32 CreditCost = 0;
 };
 
 USTRUCT(BlueprintType)
@@ -305,6 +341,9 @@ struct FAshlineAttachmentDefinition
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	int32 UnlockLevel = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	int32 CreditCost = 0;
 };
 
 USTRUCT(BlueprintType)

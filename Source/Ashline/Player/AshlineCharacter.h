@@ -96,8 +96,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
 	TObjectPtr<UInputAction> CrouchAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
+	TObjectPtr<UInputAction> SprintAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Movement")
 	float AimWalkMul = 0.55f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Movement")
+	float SprintMul = 1.45f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Movement")
+	bool bIsSprinting = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Combat")
 	float MaxHealth = 100.f;
@@ -112,6 +121,8 @@ protected:
 	void StopAim();
 	void StartCrouch();
 	void StopCrouch();
+	void StartSprint();
+	void StopSprint();
 	void ApplyRuntimeInputActions();
 	void BindLegacyKeys(UInputComponent* PlayerInputComponent);
 	void LegacyMoveForward(float Value);

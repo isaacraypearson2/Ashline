@@ -10,16 +10,24 @@ On **Apple** it still asks `IAshlineMetalFX` for MetalFX + RT and refuses to for
 
 | Preset | Who it's for | Screen % | Upscaler | RT | Notes |
 | --- | --- | --- | --- | --- | --- |
-| `Ashline_PC_Ultra` | 9070 GRE @ 1440p high-refresh | 77 (FSR3) / 85 (TSR) | FSR3 → TSR | On if supported | Default on Windows. Streaming pool 5600. VSync off. `t.MaxFPS=0`. |
+| `Ashline_PC_Ultra` | 9070 GRE @ 1440p high-refresh | 77 (FSR3) / 85 (TSR) | FSR3 → TSR | On if supported | Default on Windows desktop. Streaming pool 5600. VSync off. `t.MaxFPS=0`. |
+| `Ashline_PC_High` | Mid/high desktop | 77 / 80 | FSR3 Quality → TSR | Lumen HW, no RT shadows | Pool 4200. |
 | `Ashline_PC_Balanced` | Same PC, extra headroom | 59 / 70 | FSR3 Balanced → TSR | On if supported | Cheaper Lumen gather, pool 3800. |
-| Epic / Cinematic | Generic | 100 | TSR | Off unless asked | Scalability 3 |
+| `Ashline_PC_Perf` | 1080p / low VRAM | 50 / 55 | FSR3 Perf → TSR | **Off** | Pool 2200. |
+| `Ashline_SteamDeck` | Deck / Proton | 67 | FSR3 Balanced → TSR | **Off** | 1280×800, VSync on, 60 cap, pool 1800. Auto if `SteamDeck=1`. |
+| Epic / Cinematic | Generic | 100 | TSR | Off unless asked | Scalability 3–4 |
 | High / Medium / Low | Laptops / Mac | 100–67 | MetalFX or TSR | Off | Mac default is High |
 
-Console:
+Console (available in Shipping — these are settings, not cheats):
 
 ```
 AshPCUltra
+AshPCHigh
 AshPCBalanced
+AshPCPerf
+AshDeck
+AshFSR
+AshTSR
 ```
 
 (or execs on the player controller with the same names)
@@ -66,7 +74,9 @@ r.FidelityFX.FI.Enabled=0             ; frame gen off by default
 r.NGX.DLSS.Enable=0
 ```
 
-`UAshlineGraphicsSettings::SetFrameGeneration(true)` sets `r.FidelityFX.FI.Enabled=1` when that CVar exists.
+`UAshlineGraphicsSettings::SetFrameGeneration(true)` sets `r.FidelityFX.FI.Enabled=1` when that CVar exists. Deck / Perf force frame gen **off**.
+
+Named DeviceProfiles (`Ashline_Ultra` / `High` / `Balanced` / `Perf` / `Deck`) inherit the **Windows** (or Linux) root and **never** self-parent. See `Docs/STEAM_DECK.md` and `Docs/PERFORMANCE.md`.
 
 Phase 2 import + 1440p Ultra notes after Megascans/MetaHuman land: **`Docs/PHASE2_FAB.md`** (Nanite/Lumen/FSR3, pool size, foliage cap).
 

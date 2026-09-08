@@ -14,6 +14,7 @@ Save: slot `AshlineCampaign`, version **2.0.0** (`UAshlineSaveGame::MigrateIfNee
 | Rank 1–50 curve + rank grants | `GrantXP` uses the table | Rank-up fanfare |
 | Operator slots (helmet, vest, pants, gloves, boots, camo, face, voice, charm) | Owned + equipped in save | MetaHuman wardrobe meshes |
 | Weapon skins (universal + per-gun) | Owned + equipped; tint applied to FPS gun | Fab material / unique meshes |
+| Attachments (optic/muzzle/grip/mag/stock/laser) | Rank + credit gates; ComposeStats (ADS/move/noise/sway) | Authored attachment meshes |
 | Prestige at rank 50 | Resets rank, keeps locker, grants gilt + prestige camo + spine charm | Prestige emblem art |
 | Play-earned crates | Tokens → rarity roll → cosmetic id | Crate VFX |
 | Soft mesh / material overrides | Auto-bound to `ContentBindings.json` paths; load if the file exists | Drop Fab / MetaHuman onto those names |

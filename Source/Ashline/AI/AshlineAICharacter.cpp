@@ -1,6 +1,7 @@
 #include "AI/AshlineAICharacter.h"
 
 #include "AI/AshlineAICatalog.h"
+#include "Core/AshlineSoftLoad.h"
 #include "AI/AshlineAIController.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -64,19 +65,19 @@ void AAshlineAICharacter::ApplyArchetype(EAshlineAIArchetype InArchetype, EAshli
 
 void AAshlineAICharacter::ApplyPresentationMesh()
 {
-	USkeletalMesh* Body = BodyMeshOverride.LoadSynchronous();
+	USkeletalMesh* Body = AshlineSoftLoad::TryLoadSoft(BodyMeshOverride);
 	if (!Body)
 	{
 		if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
 		{
-			Body = Settings->DefaultAIMesh.LoadSynchronous();
+			Body = AshlineSoftLoad::TryLoadSoft(Settings->DefaultAIMesh);
 		}
 	}
 	if (!Body)
 	{
 		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(false, Archetype))
 		{
-			Body = Pres->BodyMesh.LoadSynchronous();
+			Body = AshlineSoftLoad::TryLoadSoft(Pres->BodyMesh);
 		}
 	}
 	if (!Body)

@@ -16,4 +16,4 @@ Optional editor copies (same names) can be generated with
 
 - `IA_Move` (Axis2D)
 - `IA_Look` (Axis2D)
-- `IA_Jump`, `IA_Fire`, `IA_Aim`, `IA_Reload`, `IA_CameraToggle`, `IA_SwapWeapon`, `IA_Crouch` (Digital)
+- `IA_Jump`, `IA_Fire`, `IA_Aim`, `IA_Reload`, `IA_CameraToggle`, `IA_SwapWeapon`, `IA_Crouch`, `IA_Sprint` (Digital)
