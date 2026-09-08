@@ -454,10 +454,6 @@ void UAshlineGraphicsSettings::ApplyCVars()
 	{
 		ApplyNamedMachinePreset(State.Preset);
 	}
-	else if (State.Preset == EAshlineGraphicsPreset::SteamDeck)
-	{
-		ApplyHandheldPreset();
-	}
 	else
 	{
 		SetCVarInt(TEXT("r.VSync"), 1);

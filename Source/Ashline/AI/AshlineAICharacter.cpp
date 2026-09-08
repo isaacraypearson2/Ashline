@@ -124,7 +124,7 @@ void AAshlineAICharacter::ApplyPresentationMesh()
 				const FString AnimPath = Pres->AnimClass.ToSoftObjectPath().ToString();
 				if (AshlineLoad::CanAttemptLoad(AnimPath))
 				{
-					if (UClass* Anim = Pres->AnimClass.LoadSynchronous())
+					if (UClass* Anim = Cast<UClass>(FSoftObjectPath(AnimPath).TryLoad()))
 					{
 						GetMesh()->SetAnimInstanceClass(Anim);
 					}
