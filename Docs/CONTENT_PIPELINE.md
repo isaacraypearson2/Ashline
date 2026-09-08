@@ -17,7 +17,8 @@ Content/Ashline/
   Environments/
     ASH01_WireCut/ … ASH12_Ashline/
     Shared/                 Reused kit pieces
-  Materials/PBR/            Master materials + instances
+  Materials/PBR/            MI_Ashline{Slug} / M_Ashline{Slug} / M_{Slug} (see Docs/MATERIALS.md)
+  Materials/Libraries/      Optional Fab material packs
   Materials/Decals/         Bullet / dirt / signage
   Audio/Weapons/            Fire / reload / hit cues
   Audio/Footsteps/
@@ -35,13 +36,14 @@ Empty directories are intentional. **Nothing in those folders is a Quixel pack u
 
 ## Runtime fallback chain
 
-`UAshlinePresentationLibrary` resolves assets in this order:
+`UAshlinePresentationLibrary` + `UAshlineMaterialFactory` resolve assets in this order:
 
-1. Authored DataAsset at `/Game/Ashline/Data/Kits/…` (soft refs you assign after import)
-2. **Starter Content** (`/Game/StarterContent/Materials/…`) if you added the pack
-3. Engine materials / meshes (`DefaultMaterial`, `WorldGridMaterial`, `BasicShapes`, editor mannequin)
+1. Authored `MI_Ashline{Slug}` / `M_Ashline{Slug}` / `M_{Slug}` under `/Game/Ashline/Materials/PBR/`
+2. Authored DataAsset at `/Game/Ashline/Data/Kits/…` (soft refs you assign after import)
+3. **Starter Content** (`/Game/StarterContent/Materials/…`) if you added the pack
+4. Engine materials / meshes (`DefaultMaterial`, `WorldGridMaterial`, `BasicShapes`, editor mannequin)
 
-Maps never hard-crash when a Fab mesh is missing.
+Maps never hard-crash when a Fab mesh is missing. Quiet loads: `AshlineLoad`.
 
 ## DataAssets
 

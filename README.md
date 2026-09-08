@@ -80,7 +80,7 @@ Ads stay off (`UAshlineMonetizationHooks`).
 
 **This repo does not contain Quixel, Fab, or MetaHuman binary packs.** If those folders are empty, that is expected.
 
-**Install next (exact names / URLs / 1440p notes):** `Docs/PHASE2_FAB.md`  
+Install next: `Docs/PHASE2_FAB.md` (evening clock) · `Docs/MATERIALS.md` (MI_Ashline parameter contract)  
 Also: `Docs/FAB_PACKS.md`, `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Docs/TEST_PLAN.md`.
 
 ## Campaign

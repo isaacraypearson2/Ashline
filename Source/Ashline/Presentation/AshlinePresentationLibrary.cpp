@@ -5,10 +5,12 @@
 #include "Presentation/AshlineCosmeticVisual.h"
 #include "Presentation/AshlineEnvironmentKit.h"
 #include "Presentation/AshlineLoad.h"
+#include "Presentation/AshlineMaterialFactory.h"
 #include "Presentation/AshlinePresentationSettings.h"
 #include "Presentation/AshlineWeaponVisual.h"
 #include "Meta/AshlineMetaCatalog.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/MeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -215,6 +217,7 @@ UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeTintedMaterial(UObjec
 		MID->SetVectorParameterValue(TEXT("EmissiveColor"), Tint);
 		MID->SetScalarParameterValue(TEXT("EmissiveStrength"), 8.f);
 	}
+	UAshlineMaterialFactory::StampTextureSet(MID, UAshlineMaterialFactory::DefaultsForSurface(Surface, Tint));
 	return MID;
 }
 
@@ -616,7 +619,7 @@ UMaterialInterface* UAshlinePresentationLibrary::ResolveImpactDecalMaterial()
 
 FString UAshlinePresentationLibrary::DescribeFallbackChain()
 {
-	return TEXT("Engine WorldGrid/BasicShape first. Authored /Game/Ashline DataAssets and StarterContent load only when the package exists (no log flood). Fab/Quixel/MetaHuman binaries are not in git.");
+	return TEXT("Engine WorldGrid/BasicShape first. Authored MI_Ashline{Slug} / M_Ashline{Slug} then /Game/Ashline DataAssets and StarterContent load only when the package exists (AshlineLoad, no log flood). Fab/Quixel/MetaHuman binaries are not in git.");
 }
 
 void UAshlinePresentationLibrary::ApplyHumanoidBlockout(ACharacter* Character, const FLinearColor& Tint)
@@ -909,8 +912,124 @@ void UAshlinePresentationLibrary::ApplyClothingPart(ACharacter* Character, EAshl
 	{
 		Comp->SetMaterial(0, Override);
 	}
-	else if (UMaterialInstanceDynamic* MID = MakeTintedMaterial(Character, EAshlineSurface::Plastic, Tint))
+	else if (UMaterialInstanceDynamic* MID = MakeCharacterMaterial(Character, Tint))
 	{
 		Comp->SetMaterial(0, MID);
 	}
+}
+
+UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeTexturedMaterial(UObject* Outer, EAshlineSurface Surface, const FLinearColor& Tint)
+{
+	FAshlineTextureSet Empty;
+	if (UMaterialInstanceDynamic* MID = UAshlineMaterialFactory::CreateSurfaceInstance(Outer, Surface, Tint, Empty))
+	{
+		return MID;
+	}
+	return MakeTintedMaterial(Outer, Surface, Tint);
+}
+
+UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeWeaponMaterial(UObject* Outer, const FLinearColor& Tint, const FAshlineTextureSet& Textures)
+{
+	if (UMaterialInstanceDynamic* MID = UAshlineMaterialFactory::CreateWeaponInstance(Outer, Tint, Textures))
+	{
+		return MID;
+	}
+	return MakeTintedMaterial(Outer, EAshlineSurface::Metal, Tint);
+}
+
+UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeCharacterMaterial(UObject* Outer, const FLinearColor& Tint)
+{
+	FAshlineTextureSet Empty;
+	if (UMaterialInstanceDynamic* MID = UAshlineMaterialFactory::CreateCharacterInstance(Outer, Tint, Empty))
+	{
+		return MID;
+	}
+	return MakeTintedMaterial(Outer, EAshlineSurface::Plastic, Tint);
+}
+
+UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeSkinMaterial(UObject* Outer, const FLinearColor& Tint)
+{
+	FAshlineTextureSet Empty;
+	if (UMaterialInstanceDynamic* MID = UAshlineMaterialFactory::CreateSkinInstance(Outer, Tint, Empty))
+	{
+		return MID;
+	}
+	return MakeTintedMaterial(Outer, EAshlineSurface::Skin, Tint);
+}
+
+UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeGlassMaterial(UObject* Outer, const FLinearColor& Tint, float Opacity)
+{
+	if (UMaterialInstanceDynamic* MID = UAshlineMaterialFactory::CreateGlassInstance(Outer, Tint, Opacity))
+	{
+		return MID;
+	}
+	UMaterialInstanceDynamic* Fallback = MakeTintedMaterial(Outer, EAshlineSurface::Glass, Tint);
+	if (Fallback)
+	{
+		Fallback->SetScalarParameterValue(TEXT("Opacity"), Opacity);
+		Fallback->SetScalarParameterValue(TEXT("OpacityValue"), Opacity);
+	}
+	return Fallback;
+}
+
+bool UAshlinePresentationLibrary::ApplyTexturedSurface(UMeshComponent* Mesh, UObject* Outer, EAshlineSurface Surface, const FLinearColor& Tint)
+{
+	FAshlineTextureSet Empty;
+	return UAshlineMaterialFactory::ApplyToMesh(Mesh, Outer, Surface, Tint, Empty);
+}
+
+UMaterialInterface* UAshlinePresentationLibrary::ResolveKitSurfaceMaterial(EAshlineMissionId MissionId, EAshlineSurface Surface)
+{
+	if (UAshlineEnvironmentKit* Kit = FindEnvironmentKit(MissionId))
+	{
+		switch (Surface)
+		{
+		case EAshlineSurface::Ground:
+		case EAshlineSurface::Sand:
+		case EAshlineSurface::Snow:
+		case EAshlineSurface::Dirt:
+		case EAshlineSurface::Asphalt:
+			if (UMaterialInterface* Mat = AshlineLoad::Soft(Kit->GroundMaterial))
+			{
+				return Mat;
+			}
+			break;
+		case EAshlineSurface::Foliage:
+			if (UMaterialInterface* Mat = AshlineLoad::Soft(Kit->FoliageMaterial))
+			{
+				return Mat;
+			}
+			break;
+		case EAshlineSurface::Metal:
+			if (UMaterialInterface* Mat = AshlineLoad::Soft(Kit->TrimMaterial))
+			{
+				return Mat;
+			}
+			break;
+		case EAshlineSurface::Glass:
+		case EAshlineSurface::Water:
+			if (UMaterialInterface* Mat = AshlineLoad::Soft(Kit->GlassMaterial))
+			{
+				return Mat;
+			}
+			break;
+		default:
+			if (UMaterialInterface* Mat = AshlineLoad::Soft(Kit->WallMaterial))
+			{
+				return Mat;
+			}
+			break;
+		}
+	}
+
+	if (UMaterialInterface* Authored = UAshlineMaterialFactory::LoadSurfaceInstance(Surface))
+	{
+		return Authored;
+	}
+	return GetSurfaceMaterial(Surface);
+}
+
+FString UAshlinePresentationLibrary::DescribeMaterialPipeline()
+{
+	return UAshlineMaterialFactory::DescribePipeline();
 }

@@ -32,6 +32,7 @@ These assets are **not shipped in git**.
    - Create `DA_Hero_Operator` (`UAshlineCharacterPresentation`) and set:
      - `BodyMesh` → MetaHuman body
      - `FaceMesh` → face (optional)
+     - `SkinMaterial` → `MI_AshlineSkin` (or the MetaHuman body material)
      - `AnimClass` → the MetaHuman anim BP
      - `MeshRelativeLocation` = `(0, 0, -96)`
      - `MeshRelativeRotation` = `(0, -90, 0)`

@@ -1,0 +1,52 @@
+{
+  "note": "Soft-ref contract matching UAshlineContentManifest::MasterMaterialCandidates. Binaries are not in git.",
+  "masters": {
+    "Environment": "/Game/Ashline/Materials/PBR/M_AshlineMaster.M_AshlineMaster",
+    "Weapon": "/Game/Ashline/Materials/PBR/M_AshlineWeapon.M_AshlineWeapon",
+    "Character": "/Game/Ashline/Materials/PBR/M_AshlineCharacter.M_AshlineCharacter",
+    "Decal": "/Game/Ashline/Materials/PBR/M_AshlineDecal.M_AshlineDecal",
+    "Glass": "/Game/Ashline/Materials/PBR/M_AshlineGlass.M_AshlineGlass",
+    "Skin": "/Game/Ashline/Materials/PBR/M_AshlineSkin.M_AshlineSkin"
+  },
+  "instances": {
+    "Ground": "/Game/Ashline/Materials/PBR/MI_AshlineDirt.MI_AshlineDirt",
+    "Dirt": "/Game/Ashline/Materials/PBR/MI_AshlineDirt.MI_AshlineDirt",
+    "Sand": "/Game/Ashline/Materials/PBR/MI_AshlineDirt.MI_AshlineDirt",
+    "Concrete": "/Game/Ashline/Materials/PBR/MI_AshlineConcrete.MI_AshlineConcrete",
+    "Metal": "/Game/Ashline/Materials/PBR/MI_AshlineMetal.MI_AshlineMetal",
+    "Wood": "/Game/Ashline/Materials/PBR/MI_AshlineWood.MI_AshlineWood",
+    "Snow": "/Game/Ashline/Materials/PBR/MI_AshlineSnow.MI_AshlineSnow",
+    "Water": "/Game/Ashline/Materials/PBR/MI_AshlineWater.MI_AshlineWater",
+    "Foliage": "/Game/Ashline/Materials/PBR/MI_AshlineFoliage.MI_AshlineFoliage",
+    "Emissive": "/Game/Ashline/Materials/PBR/MI_AshlineEmissive.MI_AshlineEmissive",
+    "Plastic": "/Game/Ashline/Materials/PBR/MI_AshlinePlastic.MI_AshlinePlastic",
+    "Glass": "/Game/Ashline/Materials/PBR/MI_AshlineGlass.MI_AshlineGlass",
+    "Asphalt": "/Game/Ashline/Materials/PBR/MI_AshlineAsphalt.MI_AshlineAsphalt",
+    "Skin": "/Game/Ashline/Materials/PBR/MI_AshlineSkin.MI_AshlineSkin"
+  },
+  "fallbacks": {
+    "M_Ashline": "/Game/Ashline/Materials/PBR/M_Ashline{Surface}.M_Ashline{Surface}",
+    "M_Slug": "/Game/Ashline/Materials/PBR/M_{Surface}.M_{Surface}"
+  },
+  "engineFallbacks": {
+    "BaseColor": "/Engine/EngineResources/DefaultTexture.DefaultTexture",
+    "Normal": "/Engine/EngineResources/DefaultNormal.DefaultNormal",
+    "White": "/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture",
+    "Black": "/Engine/EngineResources/Black.Black",
+    "DefaultMaterial": "/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial",
+    "WorldGrid": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+    "BasicShape": "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"
+  },
+  "paramAliases": {
+    "BaseColor": ["BaseColor", "Base Color", "Albedo", "Diffuse", "Color", "BaseColorMap"],
+    "Normal": ["Normal", "NormalMap", "Normalmap"],
+    "ORM": ["ORM", "ARM", "Mask", "OcclusionRoughnessMetallic"],
+    "Roughness": ["Roughness", "RoughnessMap"],
+    "Metallic": ["Metallic", "MetallicMap"],
+    "AO": ["AmbientOcclusion", "AO", "Occlusion"],
+    "Emissive": ["Emissive", "EmissiveMap", "EmissiveColor"],
+    "Height": ["Height", "Displacement"],
+    "Opacity": ["Opacity", "OpacityMask"],
+    "Tiling": ["Tiling", "UVScale", "TextureScale"]
+  }
+}

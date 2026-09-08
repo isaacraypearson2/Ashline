@@ -99,6 +99,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Movement")
 	float AimWalkMul = 0.55f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Camera")
+	float HipFOV = 90.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Camera")
+	float ADSFOV = 62.f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Combat")
 	float MaxHealth = 100.f;
 
@@ -125,6 +131,7 @@ protected:
 	void ApplyPresentationMesh();
 	void ApplyOperatorLook();
 	void TickFootsteps(float DeltaSeconds);
+	void TickCombatCamera(float DeltaSeconds);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Mesh")
 	TSoftObjectPtr<USkeletalMesh> HeroMeshOverride;
@@ -136,4 +143,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Combat")
 	bool bIsAiming = false;
+
+	float HitFlinch = 0.f;
+	float CurrentFOV = 90.f;
 };

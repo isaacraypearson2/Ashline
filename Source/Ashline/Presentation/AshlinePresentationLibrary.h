@@ -4,6 +4,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AshlineTypes.h"
 #include "Presentation/AshlinePresentationTypes.h"
+#include "Presentation/AshlineMaterialTypes.h"
 #include "AshlinePresentationLibrary.generated.h"
 
 class UStaticMesh;
@@ -101,4 +102,28 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Presentation")
 	static FName ClothingComponentName(EAshlineCosmeticSlot Slot);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInstanceDynamic* MakeTexturedMaterial(UObject* Outer, EAshlineSurface Surface, const FLinearColor& Tint);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInstanceDynamic* MakeWeaponMaterial(UObject* Outer, const FLinearColor& Tint, const FAshlineTextureSet& Textures);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInstanceDynamic* MakeCharacterMaterial(UObject* Outer, const FLinearColor& Tint);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInstanceDynamic* MakeSkinMaterial(UObject* Outer, const FLinearColor& Tint);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInstanceDynamic* MakeGlassMaterial(UObject* Outer, const FLinearColor& Tint, float Opacity = 0.28f);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static bool ApplyTexturedSurface(class UMeshComponent* Mesh, UObject* Outer, EAshlineSurface Surface, const FLinearColor& Tint);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInterface* ResolveKitSurfaceMaterial(EAshlineMissionId MissionId, EAshlineSurface Surface);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Presentation")
+	static FString DescribeMaterialPipeline();
 };

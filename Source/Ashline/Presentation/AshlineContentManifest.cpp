@@ -253,3 +253,9 @@ TArray<FString> UAshlineContentManifest::MasterMaterialCandidates(EAshlineSurfac
 		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/M_%s.M_%s"), *Slug, *Slug)
 	};
 }
+
+FString UAshlineContentManifest::SurfaceInstancePath(EAshlineSurface Surface)
+{
+	const TArray<FString> Candidates = MasterMaterialCandidates(Surface);
+	return Candidates.Num() > 0 ? Candidates[0] : FString();
+}

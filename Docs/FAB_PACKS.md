@@ -4,7 +4,7 @@
 
 Nothing below is in git. After install, drop or migrate assets onto the **canonical paths** in `UAshlineContentManifest` / `ContentBindings.json`. Soft refs / DataAssets pick them up with **no architecture rewrite**.
 
-Run `Scripts/import_fab_kits.py` once in the editor to create the folder tree + empty DataAssets.
+Run `Scripts/import_fab_kits.py` once in the editor to create the folder tree + empty DataAssets, then `Scripts/create_master_materials.py` for `MI_Ashline*` graphs.
 
 ## 0. Do this first (all free, in-engine)
 

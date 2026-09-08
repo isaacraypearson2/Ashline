@@ -1,5 +1,6 @@
 #include "AI/AshlineAICharacter.h"
 
+#include "Animation/AnimInstance.h"
 #include "AI/AshlineAICatalog.h"
 #include "AI/AshlineAIController.h"
 #include "Components/CapsuleComponent.h"
@@ -15,6 +16,7 @@
 #include "Presentation/AshlineCharacterPresentation.h"
 #include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlineLoad.h"
+#include "Presentation/AshlineMaterialFactory.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlinePresentationSettings.h"
 #include "Progression/AshlineProgressionSubsystem.h"
@@ -101,6 +103,9 @@ void AAshlineAICharacter::ApplyPresentationMesh()
 	case EAshlineAIArchetype::Scout: Tint = FLinearColor(0.16f, 0.2f, 0.12f); break;
 	case EAshlineAIArchetype::MachineGunner: Tint = FLinearColor(0.18f, 0.14f, 0.1f); break;
 	case EAshlineAIArchetype::CivilianIrregular: Tint = FLinearColor(0.32f, 0.24f, 0.16f); break;
+	case EAshlineAIArchetype::Grenadier: Tint = FLinearColor(0.22f, 0.18f, 0.1f); break;
+	case EAshlineAIArchetype::RadioOp: Tint = FLinearColor(0.14f, 0.18f, 0.2f); break;
+	case EAshlineAIArchetype::CQBSpecialist: Tint = FLinearColor(0.2f, 0.1f, 0.1f); break;
 	default: break;
 	}
 
@@ -111,7 +116,37 @@ void AAshlineAICharacter::ApplyPresentationMesh()
 		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 		GetMesh()->SetVisibility(true);
 		GetMesh()->SetCastShadow(true);
-		if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, EAshlineSurface::Plastic, Tint))
+		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(false, Archetype))
+		{
+			if (!Pres->AnimClass.IsNull())
+			{
+				const FString AnimPath = Pres->AnimClass.ToSoftObjectPath().ToString();
+				if (AshlineLoad::CanAttemptLoad(AnimPath))
+				{
+					if (UClass* Anim = Pres->AnimClass.LoadSynchronous())
+					{
+						GetMesh()->SetAnimInstanceClass(Anim);
+					}
+				}
+			}
+			if (UMaterialInterface* BodyMat = AshlineLoad::Soft(Pres->BodyMaterialOverride))
+			{
+				GetMesh()->SetMaterial(0, BodyMat);
+			}
+			else if (UMaterialInterface* Skin = AshlineLoad::Soft(Pres->SkinMaterial))
+			{
+				GetMesh()->SetMaterial(0, Skin);
+			}
+			else if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeCharacterMaterial(this, Tint))
+			{
+				if (Pres->TextureSet.HasAnyAuthoredTexture())
+				{
+					UAshlineMaterialFactory::StampTextureSet(MID, Pres->TextureSet);
+				}
+				GetMesh()->SetMaterial(0, MID);
+			}
+		}
+		else if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeCharacterMaterial(this, Tint))
 		{
 			GetMesh()->SetMaterial(0, MID);
 		}
@@ -150,12 +185,37 @@ float AAshlineAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 	}
 
 	Health -= Incoming;
+	if (AAshlineAIController* AICon = Cast<AAshlineAIController>(GetController()))
+	{
+		AICon->NotifyTookDamage(DamageCauser ? DamageCauser : (EventInstigator ? EventInstigator->GetPawn() : nullptr), Incoming);
+	}
 	if (Health <= 0.f)
 	{
 		bDead = true;
 		Health = 0.f;
+		if (AAshlineAIController* AIConDead = Cast<AAshlineAIController>(GetController()))
+		{
+			AIConDead->NotifyDied();
+		}
+		ApplyDeathPose();
 		DetachFromControllerPendingDestroy();
 		SetLifeSpan(8.f);
 	}
 	return Incoming;
+}
+
+void AAshlineAICharacter::ApplyDeathPose()
+{
+	if (UCharacterMovementComponent* Move = GetCharacterMovement())
+	{
+		Move->DisableMovement();
+		Move->StopMovementImmediately();
+	}
+	if (GetMesh())
+	{
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetMesh()->SetSimulatePhysics(true);
+		GetMesh()->SetPhysicsBlendWeight(1.f);
+	}
+	CombatState = EAshlineAICombatState::Dead;
 }
