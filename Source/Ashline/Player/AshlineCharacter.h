@@ -113,8 +113,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
 	TObjectPtr<UInputAction> InteractAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
+	TObjectPtr<UInputAction> SprintAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Movement")
 	float AimWalkMul = 0.55f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Movement")
+	float SprintMul = 1.45f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Combat")
 	float MaxHealth = 100.f;
@@ -139,6 +145,8 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void StartAim();
 	void StopAim();
+	void StartSprint();
+	void StopSprint();
 	void StartCrouch();
 	void StopCrouch();
 	void ApplyRuntimeInputActions();
@@ -174,6 +182,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Combat")
 	bool bIsAiming = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Combat")
+	bool bIsSprinting = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Combat")
 	bool bDowned = false;

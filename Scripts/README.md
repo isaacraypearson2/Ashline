@@ -9,6 +9,7 @@ Editor-only Python for UE 5.8.2. Play works without running any of these.
 | `assign_interim_meshes.py` | Engine / GASP / TP mannequin → hero+AI. Hides capsules. Stamps Starter materials on kits. |
 | `validate_meta_catalog.py` | No-UE check of `Meta.json` |
 | `validate_content_layout.py` | No-UE check of folders + `ContentBindings.json` |
+| `validate_release_config.py` | No-UE Shipping / DeviceProfile / cheat-gate hygiene |
 
 Tools → Execute Python Script, or Output Log:
 

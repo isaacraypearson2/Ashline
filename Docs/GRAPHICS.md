@@ -22,9 +22,13 @@ Console:
 AshPCUltra
 AshPCBalanced
 AshDeck
+AshFSR
+AshTSR
 ```
 
 (or execs on the player controller with the same names)
+
+Named DeviceProfile INI rows (`Ashline_PC_*`, `Ashline_SteamDeck`) are in **PR #8** — this branch applies the same presets via `UAshlineGraphicsSettings` CVars.
 
 ## 9070 GRE CVar sheet (`Ashline_PC_Ultra`)
 

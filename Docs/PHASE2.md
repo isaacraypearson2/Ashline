@@ -13,7 +13,7 @@ Do these on the 9070 GRE machine:
 7. Replace runtime blockouts with **authored `.umap`s** once kits land (`MapAsset` already points at `/Game/Ashline/Maps/Campaign/ASH##_*`).
 8. Locomotion AnimBPs, navmesh, behavior trees.
 9. UMG **armory / operator locker** (Canvas HUD + C++ meta + overnight feel layer already playable). Bind `MeshOverride` / `MaterialOverride` on `FAshlineCosmeticDefinition` and `FAshlineWeaponSkinDefinition`.
-10. Package a **Win64 Development** build and profile Lumen/RT at 1440p. Also smoke **Steam Deck** preset (`AshDeck`) at 1280×800.
+10. Package a **Win64 Shipping** build (`Docs/PACKAGING.md`) and profile Lumen/RT at 1440p. Also smoke **Steam Deck** preset (`AshDeck`) at 1280×800. Release gate: `Docs/RELEASE_CHECKLIST.md`.
 
 Overnight HUD/feel: `Docs/PHASE_OVERNIGHT_HUD.md`.
 

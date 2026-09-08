@@ -1,4 +1,5 @@
 #include "Weapons/AshlineWeaponComponent.h"
+#include "Presentation/AshlineLoad.h"
 
 #include "AI/AshlineAICharacter.h"
 #include "AI/AshlineAICatalog.h"
@@ -426,7 +427,7 @@ void UAshlineWeaponComponent::RefreshVisuals()
 		AttachVisuals();
 	}
 
-	UAshlineWeaponVisual* Visual = VisualOverride.LoadSynchronous();
+	UAshlineWeaponVisual* Visual = AshlineLoad::Soft(VisualOverride);
 	if (!Visual)
 	{
 		Visual = UAshlinePresentationLibrary::FindWeaponVisual(GetActiveWeapon().Definition.WeaponId);
@@ -451,7 +452,7 @@ void UAshlineWeaponComponent::ApplyVisualAsset(UAshlineWeaponVisual* Visual)
 		return;
 	}
 
-	UStaticMesh* Mesh = Visual->WorldMesh.LoadSynchronous();
+	UStaticMesh* Mesh = AshlineLoad::Soft(Visual->WorldMesh);
 	if (!Mesh)
 	{
 		Mesh = UAshlinePresentationLibrary::LoadStaticMesh({
@@ -489,8 +490,8 @@ void UAshlineWeaponComponent::ApplyVisualAsset(UAshlineWeaponVisual* Visual)
 
 void UAshlineWeaponComponent::BuildCompoundPlaceholder()
 {
-	UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
-	UStaticMesh* Cyl = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+	UStaticMesh* Cube = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cube.Cube"));
+	UStaticMesh* Cyl = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
 	if (!Cube || !WeaponMesh)
 	{
 		return;
@@ -587,7 +588,7 @@ void UAshlineWeaponComponent::ApplyEquippedSkin()
 		Override = UAshlinePresentationLibrary::ResolveSkinMaterial(Def);
 		if (!Override)
 		{
-			Override = Def.MaterialOverride.LoadSynchronous();
+			Override = AshlineLoad::Soft(Def.MaterialOverride);
 		}
 	}
 	ApplyTintToWeaponMeshes(Tint, Override);
@@ -619,7 +620,7 @@ void UAshlineWeaponComponent::ApplyCharm(FName CharmId)
 	}
 	if (!CharmAsset)
 	{
-		CharmAsset = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+		CharmAsset = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	}
 	if (CharmAsset)
 	{

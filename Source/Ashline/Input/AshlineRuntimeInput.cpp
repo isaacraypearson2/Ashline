@@ -30,6 +30,15 @@ namespace
 		Scalar->Scalar = Value;
 		return Scalar;
 	}
+
+	UInputModifierDeadZone* MakeDeadZone(UObject* Outer, float Lower)
+	{
+		UInputModifierDeadZone* DZ = NewObject<UInputModifierDeadZone>(Outer);
+		DZ->LowerThreshold = Lower;
+		DZ->UpperThreshold = 1.f;
+		DZ->Type = EDeadZoneType::Radial;
+		return DZ;
+	}
 }
 
 void UAshlineRuntimeInput::EnsureBuilt()
@@ -49,6 +58,7 @@ void UAshlineRuntimeInput::EnsureBuilt()
 	SwapWeapon = MakeAction(TEXT("IA_Ashline_Swap"), static_cast<uint8>(EInputActionValueType::Boolean));
 	Crouch = MakeAction(TEXT("IA_Ashline_Crouch"), static_cast<uint8>(EInputActionValueType::Boolean));
 	Interact = MakeAction(TEXT("IA_Ashline_Interact"), static_cast<uint8>(EInputActionValueType::Boolean));
+	Sprint = MakeAction(TEXT("IA_Ashline_Sprint"), static_cast<uint8>(EInputActionValueType::Boolean));
 
 	KeyboardMouseContext = NewObject<UInputMappingContext>(this, TEXT("IMC_Ashline_KBM_Runtime"));
 	GamepadContext = NewObject<UInputMappingContext>(this, TEXT("IMC_Ashline_Gamepad_Runtime"));
@@ -104,14 +114,17 @@ void UAshlineRuntimeInput::MapButtons()
 	KeyboardMouseContext->MapKey(Crouch, EKeys::LeftControl);
 	KeyboardMouseContext->MapKey(Interact, EKeys::E);
 	KeyboardMouseContext->MapKey(Interact, EKeys::F);
+	KeyboardMouseContext->MapKey(Sprint, EKeys::LeftShift);
 }
 
 void UAshlineRuntimeInput::MapGamepad()
 {
-	GamepadContext->MapKey(Move, EKeys::Gamepad_Left2D);
+	FEnhancedActionKeyMapping& LeftStick = GamepadContext->MapKey(Move, EKeys::Gamepad_Left2D);
+	LeftStick.Modifiers.Add(MakeDeadZone(GamepadContext, 0.20f));
 
 	FEnhancedActionKeyMapping& RightStick = GamepadContext->MapKey(Look, EKeys::Gamepad_Right2D);
-	RightStick.Modifiers.Add(MakeScalar(GamepadContext, FVector(0.85f, 0.85f, 1.f)));
+	RightStick.Modifiers.Add(MakeDeadZone(GamepadContext, 0.18f));
+	RightStick.Modifiers.Add(MakeScalar(GamepadContext, FVector(0.92f, 0.92f, 1.f)));
 	RightStick.Modifiers.Add(MakeNegate(GamepadContext, false, true, false));
 
 	GamepadContext->MapKey(Fire, EKeys::Gamepad_RightTrigger);
@@ -124,6 +137,7 @@ void UAshlineRuntimeInput::MapGamepad()
 	GamepadContext->MapKey(CameraToggle, EKeys::Gamepad_DPad_Up);
 	GamepadContext->MapKey(Interact, EKeys::Gamepad_LeftShoulder);
 	GamepadContext->MapKey(Interact, EKeys::Gamepad_DPad_Down);
+	GamepadContext->MapKey(Sprint, EKeys::Gamepad_LeftThumbstick);
 
 	// Touch context mirrors fire/aim/jump so a later UMG HUD can inject the same actions.
 	TouchContext->MapKey(Fire, EKeys::LeftMouseButton);

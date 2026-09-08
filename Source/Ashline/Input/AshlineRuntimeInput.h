@@ -50,6 +50,9 @@ public:
 	TObjectPtr<UInputAction> Interact;
 
 	UPROPERTY()
+	TObjectPtr<UInputAction> Sprint;
+
+	UPROPERTY()
 	TObjectPtr<UInputMappingContext> KeyboardMouseContext;
 
 	UPROPERTY()

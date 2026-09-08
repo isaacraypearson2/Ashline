@@ -96,6 +96,8 @@ private:
 	void ApplyBalancedPreset();
 	void ApplySteamDeckPreset();
 	void ApplyHandheldPreset();
+	void ToggleFSR3();
+	void ToggleTSR();
 	static bool DetectSteamDeck();
 	void RegisterConsoleCommands();
 	void UnregisterConsoleCommands();
