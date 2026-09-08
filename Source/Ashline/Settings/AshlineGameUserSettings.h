@@ -31,4 +31,16 @@ public:
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category = "Ashline|Graphics")
 	int32 TargetResY = 1440;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category = "Ashline|Graphics")
+	bool bAutoDetectPreset = true;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category = "Ashline|Graphics")
+	EAshlineFrameTarget FrameTarget = EAshlineFrameTarget::Unlimited;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category = "Ashline|Graphics")
+	float SafeZoneScale = 0.f;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category = "Ashline|Graphics")
+	bool bHandheldLayout = false;
 };

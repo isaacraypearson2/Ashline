@@ -18,6 +18,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 #include "UObject/SoftObjectPath.h"
+#include <initializer_list>
 
 namespace AshlinePres
 {
@@ -53,76 +54,119 @@ USkeletalMesh* UAshlinePresentationLibrary::LoadSkeletalMesh(const TArray<FStrin
 
 UMaterialInterface* UAshlinePresentationLibrary::GetSurfaceMaterial(EAshlineSurface Surface)
 {
+	TArray<FString> Paths = UAshlineContentManifest::MasterMaterialCandidates(Surface);
+
+	auto EngineThenStarter = [&Paths](std::initializer_list<const TCHAR*> Rest)
+	{
+		for (const TCHAR* Path : Rest)
+		{
+			Paths.Add(Path);
+		}
+	};
+
 	switch (Surface)
 	{
 	case EAshlineSurface::Ground:
-		return LoadMaterial({
+	case EAshlineSurface::Dirt:
+		EngineThenStarter({
 			TEXT("/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"),
 			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
 			TEXT("/Game/StarterContent/Materials/M_Ground_Grass.M_Ground_Grass"),
 			TEXT("/Game/StarterContent/Materials/M_Ground_Moss.M_Ground_Moss")
 		});
+		break;
 	case EAshlineSurface::Concrete:
-		return LoadMaterial({
+		EngineThenStarter({
 			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
 			TEXT("/Game/StarterContent/Materials/M_Concrete_Tiles.M_Concrete_Tiles"),
 			TEXT("/Game/StarterContent/Materials/M_Concrete_Poured.M_Concrete_Poured")
 		});
+		break;
+	case EAshlineSurface::Asphalt:
+		EngineThenStarter({
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
+			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
+			TEXT("/Game/StarterContent/Materials/M_Concrete_Tiles.M_Concrete_Tiles")
+		});
+		break;
 	case EAshlineSurface::Metal:
-		return LoadMaterial({
+		EngineThenStarter({
 			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
 			TEXT("/Game/StarterContent/Materials/M_Metal_Steel.M_Metal_Steel"),
 			TEXT("/Game/StarterContent/Materials/M_Metal_Brushed.M_Metal_Brushed")
 		});
+		break;
 	case EAshlineSurface::Wood:
-		return LoadMaterial({
+		EngineThenStarter({
 			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
 			TEXT("/Game/StarterContent/Materials/M_Wood_Floor_Walnut_Polished.M_Wood_Floor_Walnut_Polished"),
 			TEXT("/Game/StarterContent/Materials/M_Wood_Oak.M_Wood_Oak")
 		});
+		break;
 	case EAshlineSurface::Sand:
-		return LoadMaterial({
+		EngineThenStarter({
 			TEXT("/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"),
 			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Game/StarterContent/Materials/M_Ground_Gravel.M_Ground_Gravel")
 		});
+		break;
 	case EAshlineSurface::Snow:
-		return LoadMaterial({
+		EngineThenStarter({
 			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
 			TEXT("/Game/StarterContent/Materials/M_Rock_Marble.M_Rock_Marble")
 		});
+		break;
 	case EAshlineSurface::Water:
-		return LoadMaterial({
+		EngineThenStarter({
 			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
 			TEXT("/Game/StarterContent/Materials/M_Water_Ocean.M_Water_Ocean"),
 			TEXT("/Game/StarterContent/Materials/M_Water_Lake.M_Water_Lake")
 		});
+		break;
 	case EAshlineSurface::Foliage:
-		return LoadMaterial({
+		EngineThenStarter({
 			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
 			TEXT("/Game/StarterContent/Materials/M_Ground_Grass.M_Ground_Grass")
 		});
+		break;
+	case EAshlineSurface::Glass:
+		EngineThenStarter({
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
+			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
+			TEXT("/Game/StarterContent/Materials/M_Glass.M_Glass")
+		});
+		break;
+	case EAshlineSurface::Skin:
+		EngineThenStarter({
+			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+		});
+		break;
 	case EAshlineSurface::Emissive:
-		return LoadMaterial({
+		EngineThenStarter({
 			TEXT("/Engine/EngineMaterials/EmissiveMeshMaterial.EmissiveMeshMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultUnlitMaterial.DefaultUnlitMaterial"),
 			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
 		});
+		break;
 	case EAshlineSurface::Plastic:
 	case EAshlineSurface::Auto:
 	default:
-		return LoadMaterial({
+		EngineThenStarter({
 			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"),
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial")
 		});
+		break;
 	}
+
+	return LoadMaterial(Paths);
 }
 
 UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeTintedMaterial(UObject* Outer, EAshlineSurface Surface, const FLinearColor& Tint)
@@ -142,8 +186,30 @@ UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeTintedMaterial(UObjec
 	MID->SetVectorParameterValue(TEXT("Color"), Tint);
 	MID->SetVectorParameterValue(TEXT("BaseColor"), Tint);
 	MID->SetVectorParameterValue(TEXT("Base Color"), Tint);
-	MID->SetScalarParameterValue(TEXT("Roughness"), Surface == EAshlineSurface::Metal ? 0.35f : 0.72f);
-	MID->SetScalarParameterValue(TEXT("Metallic"), Surface == EAshlineSurface::Metal ? 0.85f : 0.05f);
+	float Roughness = 0.72f;
+	float Metallic = 0.05f;
+	if (Surface == EAshlineSurface::Metal)
+	{
+		Roughness = 0.35f;
+		Metallic = 0.85f;
+	}
+	else if (Surface == EAshlineSurface::Glass)
+	{
+		Roughness = 0.08f;
+		Metallic = 0.0f;
+	}
+	else if (Surface == EAshlineSurface::Asphalt)
+	{
+		Roughness = 0.82f;
+		Metallic = 0.05f;
+	}
+	else if (Surface == EAshlineSurface::Skin)
+	{
+		Roughness = 0.55f;
+		Metallic = 0.0f;
+	}
+	MID->SetScalarParameterValue(TEXT("Roughness"), Roughness);
+	MID->SetScalarParameterValue(TEXT("Metallic"), Metallic);
 	if (Surface == EAshlineSurface::Emissive)
 	{
 		MID->SetVectorParameterValue(TEXT("EmissiveColor"), Tint);
@@ -155,13 +221,17 @@ UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeTintedMaterial(UObjec
 EAshlineSurface UAshlinePresentationLibrary::InferSurface(const FLinearColor& Color)
 {
 	const float Lum = Color.GetLuminance();
-	if (Color.B > 0.28f && Color.B > Color.R && Lum < 0.28f)
-	{
-		return EAshlineSurface::Water;
-	}
 	if (Lum > 0.7f && Color.B >= Color.R)
 	{
 		return EAshlineSurface::Snow;
+	}
+	if (Color.B > 0.5f && Color.G > 0.4f && Color.R < Color.B && Lum < 0.7f && Lum > 0.35f)
+	{
+		return EAshlineSurface::Glass;
+	}
+	if (Color.B > 0.28f && Color.B > Color.R && Lum < 0.28f)
+	{
+		return EAshlineSurface::Water;
 	}
 	if (Color.R > 0.35f && Color.G > 0.22f && Color.B < 0.2f && Lum > 0.25f)
 	{

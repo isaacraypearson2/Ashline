@@ -94,4 +94,11 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
 	static FString SlotFolderName(EAshlineCosmeticSlot Slot);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString SurfaceSlug(EAshlineSurface Surface);
+
+	/** Authored master + MI. Missing packages fail quiet — Engine fallbacks remain valid. */
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> MasterMaterialCandidates(EAshlineSurface Surface);
 };

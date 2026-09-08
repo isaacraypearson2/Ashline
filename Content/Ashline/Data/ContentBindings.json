@@ -36,7 +36,9 @@
     "kitGround": "/Game/Ashline/Environments/{Slug}/M_Ground_{Slug}.M_Ground_{Slug}",
     "kitWall": "/Game/Ashline/Environments/{Slug}/M_Wall_{Slug}.M_Wall_{Slug}",
     "kitTrim": "/Game/Ashline/Environments/{Slug}/M_Trim_{Slug}.M_Trim_{Slug}",
-    "kitDataAsset": "/Game/Ashline/Data/Kits/DA_Kit_ASH{NN}.DA_Kit_ASH{NN}"
+    "kitDataAsset": "/Game/Ashline/Data/Kits/DA_Kit_ASH{NN}.DA_Kit_ASH{NN}",
+    "masterMaterial": "/Game/Ashline/Materials/PBR/MI_Ashline{Surface}.MI_Ashline{Surface}",
+    "masterMaterialFallback": "/Game/Ashline/Materials/PBR/M_Ashline{Surface}.M_Ashline{Surface}"
   },
   "cosmetics": {
     "CAMO_FIELD": { "slot": "Camo", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_FIELD.SK_CAMO_FIELD", "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_FIELD.M_CAMO_FIELD" },

@@ -36,6 +36,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
 	static UMaterialInterface* GetSurfaceMaterial(EAshlineSurface Surface);
 
+	/** Authored MI first, then Engine, then StarterContent if the pack exists. */
+
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
 	static UMaterialInstanceDynamic* MakeTintedMaterial(UObject* Outer, EAshlineSurface Surface, const FLinearColor& Tint);
 

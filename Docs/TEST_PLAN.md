@@ -14,10 +14,12 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 
 ## Graphics
 
-- [ ] PIE HUD shows **Ashline_PC_Ultra** and an RHI name containing **D3D12**
-- [ ] `stat fps` at 1440p — high-refresh capable (VSync off)
+- [ ] PIE HUD shows **Ashline_PC_Ultra** (or the auto-detected rec) and an RHI name containing **D3D12**
+- [ ] `stat fps` at 1440p — high-refresh capable (VSync off) on the 9070 GRE
 - [ ] `r.RayTracing` / `r.Lumen.HardwareRayTracing` are 1 if the driver reports HW RT
-- [ ] `AshPCBalanced` drops screen percentage / Lumen cost; `AshPCUltra` restores
+- [ ] `AshPCHigh` / `AshPCBalanced` / `AshPCPerf` drop cost; `AshPCUltra` restores
+- [ ] `AshSteamDeck` snaps 1280×800, 40 fps, safe-zone HUD; `AshPCUltra` returns to 1440p
+- [ ] `AshGfxAuto` re-detects; **F8** cycles named presets
 - [ ] Nanite/Lumen/VSM do not spam fatal logs
 - [ ] DLSS is **not** required; game looks correct with FSR3 or TSR only
 
@@ -48,8 +50,9 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 ## Presentation (Phase 1 bar)
 
 - [ ] Each of ASH-01…12 has a **distinct** lighting/fog mood (night vs desert vs snow vs red finale)
-- [ ] ASH-01 is a **night raid**, not a courtyard: woods → trench → outer fence → motor pool → relay compound → creek exfil (hundreds of meters)
+- [ ] ASH-01 is a **night raid**, not a courtyard: LZ woods → trench → outer fence → motor pool → relay compound → creek / QRF (≈520 m class)
 - [ ] Remaining missions have long infil → objective → exfil lanes (3–6× the old graybox footprint)
+- [ ] Buildings show metal trim + glass; roads read asphalt; crates/lamps/debris exist without Fab kits
 - [ ] No editor banner **Lighting needs to be rebuilt** in PIE (Movable lights + force no precomputed lighting)
 - [ ] No spam about competing directional lights / missing StarterContent when the pack is not installed
 - [ ] Surfaces are not a single flat gray — materials tint / Engine PBR (StarterContent only if the pack exists)

@@ -216,3 +216,35 @@ FString UAshlineContentManifest::SlotFolderName(EAshlineCosmeticSlot Slot)
 	default: return TEXT("Other");
 	}
 }
+
+FString UAshlineContentManifest::SurfaceSlug(EAshlineSurface Surface)
+{
+	switch (Surface)
+	{
+	case EAshlineSurface::Ground: return TEXT("Dirt");
+	case EAshlineSurface::Concrete: return TEXT("Concrete");
+	case EAshlineSurface::Metal: return TEXT("Metal");
+	case EAshlineSurface::Wood: return TEXT("Wood");
+	case EAshlineSurface::Sand: return TEXT("Dirt");
+	case EAshlineSurface::Snow: return TEXT("Snow");
+	case EAshlineSurface::Water: return TEXT("Water");
+	case EAshlineSurface::Foliage: return TEXT("Foliage");
+	case EAshlineSurface::Emissive: return TEXT("Emissive");
+	case EAshlineSurface::Plastic: return TEXT("Plastic");
+	case EAshlineSurface::Dirt: return TEXT("Dirt");
+	case EAshlineSurface::Glass: return TEXT("Glass");
+	case EAshlineSurface::Asphalt: return TEXT("Asphalt");
+	case EAshlineSurface::Skin: return TEXT("Skin");
+	default: return TEXT("Concrete");
+	}
+}
+
+TArray<FString> UAshlineContentManifest::MasterMaterialCandidates(EAshlineSurface Surface)
+{
+	const FString Slug = SurfaceSlug(Surface);
+	return {
+		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/MI_Ashline%s.MI_Ashline%s"), *Slug, *Slug),
+		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/M_Ashline%s.M_Ashline%s"), *Slug, *Slug),
+		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/M_%s.M_%s"), *Slug, *Slug)
+	};
+}

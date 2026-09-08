@@ -73,6 +73,16 @@ protected:
 	void WalledYard(const FVector& Center, const FVector2D& HalfExtent, float WallHeight, const FLinearColor& Color, int32 OpenSide, float GateWidth = 600.f);
 	void RoadStrip(const FVector& From, const FVector& To, float Width = 700.f);
 	void ScatterKitProps(const FVector& Center, float Radius, int32 Count);
+	void TrimBand(const FVector& Location, const FVector2D& Footprint, float Height);
+	void GlassPane(const FVector& Location, const FVector& Scale, const FRotator& Rotation = FRotator::ZeroRotator);
+	void CrateStack(const FVector& Location, int32 Count = 4);
+	void StreetLamp(const FVector& Location, float Height = 420.f);
+	void AntennaMast(const FVector& Location, float Height = 1400.f);
+	void Barricade(const FVector& Location, const FRotator& Rotation = FRotator::ZeroRotator);
+	void DebrisPile(const FVector& Location);
+	void FenceRun(const FVector& From, const FVector& To, int32 Posts);
+	void ScatterDress(const FVector& Center, float Radius, int32 Count);
+	void DestructibleStub(const FVector& Location);
 
 	AActor* Box(const FVector& Location, const FVector& Scale, const FLinearColor& Color, bool bCollision = true, EAshlineSurface Surface = EAshlineSurface::Auto);
 	AActor* Cylinder(const FVector& Location, const FVector& Scale, const FLinearColor& Color, EAshlineSurface Surface = EAshlineSurface::Auto);

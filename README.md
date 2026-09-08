@@ -19,7 +19,7 @@ This repository is a full C++ Unreal project: campaign loop, weapons, AI, progre
 | RT | Hardware ray tracing **ON when the RHI reports it** |
 | Upscaling | **FSR 3** (Temporal Upscale). TSR is the built-in fallback. DLSS is optional and never required. |
 
-Named presets: **`Ashline_PC_Ultra`** (default on Windows) and **`Ashline_PC_Balanced`**. Console: `AshPCUltra` / `AshPCBalanced`. CVars: `Docs/GRAPHICS.md`.
+Named presets: **`Ashline_PC_Ultra`** (default on Isaac's desktop), **`PC_High`**, **`PC_Balanced`**, **`PC_Performance`**, **`SteamDeck`** (800p / FSR / 40 fps), **`Laptop`**. Auto-detect on boot (`AshGfxAuto`); cycle with **F8** / `AshGfxCycle`. CVars: `Docs/GRAPHICS.md`.
 
 ## Open on Windows (UE 5.8.2)
 
@@ -57,7 +57,7 @@ set PROJ=%CD%\Ashline.uproject
 4. On **MISSION COMPLETE**, note XP / **credits** / crate tokens, press **Enter** to return to campaign select. ASH-02 is now READY. Frontend shows Rank / Prestige / Credits and the equipped camo + primary skin.
 5. Repeat through **ASH-12**. After the finale, **ASHLINE CUT** means the save unlocked the whole spine.
 6. Progress lives in save slot `AshlineCampaign` (`Saved/SaveGames`). Delete that file to start a new operator.
-7. Apply **Ashline_PC_Ultra** (`AshPCUltra`) after PIE if you changed scalability.
+7. Apply **Ashline_PC_Ultra** (`AshPCUltra`) after PIE if you changed scalability. **F8** cycles Ultra → High → Balanced → Perf → Deck → Laptop. `AshSteamDeck` is the handheld profile (safe-zone HUD, 800p, 40 fps) — not the default on the 9070 GRE.
 
 **Smoke-test checklist** — see `Docs/TEST_PLAN.md`.
 
@@ -74,7 +74,9 @@ Ads stay off (`UAshlineMonetizationHooks`).
 | Hero/AI skeletal hooks (MetaHuman / mannequin) | MetaHuman Creator characters + AnimBPs |
 | Audio **slots** (fire / reload / hit / footsteps / music) | Authored MetaSounds / Sound Cues |
 | SP meta: credits, rank 1–50, cosmetics, weapon skins, prestige | MetaHuman wardrobe + Fab skin materials |
-| `Ashline_PC_Ultra` / `Balanced` + DX12 config | Profile on the 9070 GRE and tune |
+| AAA-scale graybox ASH-01…12 (infil / compound / exfil, trim, lamps, crates) | Quixel kits on the same footprints |
+| Master-material **paths** (`MI_AshlineConcrete` etc.) + Engine fallbacks | Authored Nanite MIs / Megascans in `Content/Ashline/Materials/PBR/` |
+| `Ashline_PC_Ultra` / High / Balanced / Perf / **SteamDeck** / Laptop | Profile on 9070 GRE **and** a Deck; FSR3 plugin from Fab |
 
 **This repo does not contain Quixel, Fab, or MetaHuman binary packs.** If those folders are empty, that is expected.
 
@@ -109,7 +111,7 @@ Locker / economy / prestige: `UAshlineMetaCatalog` + `Content/Ashline/Data/Meta.
 - **Economy / prestige** — credits from missions and rank-ups; spend on cosmetics, skins, weapon upgrades; prestige at rank 50 keeps the locker and grants gilt.
 - **AI** — eight archetypes, perception + push/hold, humanoid mesh when assigned.
 - **Difficulty** — Recruit, Regular, Veteran, Extreme.
-- **Graphics** — `UAshlineGraphicsSettings` (Windows FSR3/TSR/RT; Apple MetalFX still gated).
+- **Graphics** — `UAshlineGraphicsSettings` (Windows FSR3/TSR/RT; Steam Deck 800p profile; Apple MetalFX still gated). Auto-detect + F8 cycle.
 - **MonetizationHooks** — stub only. Ads stay off. No multiplayer.
 
 ## Source layout
