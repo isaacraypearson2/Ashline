@@ -299,3 +299,58 @@ TArray<FString> UAshlineContentManifest::MasterMaterialCandidates(EAshlineSurfac
 		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/M_%s.M_%s"), *Slug, *Slug)
 	};
 }
+
+FString UAshlineContentManifest::WeaponClassSlug(EAshlineWeaponClass Class)
+{
+	switch (Class)
+	{
+	case EAshlineWeaponClass::AssaultRifle: return TEXT("AR");
+	case EAshlineWeaponClass::SMG: return TEXT("SMG");
+	case EAshlineWeaponClass::Sniper: return TEXT("SR");
+	case EAshlineWeaponClass::Shotgun: return TEXT("SG");
+	case EAshlineWeaponClass::Sidearm: return TEXT("Pistol");
+	case EAshlineWeaponClass::DMR: return TEXT("DMR");
+	case EAshlineWeaponClass::LMG: return TEXT("LMG");
+	case EAshlineWeaponClass::Launcher: return TEXT("GL");
+	case EAshlineWeaponClass::Melee: return TEXT("Melee");
+	case EAshlineWeaponClass::BattleRifle: return TEXT("BR");
+	case EAshlineWeaponClass::PDW: return TEXT("PDW");
+	default: return TEXT("AR");
+	}
+}
+
+TArray<FString> UAshlineContentManifest::WeaponClassMasterCandidates(EAshlineWeaponClass Class)
+{
+	const FString Slug = WeaponClassSlug(Class);
+	return {
+		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/MI_WPN_%s.MI_WPN_%s"), *Slug, *Slug),
+		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/M_WPN_%s.M_WPN_%s"), *Slug, *Slug),
+		MasterWeaponMaterialPath(),
+		TEXT("/Game/StarterContent/Materials/M_Metal_Steel.M_Metal_Steel"),
+		TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
+		TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::SkinMasterCandidates()
+{
+	return {
+		TEXT("/Game/Ashline/Materials/PBR/MI_SkinMaster.MI_SkinMaster"),
+		MasterSkinMaterialPath(),
+		MasterWeaponMaterialPath(),
+		TEXT("/Game/StarterContent/Materials/M_Metal_Brushed.M_Metal_Brushed"),
+		TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
+		TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::CharacterMasterCandidates()
+{
+	return {
+		TEXT("/Game/Ashline/Materials/PBR/MI_CharacterMaster.MI_CharacterMaster"),
+		MasterCharacterMaterialPath(),
+		TEXT("/Game/StarterContent/Materials/M_Ground_Grass.M_Ground_Grass"),
+		TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
+		TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+	};
+}

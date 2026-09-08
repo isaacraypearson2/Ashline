@@ -125,4 +125,17 @@ public:
 	/** Authored master + MI. Missing packages fail quiet — Engine fallbacks remain valid. */
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
 	static TArray<FString> MasterMaterialCandidates(EAshlineSurface Surface);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString WeaponClassSlug(EAshlineWeaponClass Class);
+
+	/** Class MI first (`MI_WPN_AR`), then master. Quiet if missing. */
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> WeaponClassMasterCandidates(EAshlineWeaponClass Class);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> SkinMasterCandidates();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> CharacterMasterCandidates();
 };

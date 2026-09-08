@@ -60,6 +60,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
 	static void ApplyClassGunfeel(FAshlineWeaponDefinition& Weapon);
 
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
+	static void ApplyWeaponIdGunfeel(FAshlineWeaponDefinition& Weapon);
+
 	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
 	static TArray<FName> DefaultKit(EAshlineWeaponClass Class);
 };

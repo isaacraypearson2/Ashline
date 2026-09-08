@@ -126,6 +126,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ashline|Presentation")
 	static FAshlineMaterialParams DefaultParamsForWeaponClass(EAshlineWeaponClass Class);
 
+	UFUNCTION(BlueprintPure, Category = "Ashline|Presentation")
+	static FAshlineMaterialParams DefaultParamsForSkin(const FAshlineWeaponSkinDefinition& Skin);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Presentation")
+	static FAshlineMaterialParams DefaultParamsForCosmeticSlot(EAshlineCosmeticSlot Slot, const FLinearColor& Tint);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
+	static UMaterialInterface* GetMasterWeaponMaterialForClass(EAshlineWeaponClass Class);
+
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
 	static UStaticMesh* ResolveFoliageMesh();
 

@@ -116,9 +116,9 @@ def main() -> None:
         fail(f"missing Phase 2 clothing {sorted(extra_clothing - set(cosmetic_ids))}")
 
     print(f"OK: {len(cosmetics)} cosmetics, {len(skins)} skins, rank 1–{data['maxRank']}")
-    if len(cosmetics) < 80:
+    if len(cosmetics) < 110:
         fail(f"expected a deep operator locker, got {len(cosmetics)} cosmetics")
-    if len(skins) < 50:
+    if len(skins) < 90:
         fail(f"expected a large skin catalog, got {len(skins)} skins")
     equipment = data.get("equipment") or []
     if len(equipment) < 12:

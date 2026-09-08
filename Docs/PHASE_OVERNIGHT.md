@@ -10,17 +10,19 @@ Runtime source of truth is C++ catalogs. Designer mirrors: `Content/Ashline/Data
 
 | Domain | In this pass |
 | --- | --- |
-| Weapons | Full class set: AR / SMG / SG / SR / DMR / LMG / pistol / launcher / melee / **battle rifle** / **PDW**. Recoil patterns, ADS time/FOV, hip vs ADS vs move vs crouch spread, empty vs tactical reload, falloff, sway, fire modes (Semi/Burst/Auto, **B** / D-pad right), ammo types (FMJ/AP/HP/Tracer/Slug/Buckshot/HE/**Subsonic**). Includes FAL-E, P90-C, M4-C, G36C, M16-A4, G3-A, MP7-A, M82-A, M9-A. |
-| Attachments | Optic / muzzle / underbarrel / mag / stock / laser / ammunition, including irons, NV, IR laser, folding stock, heavy brake, short mag, no-stock, HE warhead, **subsonic**. |
-| Skins | Universal + per-gun collections (incl. FAL wood, P90-C NATO, M82 sand). Soft mesh + MI. Prestige gilt / void / diamond. |
-| Operator | Helmet, vest, pants, gloves, boots, camo, face, voice, charm, **headset**, **backpack**. Collections per mission + prestige 1–2. Starter assault pack. |
+| Weapons | Full class set: AR / SMG / SG / SR / DMR / LMG / pistol / launcher / melee / **battle rifle** / **PDW**. Recoil patterns, ADS time/FOV, hip vs ADS vs move vs crouch spread, empty vs tactical reload, falloff, sway, fire modes (Semi/Burst/Auto, **B** / D-pad right), ammo types (FMJ/AP/HP/Tracer/Slug/Buckshot/HE/**Subsonic**/**Match**). Per-weapon gunfeel on every roster id. Includes FAL-E, P90-C, M4-C, G36C, M16-A4, G3-A, MP7-A, M82-A, M9-A. |
+| Attachments | Optic / muzzle / underbarrel / mag / stock / laser / ammunition with **zeroed stat deltas** (no accidental default ADS/pen bleed). Includes irons, NV, IR laser, folding stock, heavy brake, short mag, no-stock, HE warhead, **subsonic**, plus LPVO / Delta / linear comp / handstop / mag couple / CQB stock / NGAL / Match. |
+| Skins | Universal + **2–3 uniques per gun** (incl. FAL wood/tan, P90-C NATO/frost, M82 sand/night, ASH-16 woodland). Soft mesh + MI. Prestige gilt / void / diamond. Chrome / neon / glacier use clearcoat + emissive on the skin master. |
+| Operator | Helmet, vest, pants, gloves, boots, camo, face, voice, charm, **headset**, **backpack**. Collections per mission + prestige 1–2. Starter assault pack. Extra camos (M81 / A-TACS / tiger / UCP / flecktarn / Pencott / CADPAT), Ops-Core / PASGT, JPC / MBAV, RAC / Peltor. |
 | Equipment | Lethals / tacticals / field (frag, flash starters). Locker buy/equip. Throwables are data-ready; authored FX later. |
 | AI | 13 archetypes (incl. Grenadier / Elite / Spotter / **RadioOp** / **CQB**). Tints, armor mul, threat, grenade count, voice lines, `DA_AI_{Slug}`. **Spawn lists stay on the graybox from PR #8.** |
-| Materials | Master helpers `M_WeaponMaster` / `M_SkinMaster` / `M_CharacterMaster` / `M_EnvironmentMaster` + `FAshlineMaterialParams`. Surface slugs + `MasterMaterialCandidates` (Dirt/Glass/Asphalt/Skin included). |
+| Materials | Master helpers `M_WeaponMaster` / `M_SkinMaster` / `M_CharacterMaster` / `M_EnvironmentMaster` + class MIs `MI_WPN_{AR,SMG,SR,SG,Pistol,DMR,LMG,GL,Melee,BR,PDW}`. `FAshlineMaterialParams` now includes NormalStrength / AO / ClearCoat / UVTiling. Surface slugs + `MasterMaterialCandidates`. Quiet Engine/Starter fallbacks. |
 | Graphics | **From PR #8** (do not reinvent): `AshPCUltra` (9070 GRE 1440p default), `AshPCHigh`, `AshPCBalanced`, `AshPCPerf` → `PC_Performance`, `AshSteamDeck` (800p / FSR / 30-40-60), `AshLaptop`, `AshGfxAuto`, **F8** / `AshGfxCycle`, `AshFPS`. Plus `AshPCLow` / `AshPCMed`. |
 | Economy | Rank 1–50, class-scaled weapon upgrades (max 5), paid guns via `AshBuyWeapon`, attachments via `AshBuyAttachment`, crates roll cosmetics **or** skins **or** equipment. Prestige 1 gilt; prestige 2 diamond + heartbeat sensor. |
 
 Starters remain **ASH-16 + M17-A**, **CAMO_FIELD**, **SKIN_FACTORY**, **EQ_FRAG + EQ_FLASH**, **PACK_ASSAULT**. Prestige 1 still grants `CAMO_PRESTIGE`, `SKIN_GOLD`, `CHARM_SPINE`.
+
+Catalog floors (this pass): **45 weapons, 64 attachments, 153 cosmetics, 140 skins, 16 equipment, 13 AI**.
 
 ## Fab to install next (Windows `X3D_AMD`)
 
@@ -33,7 +35,7 @@ Nothing below is in git. Exact names: **`Docs/PHASE2_FAB.md`**. Soft refs alread
 5. Clothing parts → `Characters/Hero/Parts/{Slot}/SM_{Id}` (Headset + Backpack folders exist).
 6. Megascans kits per ASH-01…12. Leave `bOverrideMood` unchecked.
 7. Niagara muzzle / equipment FX; MetaSounds into `Audio/Weapons/`.
-8. Author `M_WeaponMaster` (and the other three masters) so MIDs stop tinting Engine default.
+8. Author `M_WeaponMaster` (and the other three masters) plus class MIs `MI_WPN_AR` / `MI_WPN_SMG` / … so MIDs stop tinting Engine default. Drop `MI_SkinMaster` / `MI_CharacterMaster` when ready.
 
 Missing packs **must not crash PIE**. If something 404s, search the bold name on Fab.
 

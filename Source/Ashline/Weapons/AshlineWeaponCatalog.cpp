@@ -59,6 +59,7 @@ namespace AshlineWeapons
 			Def.CompatibleAttachments.Add(A);
 		}
 		UAshlineWeaponCatalog::ApplyClassGunfeel(Def);
+		UAshlineWeaponCatalog::ApplyWeaponIdGunfeel(Def);
 		return Def;
 	}
 
@@ -82,11 +83,48 @@ namespace AshlineWeapons
 		return Def;
 	}
 
+	static FAshlineWeaponStats ZeroDelta()
+	{
+		FAshlineWeaponStats X;
+		X.Damage = 0.f;
+		X.FireRateRPM = 0.f;
+		X.MagazineSize = 0;
+		X.ReserveAmmo = 0;
+		X.RangeMeters = 0.f;
+		X.RecoilPitch = 0.f;
+		X.RecoilYaw = 0.f;
+		X.ReloadSeconds = 0.f;
+		X.HipFireSpread = 0.f;
+		X.ADSSpread = 0.f;
+		X.bAutomatic = false;
+		X.BurstCount = 0;
+		X.PelletCount = 0;
+		X.ADSTimeSeconds = 0.f;
+		X.ADSFov = 0.f;
+		X.HipFov = 0.f;
+		X.HeadshotMultiplier = 0.f;
+		X.ArmorPenetration = 0.f;
+		X.MovementSpreadMul = 0.f;
+		X.CrouchSpreadMul = 0.f;
+		X.EmptyReloadMul = 0.f;
+		X.TacticalReloadMul = 0.f;
+		X.FalloffStartMeters = 0.f;
+		X.FalloffEndMeters = 0.f;
+		X.MinDamageMul = 0.f;
+		X.SwayHipDegrees = 0.f;
+		X.SwayAdsDegrees = 0.f;
+		X.SwaySpeed = 0.f;
+		X.RecoilRecoveryPerSecond = 0.f;
+		X.RecoilFirstShotMul = 0.f;
+		X.RecoilAdsMul = 0.f;
+		return X;
+	}
+
 	static FAshlineWeaponStats D(
 		float Damage, float RPM, int32 Mag, int32 Reserve, float Range,
 		float RP, float RY, float Reload, float Hip, float Ads)
 	{
-		FAshlineWeaponStats X;
+		FAshlineWeaponStats X = ZeroDelta();
 		X.Damage = Damage;
 		X.FireRateRPM = RPM;
 		X.MagazineSize = Mag;
@@ -97,7 +135,33 @@ namespace AshlineWeapons
 		X.ReloadSeconds = Reload;
 		X.HipFireSpread = Hip;
 		X.ADSSpread = Ads;
-		X.bAutomatic = true;
+		return X;
+	}
+
+	/** Extra gunfeel on top of D(). All values are additive deltas. */
+	static FAshlineWeaponStats Feel(
+		FAshlineWeaponStats X,
+		float AdsTime = 0.f,
+		float AdsFov = 0.f,
+		float Armor = 0.f,
+		float SwayH = 0.f,
+		float SwayA = 0.f,
+		float Recov = 0.f,
+		float FirstShot = 0.f,
+		float RecoilAds = 0.f,
+		float TacReload = 0.f,
+		float MoveSpread = 0.f)
+	{
+		X.ADSTimeSeconds = AdsTime;
+		X.ADSFov = AdsFov;
+		X.ArmorPenetration = Armor;
+		X.SwayHipDegrees = SwayH;
+		X.SwayAdsDegrees = SwayA;
+		X.RecoilRecoveryPerSecond = Recov;
+		X.RecoilFirstShotMul = FirstShot;
+		X.RecoilAdsMul = RecoilAds;
+		X.TacticalReloadMul = TacReload;
+		X.MovementSpreadMul = MoveSpread;
 		return X;
 	}
 
@@ -123,32 +187,46 @@ TArray<FName> UAshlineWeaponCatalog::DefaultKit(EAshlineWeaponClass Class)
 		}
 	};
 
-	Add({ TEXT("LSR_PEQ"), TEXT("LSR_5MW"), TEXT("LSR_IR"), TEXT("AMMO_FMJ"), TEXT("AMMO_AP"), TEXT("AMMO_HP"), TEXT("AMMO_TRACER") });
+	Add({ TEXT("LSR_PEQ"), TEXT("LSR_5MW"), TEXT("LSR_IR"), TEXT("LSR_DBAL"), TEXT("AMMO_FMJ"), TEXT("AMMO_AP"), TEXT("AMMO_HP"), TEXT("AMMO_TRACER") });
 
 	switch (Class)
 	{
 	case EAshlineWeaponClass::AssaultRifle:
-		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_IRON"), TEXT("OPT_ACOG"), TEXT("OPT_4X"), TEXT("OPT_NV"), TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("MUZ_BRAKE"), TEXT("MUZ_FLASH"),
-			TEXT("UB_GRIP"), TEXT("UB_ANGLED"), TEXT("UB_LITE"), TEXT("MAG_60"), TEXT("MAG_FAST"), TEXT("MAG_SHORT"), TEXT("STK_SOPMOD"), TEXT("STK_PRECISION"), TEXT("STK_NOSTOCK"), TEXT("STK_FOLD") });
+		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_IRON"), TEXT("OPT_ACOG"), TEXT("OPT_4X"), TEXT("OPT_NV"), TEXT("OPT_CANT"), TEXT("OPT_FLIP"), TEXT("OPT_LPVO"), TEXT("OPT_DELTA"),
+			TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("MUZ_BRAKE"), TEXT("MUZ_FLASH"), TEXT("MUZ_LINEAR"),
+			TEXT("UB_GRIP"), TEXT("UB_ANGLED"), TEXT("UB_LITE"), TEXT("UB_RANGE"), TEXT("UB_HANDSTOP"),
+			TEXT("MAG_60"), TEXT("MAG_FAST"), TEXT("MAG_SHORT"), TEXT("MAG_PMAG"), TEXT("MAG_COUPLE"),
+			TEXT("STK_SOPMOD"), TEXT("STK_PRECISION"), TEXT("STK_NOSTOCK"), TEXT("STK_FOLD"), TEXT("STK_ADJ"), TEXT("STK_CQB"),
+			TEXT("LSR_NGAL"), TEXT("AMMO_MATCH"), TEXT("AMMO_SUB") });
 		break;
 	case EAshlineWeaponClass::SMG:
-		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_IRON"), TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("UB_GRIP"), TEXT("UB_ANGLED"), TEXT("UB_LITE"),
-			TEXT("MAG_EXT_SMG"), TEXT("MAG_DRUM"), TEXT("MAG_SHORT"), TEXT("STK_WIRE"), TEXT("STK_SOPMOD"), TEXT("STK_NOSTOCK"), TEXT("STK_FOLD"), TEXT("AMMO_SUB") });
+		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_IRON"), TEXT("OPT_RMR"), TEXT("OPT_CANT"), TEXT("OPT_DELTA"),
+			TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("MUZ_PBS"), TEXT("MUZ_LINEAR"),
+			TEXT("UB_GRIP"), TEXT("UB_ANGLED"), TEXT("UB_LITE"), TEXT("UB_RANGE"), TEXT("UB_HANDSTOP"),
+			TEXT("MAG_EXT_SMG"), TEXT("MAG_DRUM"), TEXT("MAG_SHORT"), TEXT("MAG_PMAG"),
+			TEXT("STK_WIRE"), TEXT("STK_SOPMOD"), TEXT("STK_NOSTOCK"), TEXT("STK_FOLD"), TEXT("STK_ADJ"), TEXT("STK_CQB"),
+			TEXT("LSR_NGAL"), TEXT("AMMO_SUB") });
 		break;
 	case EAshlineWeaponClass::Sniper:
-		Add({ TEXT("OPT_8X"), TEXT("OPT_12X"), TEXT("OPT_THERM"), TEXT("OPT_NV"), TEXT("MUZ_SUP_SN"), TEXT("MUZ_BRAKE"), TEXT("STK_PRECISION"), TEXT("UB_BIPOD"), TEXT("LSR_PEQ") });
+		Add({ TEXT("OPT_8X"), TEXT("OPT_12X"), TEXT("OPT_THERM"), TEXT("OPT_NV"), TEXT("OPT_CANT"), TEXT("OPT_LPVO"),
+			TEXT("MUZ_SUP_SN"), TEXT("MUZ_BRAKE"), TEXT("STK_PRECISION"), TEXT("STK_ADJ"), TEXT("UB_BIPOD"), TEXT("LSR_PEQ"), TEXT("AMMO_MATCH") });
 		break;
 	case EAshlineWeaponClass::Shotgun:
-		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("MUZ_CHOKE"), TEXT("UB_LITE"), TEXT("STK_BREACH"), TEXT("AMMO_SLUG"), TEXT("AMMO_BUCK") });
+		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_IRON"), TEXT("MUZ_CHOKE"), TEXT("UB_LITE"), TEXT("UB_RANGE"), TEXT("UB_HANDSTOP"),
+			TEXT("STK_BREACH"), TEXT("STK_NOSTOCK"), TEXT("STK_CQB"), TEXT("AMMO_SLUG"), TEXT("AMMO_BUCK") });
 		break;
 	case EAshlineWeaponClass::Sidearm:
-		Add({ TEXT("OPT_RMR"), TEXT("MUZ_SUP_P"), TEXT("MAG_EXT_P"), TEXT("LSR_5MW"), TEXT("AMMO_FMJ"), TEXT("AMMO_HP"), TEXT("AMMO_SUB") });
+		Add({ TEXT("OPT_RMR"), TEXT("OPT_IRON"), TEXT("OPT_DELTA"), TEXT("MUZ_SUP_P"), TEXT("MAG_EXT_P"), TEXT("LSR_5MW"), TEXT("LSR_NGAL"),
+			TEXT("AMMO_FMJ"), TEXT("AMMO_HP"), TEXT("AMMO_SUB"), TEXT("AMMO_MATCH") });
 		break;
 	case EAshlineWeaponClass::DMR:
-		Add({ TEXT("OPT_ACOG"), TEXT("OPT_4X"), TEXT("OPT_8X"), TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("UB_GRIP"), TEXT("MAG_DMR25"), TEXT("STK_PRECISION") });
+		Add({ TEXT("OPT_ACOG"), TEXT("OPT_4X"), TEXT("OPT_8X"), TEXT("OPT_CANT"), TEXT("OPT_FLIP"), TEXT("OPT_LPVO"),
+			TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("MUZ_LINEAR"), TEXT("UB_GRIP"), TEXT("MAG_DMR25"), TEXT("MAG_PMAG"),
+			TEXT("STK_PRECISION"), TEXT("STK_ADJ"), TEXT("AMMO_MATCH") });
 		break;
 	case EAshlineWeaponClass::LMG:
-		Add({ TEXT("OPT_HOLO"), TEXT("OPT_ACOG"), TEXT("MUZ_COMP"), TEXT("MUZ_BRAKE"), TEXT("MUZ_HEAVY"), TEXT("UB_BIPOD"), TEXT("MAG_200"), TEXT("STK_HEAVY"), TEXT("STK_SOPMOD") });
+		Add({ TEXT("OPT_HOLO"), TEXT("OPT_ACOG"), TEXT("OPT_CANT"), TEXT("MUZ_COMP"), TEXT("MUZ_BRAKE"), TEXT("MUZ_HEAVY"), TEXT("MUZ_LINEAR"),
+			TEXT("UB_BIPOD"), TEXT("UB_RANGE"), TEXT("MAG_200"), TEXT("STK_HEAVY"), TEXT("STK_SOPMOD"), TEXT("AMMO_MATCH") });
 		break;
 	case EAshlineWeaponClass::Launcher:
 		Add({ TEXT("OPT_RED"), TEXT("AMMO_HE"), TEXT("AMMO_FMJ") });
@@ -156,12 +234,16 @@ TArray<FName> UAshlineWeaponCatalog::DefaultKit(EAshlineWeaponClass Class)
 	case EAshlineWeaponClass::Melee:
 		break;
 	case EAshlineWeaponClass::BattleRifle:
-		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_ACOG"), TEXT("OPT_4X"), TEXT("MUZ_BRAKE"), TEXT("MUZ_COMP"), TEXT("MUZ_HEAVY"), TEXT("MUZ_SUP"),
-			TEXT("UB_GRIP"), TEXT("STK_HEAVY"), TEXT("STK_PRECISION"), TEXT("STK_SOPMOD"), TEXT("MAG_DMR25"), TEXT("AMMO_AP") });
+		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_ACOG"), TEXT("OPT_4X"), TEXT("OPT_CANT"), TEXT("OPT_FLIP"), TEXT("OPT_LPVO"),
+			TEXT("MUZ_BRAKE"), TEXT("MUZ_COMP"), TEXT("MUZ_HEAVY"), TEXT("MUZ_SUP"), TEXT("MUZ_LINEAR"),
+			TEXT("UB_GRIP"), TEXT("STK_HEAVY"), TEXT("STK_PRECISION"), TEXT("STK_SOPMOD"), TEXT("STK_ADJ"),
+			TEXT("MAG_DMR25"), TEXT("AMMO_AP"), TEXT("AMMO_MATCH") });
 		break;
 	case EAshlineWeaponClass::PDW:
-		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_IRON"), TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("UB_LITE"), TEXT("UB_GRIP"),
-			TEXT("MAG_EXT_SMG"), TEXT("STK_WIRE"), TEXT("STK_NOSTOCK"), TEXT("AMMO_SUB"), TEXT("AMMO_TRACER") });
+		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_IRON"), TEXT("OPT_RMR"), TEXT("OPT_CANT"), TEXT("OPT_DELTA"),
+			TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("UB_LITE"), TEXT("UB_GRIP"), TEXT("UB_HANDSTOP"),
+			TEXT("MAG_EXT_SMG"), TEXT("STK_WIRE"), TEXT("STK_NOSTOCK"), TEXT("STK_CQB"), TEXT("STK_ADJ"),
+			TEXT("LSR_NGAL"), TEXT("AMMO_SUB"), TEXT("AMMO_TRACER") });
 		break;
 	default:
 		break;
@@ -416,6 +498,174 @@ void UAshlineWeaponCatalog::ApplyClassGunfeel(FAshlineWeaponDefinition& Weapon)
 	}
 }
 
+void UAshlineWeaponCatalog::ApplyWeaponIdGunfeel(FAshlineWeaponDefinition& Weapon)
+{
+	FAshlineWeaponStats& S = Weapon.BaseStats;
+	const FName Id = Weapon.WeaponId;
+
+	if (Id == TEXT("WPN_AR_ASH16"))
+	{
+		S.RecoilFirstShotMul = 1.08f;
+		S.RecoilRecoveryPerSecond = 11.2f;
+		S.ADSTimeSeconds = 0.2f;
+	}
+	else if (Id == TEXT("WPN_AR_M4K") || Id == TEXT("WPN_AR_M4C"))
+	{
+		S.ADSTimeSeconds = 0.18f;
+		S.RecoilAdsMul = 0.48f;
+		S.MovementSpreadMul = 1.2f;
+	}
+	else if (Id == TEXT("WPN_AR_AK74"))
+	{
+		S.RecoilFirstShotMul = 1.42f;
+		S.RecoilRecoveryPerSecond = 7.4f;
+		S.RecoilPitch *= 1.12f;
+		S.SwayHipDegrees = 0.62f;
+	}
+	else if (Id == TEXT("WPN_AR_SCARH"))
+	{
+		S.RecoilFirstShotMul = 1.38f;
+		S.ArmorPenetration = 0.52f;
+		S.ADSFov = 58.f;
+	}
+	else if (Id == TEXT("WPN_AR_416C"))
+	{
+		S.ADSTimeSeconds = 0.16f;
+		S.HipFireSpread *= 1.08f;
+		S.RecoilRecoveryPerSecond = 12.f;
+	}
+	else if (Id == TEXT("WPN_AR_FAMAS") || Id == TEXT("WPN_AR_M16"))
+	{
+		S.BurstCount = 3;
+		S.RecoilFirstShotMul = 0.92f;
+		S.RecoilAdsMul = 0.44f;
+		S.ADSTimeSeconds = 0.24f;
+	}
+	else if (Id == TEXT("WPN_SMG_VEC"))
+	{
+		S.RecoilYaw *= 1.25f;
+		S.RecoilRecoveryPerSecond = 16.f;
+		S.ADSTimeSeconds = 0.14f;
+	}
+	else if (Id == TEXT("WPN_SMG_P90") || Id == TEXT("WPN_PDW_P90C"))
+	{
+		S.HipFireSpread *= 0.88f;
+		S.RecoilAdsMul = 0.58f;
+		S.MagazineSize = FMath::Max(S.MagazineSize, 50);
+	}
+	else if (Id == TEXT("WPN_BR_FAL") || Id == TEXT("WPN_BR_G3"))
+	{
+		S.RecoilFirstShotMul = 1.45f;
+		S.ADSTimeSeconds = 0.28f;
+		S.ArmorPenetration = FMath::Max(S.ArmorPenetration, 0.6f);
+	}
+	else if (Id == TEXT("WPN_SNP_M82"))
+	{
+		S.SwayHipDegrees = 1.6f;
+		S.SwayAdsDegrees = 0.28f;
+		S.ADSTimeSeconds = 0.48f;
+		S.RecoilRecoveryPerSecond = 3.2f;
+	}
+	else if (Id == TEXT("WPN_SNP_AWM") || Id == TEXT("WPN_SNP_M2010"))
+	{
+		S.ADSFov = 24.f;
+		S.HeadshotMultiplier = 2.5f;
+		S.SwayAdsDegrees = 0.16f;
+	}
+	else if (Id == TEXT("WPN_SHG_AA12"))
+	{
+		S.RecoilRecoveryPerSecond = 8.5f;
+		S.ADSTimeSeconds = 0.22f;
+		S.MovementSpreadMul = 1.45f;
+	}
+	else if (Id == TEXT("WPN_PIS_DEAG") || Id == TEXT("WPN_PIS_REV"))
+	{
+		S.RecoilFirstShotMul = 1.0f;
+		S.RecoilRecoveryPerSecond = 7.f;
+		S.ADSTimeSeconds = 0.16f;
+	}
+	else if (Id == TEXT("WPN_LMG_M250") || Id == TEXT("WPN_LMG_M240") || Id == TEXT("WPN_LMG_PKM"))
+	{
+		S.RecoilFirstShotMul = 1.5f;
+		S.CrouchSpreadMul = 0.62f;
+		S.SwayAdsDegrees = 0.2f;
+	}
+	else if (Id == TEXT("WPN_SMG_C9") || Id == TEXT("WPN_SMG_MPX"))
+	{
+		S.ADSTimeSeconds = 0.15f;
+		S.HipFireSpread *= 0.92f;
+		S.RecoilRecoveryPerSecond = 13.f;
+	}
+	else if (Id == TEXT("WPN_SMG_UMP") || Id == TEXT("WPN_SMG_UZI"))
+	{
+		S.RecoilPitch *= 1.1f;
+		S.ArmorPenetration = 0.28f;
+		S.ADSTimeSeconds = 0.17f;
+	}
+	else if (Id == TEXT("WPN_SMG_MP7"))
+	{
+		S.ADSTimeSeconds = 0.13f;
+		S.ArmorPenetration = 0.34f;
+		S.RecoilAdsMul = 0.5f;
+	}
+	else if (Id == TEXT("WPN_SHG_M870K") || Id == TEXT("WPN_SHG_SPAS"))
+	{
+		S.ADSTimeSeconds = 0.18f;
+		S.RecoilFirstShotMul = 1.15f;
+		S.HipFireSpread *= 0.9f;
+	}
+	else if (Id == TEXT("WPN_SHG_M1014"))
+	{
+		S.RecoilRecoveryPerSecond = 9.f;
+		S.ADSTimeSeconds = 0.2f;
+	}
+	else if (Id == TEXT("WPN_SNP_G28L"))
+	{
+		S.ADSFov = 36.f;
+		S.ADSTimeSeconds = 0.32f;
+		S.RecoilAdsMul = 0.55f;
+	}
+	else if (Id == TEXT("WPN_DMR_SASS") || Id == TEXT("WPN_DMR_MK14"))
+	{
+		S.RecoilFirstShotMul = 1.22f;
+		S.ADSFov = 42.f;
+	}
+	else if (Id == TEXT("WPN_DMR_SVD"))
+	{
+		S.RecoilPitch *= 1.15f;
+		S.ADSFov = 38.f;
+		S.HeadshotMultiplier = 2.1f;
+	}
+	else if (Id == TEXT("WPN_PIS_M17A") || Id == TEXT("WPN_PIS_M9") || Id == TEXT("WPN_PIS_G19"))
+	{
+		S.ADSTimeSeconds = 0.11f;
+		S.RecoilRecoveryPerSecond = 14.f;
+		S.HipFireSpread *= 0.9f;
+	}
+	else if (Id == TEXT("WPN_PIS_1911") || Id == TEXT("WPN_PIS_MP443"))
+	{
+		S.RecoilFirstShotMul = 1.18f;
+		S.ADSTimeSeconds = 0.12f;
+	}
+	else if (Id == TEXT("WPN_AR_AUG") || Id == TEXT("WPN_AR_G36"))
+	{
+		S.ADSTimeSeconds = 0.19f;
+		S.RecoilAdsMul = 0.46f;
+		S.SwayAdsDegrees = 0.09f;
+	}
+	else if (Id == TEXT("WPN_LCH_RPG") || Id == TEXT("WPN_LCH_AT4"))
+	{
+		S.ADSTimeSeconds = 0.36f;
+		S.SwayHipDegrees = 1.1f;
+		S.RecoilRecoveryPerSecond = 2.4f;
+	}
+	else if (Id == TEXT("WPN_MEL_KNIFE") || Id == TEXT("WPN_MEL_TOMA"))
+	{
+		S.ADSTimeSeconds = 0.08f;
+		S.HipFireSpread = 0.2f;
+	}
+}
+
 TArray<FAshlineWeaponDefinition> UAshlineWeaponCatalog::BuildRoster()
 {
 	using namespace AshlineWeapons;
@@ -442,7 +692,7 @@ TArray<FAshlineWeaponDefinition> UAshlineWeaponCatalog::BuildRoster()
 	Roster.Add(WithKit(W(TEXT("WPN_AR_AK74"), TEXT("AK-74M"), EAshlineWeaponClass::AssaultRifle,
 		S(30.f, 650.f, 30, 150, 420.f, 1.35f, 0.28f, 2.55f, 2.7f, 0.34f, true), 5,
 		{}, TEXT("7.62-adjacent punch in a 5.45 platform. Hard first-shot, slow recovery."), 550, 0),
-		EAshlineWeaponClass::AssaultRifle, { TEXT("MAG_DRUM") }));
+		EAshlineWeaponClass::AssaultRifle, { TEXT("MAG_DRUM"), TEXT("MUZ_PBS") }));
 
 	Roster.Add(WithKit(W(TEXT("WPN_AR_SCARH"), TEXT("SCAR-H Battle"), EAshlineWeaponClass::AssaultRifle,
 		S(34.f, 600.f, 20, 120, 480.f, 1.48f, 0.32f, 2.7f, 2.8f, 0.28f, true), 12,
@@ -685,31 +935,39 @@ TArray<FAshlineAttachmentDefinition> UAshlineWeaponCatalog::BuildAttachments()
 	using namespace AshlineWeapons;
 	TArray<FAshlineAttachmentDefinition> List;
 
-	List.Add(A(TEXT("OPT_RED"), TEXT("Red Dot"), EAshlineAttachmentSlot::Optic, 1, D(0, 0, 0, 0, 0, 0, 0, 0, -0.25f, -0.06f), 80, TEXT("1x reflex. Hip-to-ADS speed, no zoom.")));
-	List.Add(A(TEXT("OPT_HOLO"), TEXT("Holo-1"), EAshlineAttachmentSlot::Optic, 1, D(0, 0, 0, 0, 0, 0, 0, 0, -0.2f, -0.05f), 100, TEXT("Holographic 1x. Slightly cleaner than iron.")));
-	List.Add(A(TEXT("OPT_IRON"), TEXT("Backup irons"), EAshlineAttachmentSlot::Optic, 1, D(0, 0, 0, 0, 0, 0, 0, -0.04f, 0, 0.02f), 40, TEXT("Light irons. Fastest ADS, no zoom help.")));
-	List.Add(A(TEXT("OPT_RMR"), TEXT("RMR Mini"), EAshlineAttachmentSlot::Optic, 2, D(0, 0, 0, 0, 0, 0, 0, 0, -0.1f, -0.04f), 120, TEXT("Pistol/SMG mini reflex.")));
-	List.Add(A(TEXT("OPT_ACOG"), TEXT("4x Combat"), EAshlineAttachmentSlot::Optic, 5, D(0, 0, 0, 0, 40.f, 0, 0, 0, 0.3f, -0.08f), 280, TEXT("4x. ADS slower, mid-lane laser.")));
-	List.Add(A(TEXT("OPT_4X"), TEXT("4x Variable"), EAshlineAttachmentSlot::Optic, 7, D(0, 0, 0, 0, 50.f, 0.05f, 0, 0.05f, 0.25f, -0.09f), 320, TEXT("Cleaner 4x with a touch more sway.")));
-	List.Add(A(TEXT("OPT_8X"), TEXT("8x Glass"), EAshlineAttachmentSlot::Optic, 8, D(0, 0, 0, 0, 120.f, 0.1f, 0, 0.1f, 0.8f, -0.03f), 450, TEXT("8x. DMR/sniper default.")));
-	List.Add(A(TEXT("OPT_12X"), TEXT("12x Night Glass"), EAshlineAttachmentSlot::Optic, 12, D(0, 0, 0, 0, 200.f, 0.15f, 0, 0.15f, 1.2f, -0.02f), 700, TEXT("12x. Glint risk, max range.")));
-	List.Add(A(TEXT("OPT_THERM"), TEXT("Thermal 4x"), EAshlineAttachmentSlot::Optic, 18, D(0, 0, 0, 0, 60.f, 0.08f, 0, 0.12f, 0.4f, -0.05f), 1200, TEXT("Thermal overlay. Heavy, prestige-adjacent cost.")));
-	List.Add(A(TEXT("OPT_NV"), TEXT("NV 1x"), EAshlineAttachmentSlot::Optic, 16, D(0, 0, 0, 0, 10.f, 0.04f, 0, 0.06f, 0.12f, -0.03f), 900, TEXT("Night vision reflex. Night Glass / Catacomb.")));
+	List.Add(A(TEXT("OPT_RED"), TEXT("Red Dot"), EAshlineAttachmentSlot::Optic, 1, Feel(D(0, 0, 0, 0, 0, 0, 0, 0, -0.25f, -0.06f), -0.02f, 2.f, 0, -0.04f), 80, TEXT("1x reflex. Faster ADS, no zoom.")));
+	List.Add(A(TEXT("OPT_HOLO"), TEXT("Holo-1"), EAshlineAttachmentSlot::Optic, 1, Feel(D(0, 0, 0, 0, 0, 0, 0, 0, -0.2f, -0.05f), -0.015f, 1.f, 0, -0.03f), 100, TEXT("Holographic 1x. Slightly cleaner than iron.")));
+	List.Add(A(TEXT("OPT_IRON"), TEXT("Backup irons"), EAshlineAttachmentSlot::Optic, 1, Feel(D(0, 0, 0, 0, 0, 0, 0, -0.04f, 0, 0.02f), -0.04f, 4.f), 40, TEXT("Light irons. Fastest ADS, no zoom help.")));
+	List.Add(A(TEXT("OPT_RMR"), TEXT("RMR Mini"), EAshlineAttachmentSlot::Optic, 2, Feel(D(0, 0, 0, 0, 0, 0, 0, 0, -0.1f, -0.04f), -0.02f, 2.f), 120, TEXT("Pistol/SMG mini reflex.")));
+	List.Add(A(TEXT("OPT_ACOG"), TEXT("4x Combat"), EAshlineAttachmentSlot::Optic, 5, Feel(D(0, 0, 0, 0, 40.f, 0, 0, 0, 0.3f, -0.08f), 0.07f, -10.f, 0, 0.06f, 0.04f, -0.8f), 280, TEXT("4x. ADS slower, mid-lane laser.")));
+	List.Add(A(TEXT("OPT_4X"), TEXT("4x Variable"), EAshlineAttachmentSlot::Optic, 7, Feel(D(0, 0, 0, 0, 50.f, 0.05f, 0, 0.05f, 0.25f, -0.09f), 0.08f, -12.f, 0, 0.05f, 0.05f), 320, TEXT("Cleaner 4x with a touch more sway.")));
+	List.Add(A(TEXT("OPT_8X"), TEXT("8x Glass"), EAshlineAttachmentSlot::Optic, 8, Feel(D(0, 0, 0, 0, 120.f, 0.1f, 0, 0.1f, 0.8f, -0.03f), 0.12f, -22.f, 0, 0.12f, 0.08f, -1.2f), 450, TEXT("8x. DMR/sniper default.")));
+	List.Add(A(TEXT("OPT_12X"), TEXT("12x Night Glass"), EAshlineAttachmentSlot::Optic, 12, Feel(D(0, 0, 0, 0, 200.f, 0.15f, 0, 0.15f, 1.2f, -0.02f), 0.16f, -28.f, 0, 0.18f, 0.12f, -1.6f), 700, TEXT("12x. Glint risk, max range.")));
+	List.Add(A(TEXT("OPT_THERM"), TEXT("Thermal 4x"), EAshlineAttachmentSlot::Optic, 18, Feel(D(0, 0, 0, 0, 60.f, 0.08f, 0, 0.12f, 0.4f, -0.05f), 0.1f, -8.f, 0, 0.08f, 0.06f), 1200, TEXT("Thermal overlay. Heavy, prestige-adjacent cost.")));
+	List.Add(A(TEXT("OPT_NV"), TEXT("NV 1x"), EAshlineAttachmentSlot::Optic, 16, Feel(D(0, 0, 0, 0, 10.f, 0.04f, 0, 0.06f, 0.12f, -0.03f), 0.03f, 0, 0, 0.04f), 900, TEXT("Night vision reflex. Night Glass / Catacomb.")));
+	List.Add(A(TEXT("OPT_CANT"), TEXT("Canted 1x"), EAshlineAttachmentSlot::Optic, 11, Feel(D(0, 0, 0, 0, 0, 0, 0, 0, -0.15f, 0.04f), -0.03f, 3.f, 0, -0.05f), 340, TEXT("45-degree backup. Hip and CQB snap.")));
+	List.Add(A(TEXT("OPT_FLIP"), TEXT("Flip magnifier"), EAshlineAttachmentSlot::Optic, 9, Feel(D(0, 0, 0, 0, 25.f, 0.04f, 0, 0.04f, 0.15f, -0.04f), 0.05f, -6.f, 0, 0.03f, 0.03f), 380, TEXT("3x behind a 1x. ADS tax, mid-lane help.")));
+	List.Add(A(TEXT("OPT_LPVO"), TEXT("1-6 LPVO"), EAshlineAttachmentSlot::Optic, 10, Feel(D(0, 0, 0, 0, 70.f, 0.06f, 0, 0.06f, 0.18f, -0.07f), 0.06f, -14.f, 0, 0.05f, 0.04f, -0.6f), 520, TEXT("Low-power variable. Mid-lane default for AR/BR/DMR.")));
+	List.Add(A(TEXT("OPT_DELTA"), TEXT("Delta 1x"), EAshlineAttachmentSlot::Optic, 3, Feel(D(0, 0, 0, 0, 0, 0, 0, 0, -0.22f, -0.05f), -0.025f, 2.f, 0, -0.05f), 140, TEXT("Open reflex. Fastest 1x besides irons.")));
 
-	List.Add(A(TEXT("MUZ_SUP"), TEXT("Rifle Suppressor"), EAshlineAttachmentSlot::Muzzle, 3, D(-1.f, 0, 0, 0, -20.f, -0.15f, -0.05f, 0, -0.1f, -0.02f), 220, TEXT("Hides flash. Slight velocity loss.")));
-	List.Add(A(TEXT("MUZ_SUP_SN"), TEXT("Long Suppressor"), EAshlineAttachmentSlot::Muzzle, 8, D(-2.f, 0, 0, 0, -40.f, -0.2f, 0, 0.1f, 0, 0), 360, TEXT("Sniper can. Adds ADS time.")));
-	List.Add(A(TEXT("MUZ_SUP_P"), TEXT("Pistol Suppressor"), EAshlineAttachmentSlot::Muzzle, 2, D(-1.f, 0, 0, 0, -5.f, -0.1f, 0, 0, 0, 0), 160, TEXT("Pistol can.")));
-	List.Add(A(TEXT("MUZ_COMP"), TEXT("Compensator"), EAshlineAttachmentSlot::Muzzle, 4, D(0, 0, 0, 0, 0, -0.25f, -0.12f, 0, 0, 0), 200, TEXT("Cuts vertical and a slice of yaw.")));
-	List.Add(A(TEXT("MUZ_BRAKE"), TEXT("Muzzle Brake"), EAshlineAttachmentSlot::Muzzle, 6, D(0, 0, 0, 0, 0, -0.35f, 0.08f, 0, 0.05f, 0), 240, TEXT("Kills pitch, adds concussion yaw.")));
+	List.Add(A(TEXT("MUZ_SUP"), TEXT("Rifle Suppressor"), EAshlineAttachmentSlot::Muzzle, 3, Feel(D(-1.f, 0, 0, 0, -20.f, -0.15f, -0.05f, 0, -0.1f, -0.02f), 0.04f, 0, -0.02f, -0.04f, 0, 0.6f, 0, -0.04f), 220, TEXT("Hides flash. Slight velocity loss.")));
+	List.Add(A(TEXT("MUZ_SUP_SN"), TEXT("Long Suppressor"), EAshlineAttachmentSlot::Muzzle, 8, Feel(D(-2.f, 0, 0, 0, -40.f, -0.2f, 0, 0.1f, 0, 0), 0.08f, 0, 0, 0.04f, 0.02f), 360, TEXT("Sniper can. Adds ADS time.")));
+	List.Add(A(TEXT("MUZ_SUP_P"), TEXT("Pistol Suppressor"), EAshlineAttachmentSlot::Muzzle, 2, Feel(D(-1.f, 0, 0, 0, -5.f, -0.1f, 0, 0, 0, 0), 0.03f), 160, TEXT("Pistol can.")));
+	List.Add(A(TEXT("MUZ_PBS"), TEXT("PBS can"), EAshlineAttachmentSlot::Muzzle, 7, Feel(D(-2.f, -15.f, 0, 0, -25.f, -0.18f, -0.08f, 0.04f, -0.08f, 0), 0.05f, 0, -0.04f, -0.05f, 0, 0.8f), 280, TEXT("AK-pattern can. Recoil down, velocity tax.")));
+	List.Add(A(TEXT("MUZ_COMP"), TEXT("Compensator"), EAshlineAttachmentSlot::Muzzle, 4, Feel(D(0, 0, 0, 0, 0, -0.25f, -0.12f, 0, 0, 0), 0, 0, 0, 0, 0, 1.4f, -0.08f, -0.06f), 200, TEXT("Cuts vertical and a slice of yaw.")));
+	List.Add(A(TEXT("MUZ_BRAKE"), TEXT("Muzzle Brake"), EAshlineAttachmentSlot::Muzzle, 6, Feel(D(0, 0, 0, 0, 0, -0.35f, 0.08f, 0, 0.05f, 0), 0.02f, 0, 0, 0.03f, 0, 1.8f, -0.12f), 240, TEXT("Kills pitch, adds concussion yaw.")));
 	List.Add(A(TEXT("MUZ_FLASH"), TEXT("Flash Hider"), EAshlineAttachmentSlot::Muzzle, 2, D(0, 0, 0, 0, 0, -0.05f, -0.04f, 0, 0, 0), 90, TEXT("Hides muzzle flash only.")));
-	List.Add(A(TEXT("MUZ_CHOKE"), TEXT("Tight Choke"), EAshlineAttachmentSlot::Muzzle, 5, D(1.f, 0, 0, 0, 8.f, 0.2f, 0, 0, -0.4f, -0.2f), 180, TEXT("Tighter pellet cone. More kick.")));
-	List.Add(A(TEXT("MUZ_HEAVY"), TEXT("Heavy Brake"), EAshlineAttachmentSlot::Muzzle, 10, D(0, -15.f, 0, 0, 0, -0.45f, 0.12f, 0.08f, 0.1f, 0.04f), 360, TEXT("LMG/battle-rifle brake. Kills pitch, ADS tax.")));
+	List.Add(A(TEXT("MUZ_CHOKE"), TEXT("Tight Choke"), EAshlineAttachmentSlot::Muzzle, 5, Feel(D(1.f, 0, 0, 0, 8.f, 0.2f, 0, 0, -0.4f, -0.2f), 0.02f, 0, 0.05f), 180, TEXT("Tighter pellet cone. More kick.")));
+	List.Add(A(TEXT("MUZ_HEAVY"), TEXT("Heavy Brake"), EAshlineAttachmentSlot::Muzzle, 10, Feel(D(0, -15.f, 0, 0, 0, -0.45f, 0.12f, 0.08f, 0.1f, 0.04f), 0.06f, 0, 0, 0.05f, 0.02f, 2.2f, -0.15f, -0.08f, 0, 0.08f), 360, TEXT("LMG/battle-rifle brake. Kills pitch, ADS tax.")));
+	List.Add(A(TEXT("MUZ_LINEAR"), TEXT("Linear comp"), EAshlineAttachmentSlot::Muzzle, 5, Feel(D(0, 0, 0, 0, 0, -0.18f, -0.16f, 0, 0, 0), 0.01f, 0, 0, 0, 0, 1.1f, -0.05f, -0.08f), 210, TEXT("Even pitch/yaw. Softer first shot than a brake.")));
 
-	List.Add(A(TEXT("UB_GRIP"), TEXT("Vertical Grip"), EAshlineAttachmentSlot::Underbarrel, 3, D(0, 0, 0, 0, 0, -0.2f, -0.1f, 0, -0.25f, -0.04f), 180, TEXT("Vertical recoil and hip.")));
-	List.Add(A(TEXT("UB_ANGLED"), TEXT("Angled Grip"), EAshlineAttachmentSlot::Underbarrel, 5, D(0, 0, 0, 0, 0, -0.08f, -0.18f, 0, -0.12f, -0.06f), 200, TEXT("ADS speed + yaw control.")));
+	List.Add(A(TEXT("UB_GRIP"), TEXT("Vertical Grip"), EAshlineAttachmentSlot::Underbarrel, 3, Feel(D(0, 0, 0, 0, 0, -0.2f, -0.1f, 0, -0.25f, -0.04f), 0.02f, 0, 0, -0.06f, 0, 1.6f, -0.06f, -0.04f), 180, TEXT("Vertical recoil and hip.")));
+	List.Add(A(TEXT("UB_ANGLED"), TEXT("Angled Grip"), EAshlineAttachmentSlot::Underbarrel, 5, Feel(D(0, 0, 0, 0, 0, -0.08f, -0.18f, 0, -0.12f, -0.06f), -0.04f, 1.f, 0, 0, -0.03f, 0.8f, 0, -0.05f), 200, TEXT("ADS speed + yaw control.")));
 	List.Add(A(TEXT("UB_LITE"), TEXT("Weapon Light"), EAshlineAttachmentSlot::Underbarrel, 1, D(0, 0, 0, 0, 0, 0, 0, 0, -0.05f, 0), 60, TEXT("Night utility. Tiny hip help.")));
-	List.Add(A(TEXT("UB_BIPOD"), TEXT("Bipod"), EAshlineAttachmentSlot::Underbarrel, 10, D(0, 0, 0, 0, 20.f, -0.4f, -0.15f, 0.2f, 0.2f, -0.1f), 320, TEXT("LMG/sniper anchor. Hurts move-spread.")));
-	List.Add(A(TEXT("UB_GL"), TEXT("Grenade Launcher"), EAshlineAttachmentSlot::Underbarrel, 14, D(0, -30.f, 0, 0, 0, 0.15f, 0.1f, 0.2f, 0.2f, 0.06f), 800, TEXT("Utility. Heavier rifle.")));
+	List.Add(A(TEXT("UB_BIPOD"), TEXT("Bipod"), EAshlineAttachmentSlot::Underbarrel, 10, Feel(D(0, 0, 0, 0, 20.f, -0.4f, -0.15f, 0.2f, 0.2f, -0.1f), 0.08f, 0, 0, 0.1f, -0.06f, 2.5f, -0.2f, -0.12f, 0, 0.35f), 320, TEXT("LMG/sniper anchor. Hurts move-spread.")));
+	List.Add(A(TEXT("UB_GL"), TEXT("Grenade Launcher"), EAshlineAttachmentSlot::Underbarrel, 14, Feel(D(0, -30.f, 0, 0, 0, 0.15f, 0.1f, 0.2f, 0.2f, 0.06f), 0.08f, 0, 0, 0.08f, 0.04f, -1.f, 0.1f, 0.05f, 0, 0.2f), 800, TEXT("Utility. Heavier rifle.")));
+	List.Add(A(TEXT("UB_RANGE"), TEXT("Ranger tape"), EAshlineAttachmentSlot::Underbarrel, 2, Feel(D(0, 0, 0, 0, 0, -0.06f, -0.04f, 0, -0.08f, 0), -0.01f), 70, TEXT("Tape + pressure switch. Tiny recoil help.")));
+	List.Add(A(TEXT("UB_HANDSTOP"), TEXT("Handstop"), EAshlineAttachmentSlot::Underbarrel, 4, Feel(D(0, 0, 0, 0, 0, -0.1f, -0.14f, 0, -0.18f, -0.03f), -0.02f, 1.f, 0, -0.05f, 0, 0.9f, 0, -0.04f, 0, -0.06f), 160, TEXT("Index stop. Hip and yaw, slight ADS snap.")));
 
 	List.Add(A(TEXT("MAG_60"), TEXT("60rd Casket"), EAshlineAttachmentSlot::Magazine, 7, D(0, -20.f, 30, 0, 0, 0.1f, 0.05f, 0.35f, 0.15f, 0.04f), 340, TEXT("AR casket. Reload tax.")));
 	List.Add(A(TEXT("MAG_EXT_SMG"), TEXT("40rd SMG"), EAshlineAttachmentSlot::Magazine, 4, D(0, 0, 15, 20, 0, 0.05f, 0, 0.15f, 0.05f, 0), 180, TEXT("SMG stick +15.")));
@@ -717,38 +975,44 @@ TArray<FAshlineAttachmentDefinition> UAshlineWeaponCatalog::BuildAttachments()
 	List.Add(A(TEXT("MAG_DMR25"), TEXT("25rd DMR"), EAshlineAttachmentSlot::Magazine, 6, D(0, 0, 5, 10, 0, 0.05f, 0, 0.12f, 0, 0), 220, TEXT("DMR +5.")));
 	List.Add(A(TEXT("MAG_200"), TEXT("200rd Softpack"), EAshlineAttachmentSlot::Magazine, 12, D(0, -15.f, 100, 0, 0, 0.15f, 0.08f, 1.1f, 0.25f, 0.08f), 600, TEXT("LMG belt doubling.")));
 	List.Add(A(TEXT("MAG_DRUM"), TEXT("Drum Mag"), EAshlineAttachmentSlot::Magazine, 11, D(0, -25.f, 40, 20, 0, 0.18f, 0.1f, 0.55f, 0.22f, 0.06f), 480, TEXT("Drum. Heavy, slow.")));
-	List.Add(A(TEXT("MAG_FAST"), TEXT("Fast Mag"), EAshlineAttachmentSlot::Magazine, 4, D(0, 0, 0, 0, 0, 0, 0, -0.28f, 0, 0), 200, TEXT("Tactical reload cut.")));
-	List.Add(A(TEXT("MAG_SHORT"), TEXT("Short Mag"), EAshlineAttachmentSlot::Magazine, 2, D(0, 15.f, -10, 0, 0, -0.08f, -0.04f, -0.18f, -0.08f, -0.02f), 90, TEXT("Lighter mag. Faster handling, fewer rounds.")));
+	List.Add(A(TEXT("MAG_FAST"), TEXT("Fast Mag"), EAshlineAttachmentSlot::Magazine, 4, Feel(D(0, 0, 0, 0, 0, 0, 0, -0.28f, 0, 0), -0.01f, 0, 0, 0, 0, 0, 0, 0, -0.1f), 200, TEXT("Tactical reload cut.")));
+	List.Add(A(TEXT("MAG_SHORT"), TEXT("Short Mag"), EAshlineAttachmentSlot::Magazine, 2, Feel(D(0, 15.f, -10, 0, 0, -0.08f, -0.04f, -0.18f, -0.08f, -0.02f), -0.03f, 0, 0, -0.04f, 0, 0.5f, 0, 0, -0.06f, -0.05f), 90, TEXT("Lighter mag. Faster handling, fewer rounds.")));
+	List.Add(A(TEXT("MAG_PMAG"), TEXT("PMAG"), EAshlineAttachmentSlot::Magazine, 3, Feel(D(0, 0, 0, 10, 0, 0, 0, -0.08f, 0, 0), 0, 0, 0, 0, 0, 0, 0, 0, -0.04f), 140, TEXT("Polymer mag. Slightly faster reload, extra reserve.")));
+	List.Add(A(TEXT("MAG_COUPLE"), TEXT("Mag couple"), EAshlineAttachmentSlot::Magazine, 5, Feel(D(0, -8.f, 0, 0, 0, 0.04f, 0, -0.16f, 0.04f, 0), 0.01f, 0, 0, 0, 0, 0, 0, 0, -0.08f), 180, TEXT("Jungle mag. Faster tactical, extra mass.")));
 
-	List.Add(A(TEXT("STK_SOPMOD"), TEXT("Sopmod Stock"), EAshlineAttachmentSlot::Stock, 4, D(0, 0, 0, 0, 0, -0.12f, -0.08f, 0, -0.1f, -0.03f), 180, TEXT("All-rounder stock.")));
-	List.Add(A(TEXT("STK_WIRE"), TEXT("Wire Stock"), EAshlineAttachmentSlot::Stock, 3, D(0, 20.f, 0, 0, 0, 0.1f, 0.1f, -0.1f, -0.05f, 0.05f), 140, TEXT("ADS speed, worse recoil.")));
-	List.Add(A(TEXT("STK_PRECISION"), TEXT("Precision Stock"), EAshlineAttachmentSlot::Stock, 8, D(0, -10.f, 0, 0, 30.f, -0.2f, -0.05f, 0.1f, 0.2f, -0.06f), 280, TEXT("Long-range. Hip penalty.")));
-	List.Add(A(TEXT("STK_BREACH"), TEXT("Breacher Stock"), EAshlineAttachmentSlot::Stock, 5, D(0, 0, 0, 0, 0, -0.3f, 0, -0.05f, -0.2f, 0), 200, TEXT("Shotgun CQB stock.")));
-	List.Add(A(TEXT("STK_HEAVY"), TEXT("Heavy Stock"), EAshlineAttachmentSlot::Stock, 9, D(0, -20.f, 0, 0, 10.f, -0.22f, -0.12f, 0.15f, 0.15f, -0.04f), 260, TEXT("LMG ballast.")));
-	List.Add(A(TEXT("STK_NOSTOCK"), TEXT("No Stock"), EAshlineAttachmentSlot::Stock, 6, D(0, 40.f, 0, 0, -20.f, 0.22f, 0.18f, -0.15f, -0.15f, 0.08f), 120, TEXT("CQB. ADS snap, recoil tax.")));
-	List.Add(A(TEXT("STK_FOLD"), TEXT("Folding Stock"), EAshlineAttachmentSlot::Stock, 5, D(0, 25.f, 0, 0, -10.f, 0.1f, 0.08f, -0.08f, -0.1f, 0.04f), 160, TEXT("Fold. Faster ADS, a little more bounce.")));
+	List.Add(A(TEXT("STK_SOPMOD"), TEXT("Sopmod Stock"), EAshlineAttachmentSlot::Stock, 4, Feel(D(0, 0, 0, 0, 0, -0.12f, -0.08f, 0, -0.1f, -0.03f), -0.02f, 0, 0, -0.04f, -0.02f, 0.8f, 0, -0.04f), 180, TEXT("All-rounder stock.")));
+	List.Add(A(TEXT("STK_WIRE"), TEXT("Wire Stock"), EAshlineAttachmentSlot::Stock, 3, Feel(D(0, 20.f, 0, 0, 0, 0.1f, 0.1f, -0.1f, -0.05f, 0.05f), -0.05f, 2.f, 0, 0.04f, 0.03f, -0.6f, 0.08f, 0.06f, 0, -0.08f), 140, TEXT("ADS speed, worse recoil.")));
+	List.Add(A(TEXT("STK_PRECISION"), TEXT("Precision Stock"), EAshlineAttachmentSlot::Stock, 8, Feel(D(0, -10.f, 0, 0, 30.f, -0.2f, -0.05f, 0.1f, 0.2f, -0.06f), 0.05f, -4.f, 0, 0.08f, -0.05f, 1.2f, -0.1f, -0.08f, 0, 0.12f), 280, TEXT("Long-range. Hip penalty.")));
+	List.Add(A(TEXT("STK_BREACH"), TEXT("Breacher Stock"), EAshlineAttachmentSlot::Stock, 5, Feel(D(0, 0, 0, 0, 0, -0.3f, 0, -0.05f, -0.2f, 0), -0.03f, 2.f, 0, -0.06f, 0, 0.8f), 200, TEXT("Shotgun CQB stock.")));
+	List.Add(A(TEXT("STK_HEAVY"), TEXT("Heavy Stock"), EAshlineAttachmentSlot::Stock, 9, Feel(D(0, -20.f, 0, 0, 10.f, -0.22f, -0.12f, 0.15f, 0.15f, -0.04f), 0.05f, 0, 0, 0.06f, -0.03f, 1.6f, -0.12f, -0.06f, 0, 0.1f), 260, TEXT("LMG ballast.")));
+	List.Add(A(TEXT("STK_NOSTOCK"), TEXT("No Stock"), EAshlineAttachmentSlot::Stock, 6, Feel(D(0, 40.f, 0, 0, -20.f, 0.22f, 0.18f, -0.15f, -0.15f, 0.08f), -0.06f, 4.f, 0, 0.08f, 0.06f, -1.2f, 0.12f, 0.1f, 0, -0.12f), 120, TEXT("CQB. ADS snap, recoil tax.")));
+	List.Add(A(TEXT("STK_FOLD"), TEXT("Folding Stock"), EAshlineAttachmentSlot::Stock, 5, Feel(D(0, 25.f, 0, 0, -10.f, 0.1f, 0.08f, -0.08f, -0.1f, 0.04f), -0.04f, 2.f, 0, 0.04f, 0.03f, -0.4f, 0.06f, 0.04f), 160, TEXT("Fold. Faster ADS, a little more bounce.")));
+	List.Add(A(TEXT("STK_ADJ"), TEXT("Adjustable stock"), EAshlineAttachmentSlot::Stock, 6, Feel(D(0, 0, 0, 0, 0, -0.08f, -0.06f, 0, -0.06f, -0.02f), -0.03f, 1.f, 0, -0.02f, -0.02f, 0.6f, 0, -0.03f), 200, TEXT("LOP adjust. Mild ADS and recoil help.")));
+	List.Add(A(TEXT("STK_CQB"), TEXT("CQB stock"), EAshlineAttachmentSlot::Stock, 4, Feel(D(0, 12.f, 0, 0, -8.f, 0.06f, 0.04f, -0.06f, -0.12f, 0.02f), -0.04f, 3.f, 0, -0.03f, 0.02f, -0.3f, 0.04f, 0.03f, 0, -0.08f), 160, TEXT("Short LOP. ADS snap, a little more bounce.")));
 
-	List.Add(A(TEXT("LSR_PEQ"), TEXT("PEQ Laser"), EAshlineAttachmentSlot::Laser, 2, D(0, 0, 0, 0, 0, 0, 0, 0, -0.35f, -0.02f), 160, TEXT("Hip-fire laser. Night IR slot.")));
-	List.Add(A(TEXT("LSR_5MW"), TEXT("5mW Laser"), EAshlineAttachmentSlot::Laser, 5, D(0, 0, 0, 0, 0, 0, 0, 0, -0.5f, 0.02f), 220, TEXT("Visible laser. Stronger hip, ADS clutter.")));
-	List.Add(A(TEXT("LSR_IR"), TEXT("IR Laser"), EAshlineAttachmentSlot::Laser, 8, D(0, 0, 0, 0, 0, 0, 0, 0, -0.28f, -0.04f), 280, TEXT("IR-only. NV / night ops hip help, no visible bloom.")));
+	List.Add(A(TEXT("LSR_PEQ"), TEXT("PEQ Laser"), EAshlineAttachmentSlot::Laser, 2, Feel(D(0, 0, 0, 0, 0, 0, 0, 0, -0.35f, -0.02f), 0, 0, 0, -0.08f), 160, TEXT("Hip-fire laser. Night IR slot.")));
+	List.Add(A(TEXT("LSR_5MW"), TEXT("5mW Laser"), EAshlineAttachmentSlot::Laser, 5, Feel(D(0, 0, 0, 0, 0, 0, 0, 0, -0.5f, 0.02f), 0, 0, 0, -0.12f, 0.02f), 220, TEXT("Visible laser. Stronger hip, ADS clutter.")));
+	List.Add(A(TEXT("LSR_IR"), TEXT("IR Laser"), EAshlineAttachmentSlot::Laser, 8, Feel(D(0, 0, 0, 0, 0, 0, 0, 0, -0.28f, -0.04f), 0, 0, 0, -0.06f, -0.02f), 280, TEXT("IR-only. NV / night ops hip help, no visible bloom.")));
+	List.Add(A(TEXT("LSR_DBAL"), TEXT("DBAL"), EAshlineAttachmentSlot::Laser, 10, Feel(D(0, 0, 0, 0, 0, 0, 0, 0, -0.42f, -0.03f), -0.01f, 0, 0, -0.1f, -0.02f), 360, TEXT("IR + visible. Best hip, mild ADS help.")));
+	List.Add(A(TEXT("LSR_NGAL"), TEXT("NGAL"), EAshlineAttachmentSlot::Laser, 12, Feel(D(0, 0, 0, 0, 0, 0, 0, 0, -0.48f, -0.04f), -0.015f, 0, 0, -0.12f, -0.03f), 420, TEXT("Next-gen aiming laser. Strongest hip, lowest ADS clutter.")));
 
-	FAshlineWeaponStats AmmoFMJ;
+	FAshlineWeaponStats AmmoFMJ = ZeroDelta();
 	List.Add(A(TEXT("AMMO_FMJ"), TEXT("FMJ"), EAshlineAttachmentSlot::Ammunition, 1, AmmoFMJ, 0, TEXT("Default ball. Balanced pen and flesh.")));
-	FAshlineWeaponStats AmmoAP;
+	FAshlineWeaponStats AmmoAP = ZeroDelta();
 	AmmoAP.Damage = -2.f;
 	AmmoAP.RangeMeters = 20.f;
 	AmmoAP.ArmorPenetration = 0.25f;
 	List.Add(A(TEXT("AMMO_AP"), TEXT("Armor Piercing"), EAshlineAttachmentSlot::Ammunition, 8, AmmoAP, 280, TEXT("Pen vs armor / heavies. Weaker flesh.")));
-	FAshlineWeaponStats AmmoHP;
+	FAshlineWeaponStats AmmoHP = ZeroDelta();
 	AmmoHP.Damage = 3.f;
 	AmmoHP.RangeMeters = -25.f;
 	AmmoHP.ArmorPenetration = -0.15f;
 	AmmoHP.MinDamageMul = -0.08f;
 	List.Add(A(TEXT("AMMO_HP"), TEXT("Hollow Point"), EAshlineAttachmentSlot::Ammunition, 6, AmmoHP, 220, TEXT("Soft target damage. Dies vs plates.")));
-	FAshlineWeaponStats AmmoTr;
+	FAshlineWeaponStats AmmoTr = ZeroDelta();
 	AmmoTr.HipFireSpread = 0.08f;
 	List.Add(A(TEXT("AMMO_TRACER"), TEXT("Tracer"), EAshlineAttachmentSlot::Ammunition, 3, AmmoTr, 80, TEXT("Visible flight. Tiny hip penalty.")));
-	FAshlineWeaponStats AmmoSlug;
+	FAshlineWeaponStats AmmoSlug = ZeroDelta();
 	AmmoSlug.Damage = 28.f;
 	AmmoSlug.PelletCount = -7;
 	AmmoSlug.RangeMeters = 25.f;
@@ -756,16 +1020,16 @@ TArray<FAshlineAttachmentDefinition> UAshlineWeaponCatalog::BuildAttachments()
 	AmmoSlug.ADSSpread = -0.6f;
 	AmmoSlug.ArmorPenetration = 0.2f;
 	List.Add(A(TEXT("AMMO_SLUG"), TEXT("Slug"), EAshlineAttachmentSlot::Ammunition, 7, AmmoSlug, 240, TEXT("Single 12ga slug. Turns a breacher into a DMR-lite.")));
-	FAshlineWeaponStats AmmoBuck;
+	FAshlineWeaponStats AmmoBuck = ZeroDelta();
 	AmmoBuck.PelletCount = 2;
 	AmmoBuck.HipFireSpread = 0.3f;
 	List.Add(A(TEXT("AMMO_BUCK"), TEXT("00 Buck"), EAshlineAttachmentSlot::Ammunition, 1, AmmoBuck, 0, TEXT("Extra pellets. Wider cone.")));
-	FAshlineWeaponStats AmmoHE;
+	FAshlineWeaponStats AmmoHE = ZeroDelta();
 	AmmoHE.Damage = 40.f;
 	AmmoHE.RangeMeters = -30.f;
 	AmmoHE.HipFireSpread = 0.2f;
 	List.Add(A(TEXT("AMMO_HE"), TEXT("HE Warhead"), EAshlineAttachmentSlot::Ammunition, 14, AmmoHE, 400, TEXT("Launcher HE. More blast, less range.")));
-	FAshlineWeaponStats AmmoSub;
+	FAshlineWeaponStats AmmoSub = ZeroDelta();
 	AmmoSub.Damage = -2.f;
 	AmmoSub.FireRateRPM = -20.f;
 	AmmoSub.RangeMeters = -20.f;
@@ -774,6 +1038,15 @@ TArray<FAshlineAttachmentDefinition> UAshlineWeaponCatalog::BuildAttachments()
 	AmmoSub.ArmorPenetration = -0.08f;
 	AmmoSub.FalloffStartMeters = -8.f;
 	List.Add(A(TEXT("AMMO_SUB"), TEXT("Subsonic"), EAshlineAttachmentSlot::Ammunition, 6, AmmoSub, 200, TEXT("Subsonic. Quiet with a can. Recoil down, range tax.")));
+	FAshlineWeaponStats AmmoMatch = ZeroDelta();
+	AmmoMatch.Damage = 1.f;
+	AmmoMatch.RangeMeters = 15.f;
+	AmmoMatch.HipFireSpread = -0.08f;
+	AmmoMatch.ADSSpread = -0.04f;
+	AmmoMatch.ArmorPenetration = 0.04f;
+	AmmoMatch.FalloffStartMeters = 8.f;
+	AmmoMatch.SwayAdsDegrees = -0.02f;
+	List.Add(A(TEXT("AMMO_MATCH"), TEXT("Match"), EAshlineAttachmentSlot::Ammunition, 9, AmmoMatch, 260, TEXT("Match grade. Tighter cone, extra range, mild pen.")));
 
 	return List;
 }
@@ -840,7 +1113,16 @@ FAshlineWeaponStats UAshlineWeaponCatalog::ComposeStats(const FAshlineWeaponDefi
 		Stats.MinDamageMul = FMath::Clamp(Stats.MinDamageMul + D.MinDamageMul, 0.15f, 1.f);
 		Stats.SwayHipDegrees = FMath::Max(0.02f, Stats.SwayHipDegrees + D.SwayHipDegrees);
 		Stats.SwayAdsDegrees = FMath::Max(0.01f, Stats.SwayAdsDegrees + D.SwayAdsDegrees);
+		Stats.SwaySpeed = FMath::Max(0.2f, Stats.SwaySpeed + D.SwaySpeed);
 		Stats.MovementSpreadMul = FMath::Max(1.f, Stats.MovementSpreadMul + D.MovementSpreadMul);
+		Stats.CrouchSpreadMul = FMath::Clamp(Stats.CrouchSpreadMul + D.CrouchSpreadMul, 0.4f, 1.f);
+		Stats.ADSFov = FMath::Clamp(Stats.ADSFov + D.ADSFov, 18.f, 90.f);
+		Stats.HeadshotMultiplier = FMath::Max(1.f, Stats.HeadshotMultiplier + D.HeadshotMultiplier);
+		Stats.RecoilRecoveryPerSecond = FMath::Max(1.f, Stats.RecoilRecoveryPerSecond + D.RecoilRecoveryPerSecond);
+		Stats.RecoilFirstShotMul = FMath::Max(0.5f, Stats.RecoilFirstShotMul + D.RecoilFirstShotMul);
+		Stats.RecoilAdsMul = FMath::Clamp(Stats.RecoilAdsMul + D.RecoilAdsMul, 0.2f, 1.2f);
+		Stats.TacticalReloadMul = FMath::Clamp(Stats.TacticalReloadMul + D.TacticalReloadMul, 0.5f, 1.4f);
+		Stats.EmptyReloadMul = FMath::Clamp(Stats.EmptyReloadMul + D.EmptyReloadMul, 0.7f, 1.6f);
 
 		if (Attachment.Slot == EAshlineAttachmentSlot::Ammunition)
 		{

@@ -67,6 +67,9 @@
     "weapon": "/Game/Ashline/Materials/PBR/M_WeaponMaster.M_WeaponMaster",
     "skin": "/Game/Ashline/Materials/PBR/M_SkinMaster.M_SkinMaster",
     "character": "/Game/Ashline/Materials/PBR/M_CharacterMaster.M_CharacterMaster",
-    "environment": "/Game/Ashline/Materials/PBR/M_EnvironmentMaster.M_EnvironmentMaster"
+    "environment": "/Game/Ashline/Materials/PBR/M_EnvironmentMaster.M_EnvironmentMaster",
+    "weaponClassMI": "/Game/Ashline/Materials/PBR/MI_WPN_{Slug}.MI_WPN_{Slug}",
+    "skinMI": "/Game/Ashline/Materials/PBR/MI_SkinMaster.MI_SkinMaster",
+    "characterMI": "/Game/Ashline/Materials/PBR/MI_CharacterMaster.MI_CharacterMaster"
   }
 }

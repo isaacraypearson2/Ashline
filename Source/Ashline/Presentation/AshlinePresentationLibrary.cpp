@@ -4,6 +4,7 @@
 #include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlineCosmeticVisual.h"
 #include "Presentation/AshlineEnvironmentKit.h"
+#include "Presentation/AshlineLoad.h"
 #include "Presentation/AshlinePresentationSettings.h"
 #include "Presentation/AshlineWeaponVisual.h"
 #include "Meta/AshlineMetaCatalog.h"
@@ -77,6 +78,10 @@ USkeletalMesh* UAshlinePresentationLibrary::LoadSkeletalMesh(const TArray<FStrin
 
 UMaterialInterface* UAshlinePresentationLibrary::GetSurfaceMaterial(EAshlineSurface Surface)
 {
+	if (UMaterialInterface* Authored = LoadMaterial(UAshlineContentManifest::MasterMaterialCandidates(Surface)))
+	{
+		return Authored;
+	}
 	switch (Surface)
 	{
 	case EAshlineSurface::Ground:
@@ -752,33 +757,22 @@ UStaticMesh* UAshlinePresentationLibrary::ResolveSkinMesh(const FAshlineWeaponSk
 
 UMaterialInterface* UAshlinePresentationLibrary::GetMasterWeaponMaterial()
 {
-	return LoadMaterial({
-		UAshlineContentManifest::MasterWeaponMaterialPath(),
-		TEXT("/Game/StarterContent/Materials/M_Metal_Steel.M_Metal_Steel"),
-		TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
-		TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
-	});
+	return GetMasterWeaponMaterialForClass(EAshlineWeaponClass::AssaultRifle);
+}
+
+UMaterialInterface* UAshlinePresentationLibrary::GetMasterWeaponMaterialForClass(EAshlineWeaponClass Class)
+{
+	return LoadMaterial(UAshlineContentManifest::WeaponClassMasterCandidates(Class));
 }
 
 UMaterialInterface* UAshlinePresentationLibrary::GetMasterSkinMaterial()
 {
-	return LoadMaterial({
-		UAshlineContentManifest::MasterSkinMaterialPath(),
-		UAshlineContentManifest::MasterWeaponMaterialPath(),
-		TEXT("/Game/StarterContent/Materials/M_Metal_Brushed.M_Metal_Brushed"),
-		TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
-		TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
-	});
+	return LoadMaterial(UAshlineContentManifest::SkinMasterCandidates());
 }
 
 UMaterialInterface* UAshlinePresentationLibrary::GetMasterCharacterMaterial()
 {
-	return LoadMaterial({
-		UAshlineContentManifest::MasterCharacterMaterialPath(),
-		TEXT("/Game/StarterContent/Materials/M_Ground_Grass.M_Ground_Grass"),
-		TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
-		TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
-	});
+	return LoadMaterial(UAshlineContentManifest::CharacterMasterCandidates());
 }
 
 UMaterialInterface* UAshlinePresentationLibrary::GetMasterEnvironmentMaterial()
@@ -819,6 +813,14 @@ void UAshlinePresentationLibrary::ApplyMaterialParams(UMaterialInstanceDynamic* 
 	MID->SetScalarParameterValue(TEXT("EmissiveStrength"), Params.Emissive);
 	MID->SetVectorParameterValue(TEXT("EmissiveColor"), Params.EmissiveColor);
 	MID->SetVectorParameterValue(TEXT("Emissive Color"), Params.EmissiveColor);
+	MID->SetScalarParameterValue(TEXT("NormalStrength"), Params.NormalStrength);
+	MID->SetScalarParameterValue(TEXT("Normal Intensity"), Params.NormalStrength);
+	MID->SetScalarParameterValue(TEXT("AO"), Params.AmbientOcclusion);
+	MID->SetScalarParameterValue(TEXT("AmbientOcclusion"), Params.AmbientOcclusion);
+	MID->SetScalarParameterValue(TEXT("ClearCoat"), Params.ClearCoat);
+	MID->SetScalarParameterValue(TEXT("Clear Coat"), Params.ClearCoat);
+	MID->SetScalarParameterValue(TEXT("Tiling"), Params.UVTiling);
+	MID->SetScalarParameterValue(TEXT("UVTiling"), Params.UVTiling);
 }
 
 FAshlineMaterialParams UAshlinePresentationLibrary::DefaultParamsForSurface(EAshlineSurface Surface)
@@ -865,6 +867,108 @@ FAshlineMaterialParams UAshlinePresentationLibrary::DefaultParamsForWeaponClass(
 	return P;
 }
 
+FAshlineMaterialParams UAshlinePresentationLibrary::DefaultParamsForSkin(const FAshlineWeaponSkinDefinition& Skin)
+{
+	FAshlineMaterialParams P = DefaultParamsForWeaponClass(EAshlineWeaponClass::AssaultRifle);
+	P.Tint = Skin.Tint;
+
+	const FString Id = Skin.SkinId.ToString();
+	const bool bChrome = Id.Contains(TEXT("CHROME")) || Id.Contains(TEXT("NICKEL")) || Id.Contains(TEXT("DIAMOND"));
+	const bool bGold = Id.Contains(TEXT("GOLD")) || Id.Contains(TEXT("GILT"));
+	const bool bVoid = Id.Contains(TEXT("VOID")) || Id.Contains(TEXT("GHOST"));
+	const bool bNeon = Id.Contains(TEXT("NEON"));
+
+	if (Skin.Rarity == EAshlineLootRarity::Legendary || bGold)
+	{
+		P.Metallic = 0.92f;
+		P.Roughness = 0.18f;
+		P.Specular = 0.85f;
+		P.ClearCoat = 0.55f;
+		P.Emissive = 0.15f;
+		P.EmissiveColor = Skin.Tint;
+	}
+	if (bChrome || Skin.bAnimatedPreview)
+	{
+		P.Metallic = 0.96f;
+		P.Roughness = 0.08f;
+		P.Specular = 0.95f;
+		P.ClearCoat = 0.8f;
+		P.NormalStrength = 0.6f;
+	}
+	if (bVoid)
+	{
+		P.Metallic = 0.4f;
+		P.Roughness = 0.22f;
+		P.Emissive = 0.35f;
+		P.EmissiveColor = FLinearColor(0.12f, 0.04f, 0.28f);
+	}
+	if (bNeon)
+	{
+		P.Emissive = 2.4f;
+		P.EmissiveColor = Skin.Tint;
+		P.Roughness = 0.2f;
+	}
+	if (Skin.Rarity == EAshlineLootRarity::Common)
+	{
+		P.Roughness = 0.42f;
+		P.Metallic = 0.72f;
+		P.ClearCoat = 0.05f;
+	}
+	return P;
+}
+
+FAshlineMaterialParams UAshlinePresentationLibrary::DefaultParamsForCosmeticSlot(EAshlineCosmeticSlot Slot, const FLinearColor& Tint)
+{
+	FAshlineMaterialParams P;
+	P.Tint = Tint;
+	P.Roughness = 0.7f;
+	P.Metallic = 0.04f;
+	P.Specular = 0.35f;
+	P.NormalStrength = 1.f;
+	P.AmbientOcclusion = 1.f;
+	P.UVTiling = 1.f;
+	switch (Slot)
+	{
+	case EAshlineCosmeticSlot::Helmet:
+	case EAshlineCosmeticSlot::Headset:
+		P.Roughness = 0.38f;
+		P.Metallic = 0.18f;
+		P.Specular = 0.45f;
+		break;
+	case EAshlineCosmeticSlot::Vest:
+	case EAshlineCosmeticSlot::Backpack:
+		P.Roughness = 0.72f;
+		P.Metallic = 0.06f;
+		P.NormalStrength = 1.15f;
+		break;
+	case EAshlineCosmeticSlot::Pants:
+	case EAshlineCosmeticSlot::Camo:
+		P.Roughness = 0.78f;
+		P.Metallic = 0.02f;
+		P.UVTiling = 2.f;
+		break;
+	case EAshlineCosmeticSlot::Gloves:
+	case EAshlineCosmeticSlot::Boots:
+		P.Roughness = 0.62f;
+		P.Metallic = 0.04f;
+		P.Specular = 0.28f;
+		break;
+	case EAshlineCosmeticSlot::Face:
+		P = DefaultParamsForSurface(EAshlineSurface::Skin);
+		P.Tint = Tint;
+		break;
+	case EAshlineCosmeticSlot::Charm:
+		P.Roughness = 0.28f;
+		P.Metallic = 0.82f;
+		P.Specular = 0.7f;
+		P.ClearCoat = 0.25f;
+		break;
+	default:
+		break;
+	}
+	return P;
+}
+
 UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeEnvironmentMaterial(UObject* Outer, EAshlineSurface Surface, const FLinearColor& Tint)
 {
 	UMaterialInterface* Base = GetMasterEnvironmentMaterial();
@@ -888,14 +992,13 @@ UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeEnvironmentMaterial(U
 
 UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeWeaponMaterial(UObject* Outer, EAshlineWeaponClass Class, const FLinearColor& Tint)
 {
-	UMaterialInterface* Base = GetMasterWeaponMaterial();
+	UMaterialInterface* Base = GetMasterWeaponMaterialForClass(Class);
 	if (!Base)
 	{
 		return nullptr;
 	}
 	UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Base, Outer);
-	const FAshlineMaterialParams Params = DefaultParamsForWeaponClass(Class);
-	FAshlineMaterialParams Applied = Params;
+	FAshlineMaterialParams Applied = DefaultParamsForWeaponClass(Class);
 	Applied.Tint = Tint;
 	ApplyMaterialParams(MID, Applied);
 	return MID;
@@ -903,12 +1006,13 @@ UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeWeaponMaterial(UObjec
 
 UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeSkinMaterialInstance(UObject* Outer, const FAshlineWeaponSkinDefinition& Skin)
 {
+	const FAshlineMaterialParams Params = DefaultParamsForSkin(Skin);
 	if (UMaterialInterface* Authored = ResolveSkinMaterial(Skin))
 	{
 		if (!Authored->IsA<UMaterialInstanceDynamic>())
 		{
 			UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Authored, Outer);
-			ApplyMasterParameters(MID, Skin.Tint, 0.32f, 0.8f);
+			ApplyMaterialParams(MID, Params);
 			return MID;
 		}
 	}
@@ -918,7 +1022,7 @@ UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeSkinMaterialInstance(
 		return nullptr;
 	}
 	UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Base, Outer);
-	ApplyMasterParameters(MID, Skin.Tint, 0.32f, 0.8f);
+	ApplyMaterialParams(MID, Params);
 	return MID;
 }
 
@@ -930,7 +1034,8 @@ UMaterialInstanceDynamic* UAshlinePresentationLibrary::MakeCharacterMaterial(UOb
 		return nullptr;
 	}
 	UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Base, Outer);
-	ApplyMasterParameters(MID, Tint, 0.7f, 0.04f);
+	FAshlineMaterialParams Params = DefaultParamsForCosmeticSlot(EAshlineCosmeticSlot::Camo, Tint);
+	ApplyMaterialParams(MID, Params);
 	return MID;
 }
 
@@ -1053,12 +1158,20 @@ void UAshlinePresentationLibrary::ApplyClothingPart(ACharacter* Character, EAshl
 		Rel = FVector(8.f, 6.f, 8.f);
 		Scale = FVector(0.06f, 0.06f, 0.08f);
 		break;
+	case EAshlineCosmeticSlot::Headset:
+		Rel = FVector(2.f, 0.f, 54.f);
+		Scale = FVector(0.28f, 0.26f, 0.12f);
+		break;
+	case EAshlineCosmeticSlot::Backpack:
+		Rel = FVector(-8.f, 0.f, 18.f);
+		Scale = FVector(0.28f, 0.22f, 0.36f);
+		break;
 	default:
 		break;
 	}
 
-	if (UAshlineCosmeticVisual* Visual = LoadObject<UAshlineCosmeticVisual>(
-		nullptr, *UAshlineContentManifest::CosmeticDataAssetPath(CosmeticId), nullptr, LOAD_NoWarn | LOAD_Quiet))
+	if (UAshlineCosmeticVisual* Visual = AshlineLoad::Object<UAshlineCosmeticVisual>(
+		UAshlineContentManifest::CosmeticDataAssetPath(CosmeticId)))
 	{
 		if (!Visual->RelativeLocation.IsNearlyZero())
 		{
@@ -1083,8 +1196,18 @@ void UAshlinePresentationLibrary::ApplyClothingPart(ACharacter* Character, EAshl
 	{
 		Comp->SetMaterial(0, Override);
 	}
-	else if (UMaterialInstanceDynamic* MID = MakeTintedMaterial(Character, EAshlineSurface::Plastic, Tint))
+	else
 	{
-		Comp->SetMaterial(0, MID);
+		UMaterialInterface* Base = GetMasterCharacterMaterial();
+		if (!Base)
+		{
+			Base = GetSurfaceMaterial(EAshlineSurface::Plastic);
+		}
+		if (Base)
+		{
+			UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(Base, Character);
+			ApplyMaterialParams(MID, DefaultParamsForCosmeticSlot(Slot, Tint));
+			Comp->SetMaterial(0, MID);
+		}
 	}
 }

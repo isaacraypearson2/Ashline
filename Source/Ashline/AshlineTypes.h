@@ -575,6 +575,18 @@ struct FAshlineMaterialParams
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
 	FLinearColor EmissiveColor = FLinearColor::Black;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	float NormalStrength = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	float AmbientOcclusion = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	float ClearCoat = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	float UVTiling = 1.f;
 };
 
 USTRUCT(BlueprintType)
