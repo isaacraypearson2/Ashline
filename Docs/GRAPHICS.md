@@ -1,40 +1,54 @@
 # Ashline graphics (UE 5.8.2)
 
-`UAshlineGraphicsSettings` is the single runtime path. It is **not** Apple-only.
+`UAshlineGraphicsSettings` is the single runtime path. Windows DX12 is primary. Steam Deck / Proton is a first-class **scalability** target now (native 800p, FSR, 30/40/60 caps); a Linux cook comes later.
 
-On **Windows** it probes DX12 / `GRHISupportsRayTracing` / FSR3 CVars / optional DLSS CVars, then applies a named preset.
+On **Windows** it probes DX12 / `GRHISupportsRayTracing` / FSR3 CVars / GPU brand / RAM / `STEAMDECK=1`, then applies a named preset.
 
 On **Apple** it still asks `IAshlineMetalFX` for MetalFX + RT and refuses to force RT when the RHI reports no device.
 
 ## Named presets
 
-| Preset | Who it's for | Screen % | Upscaler | RT | Notes |
-| --- | --- | --- | --- | --- | --- |
-| `Ashline_PC_Ultra` | 9070 GRE @ 1440p high-refresh | 77 (FSR3) / 85 (TSR) | FSR3 → TSR | On if supported | Default on Windows. Pool 5600. VSync off. `t.MaxFPS=0`. RT shadows + skylight + skeletal RT geo. |
-| `Ashline_PC_Balanced` | Same PC, extra headroom | 59 / 70 | FSR3 Balanced → TSR | On if supported | Cheaper Lumen gather, pool 3800. |
-| `Ashline_PC_Perf` | High-end max fps | 50 / 59 | FSR3 Performance → TSR | Lumen RT, **no RT shadows** | Pool 3200. Scalability High. |
-| `Ashline_SteamDeck` | Steam Deck / handheld | 59 / 67 | FSR3 Balanced → TSR | Off | 1280×800 intent, VSync on, 60 fps, pool 1800. |
-| Epic / Cinematic | Generic | 100 | TSR | Off unless asked | Scalability 3 |
-| High / Medium / Low | Laptops / Mac / min-spec PC | 100–50 | MetalFX or TSR / FSR3 | Off | Mac default is High. `AshPCLow` / `AshPCMed`. Skin cache off on Low. |
+| Preset | Who it's for | Native res | Screen % (FSR3 / TSR) | RT | Cap | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| `Ashline_PC_Ultra` | 9070 GRE class @ 1440p | 2560×1440 | 77 / 85 | On if supported | Uncapped | Default Windows desktop. Pool 5600. VSync off. |
+| `Ashline_PC_High` | Mid discrete (8 GB class) | 1440p/1080p | 67 / 77 | On if supported | Uncapped | Pool 4200, cheaper VSM/Lumen. |
+| `Ashline_PC_Balanced` | Same PC, extra headroom | 1440p | 59 / 70 | On if supported | Uncapped | Cheaper Lumen gather, pool 3800. |
+| `Ashline_PC_Performance` | 6 GB / last-gen | 1080p-class | 50 / 59 | Off | 60 | Software Lumen, pool 2200. |
+| `Ashline_SteamDeck` | Deck LCD/OLED, Proton later | **1280×800** | 59 / 67 | Off | **40** | Aggressive Nanite/VSM/Lumen, HUD safe zone 7%. `AshFPS 30/40/60`. |
+| `Ashline_Laptop` | iGPU / Intel / AMD APU | panel | 59 / 67 | Off | 60 | Pool 1400. |
+| Epic / Cinematic | Generic | 100 | TSR | Off unless asked | — | Scalability 3 |
+| High / Medium / Low | Mac / leftover | 100–67 | MetalFX or TSR | Off | — | Mac default is High |
 
-Console:
+Auto-detect (`AshGfxAuto`, default on first run):
+
+1. `STEAMDECK=1`, Van Gogh / Sephiroth / Jupiter / Galileo → **SteamDeck**
+2. Intel UHD/Iris or AMD “Radeon Graphics” without RX → **Laptop**
+3. 9070 / 7900 / 4080 / 4090-class + ≥16 GB RAM → **Ultra**
+4. 7800 / 4070 / 3080-class → **High**
+5. <12 GB RAM → **Performance**
+6. Else Windows → **Ultra** (Isaac's playtest box)
+
+Saved override: any `AshPC*` command sets `bAutoDetectPreset=false`. `AshGfxAuto` turns it back on.
+
+Console / pause:
 
 ```
 AshPCUltra
+AshPCHigh
 AshPCBalanced
 AshPCPerf
 AshSteamDeck
-AshPCLow
-AshPCMed
+AshLaptop
+AshGfxAuto
+AshGfxCycle          ; also F8 / gamepad Select
+AshFPS 30|40|60|0
 ```
 
-(or execs on the player controller with the same names)
-
-Skin cache: `r.SkinCache.CompileShaders=1`, `r.SkinCache.Mode` 1 except Low (0).
+DeviceProfiles live in `Config/DefaultDeviceProfiles.ini` (named profiles parent to **Windows** or **Linux**, never to themselves). Runtime CVars from `UAshlineGraphicsSettings` win after boot. Do **not** edit `BaseProfileName` on the Windows/Mac/IOS platform profiles.
 
 ## 9070 GRE CVar sheet (`Ashline_PC_Ultra`)
 
-Applied from code (`ApplyNamedPCPreset`) and mirrored in `Config/Windows/WindowsEngine.ini`:
+Applied from code (`ApplyNamedMachinePreset`) and mirrored in `Config/Windows/WindowsEngine.ini`:
 
 ```
 r.VSync=0
@@ -64,6 +78,8 @@ r.AmbientOcclusionLevels=2
 r.MotionBlurQuality=0
 r.Tonemapper.Sharpen=0.45
 foliage.DensityScale=1.0
+r.SkinCache.CompileShaders=1
+r.SkinCache.Mode=1
 
 ; FSR 3 (plugin present)
 r.FidelityFX.FSR3.Enabled=1
@@ -74,9 +90,28 @@ r.FidelityFX.FI.Enabled=0             ; frame gen off by default
 r.NGX.DLSS.Enable=0
 ```
 
+## Steam Deck CVar sheet (`Ashline_SteamDeck`)
+
+Mirrored in `Config/Linux/LinuxEngine.ini` for Proton later. Runtime applies this on `STEAMDECK=1` even on a Windows test (`AshSteamDeck`).
+
+```
+1280x800 fullscreen, VSync on, t.MaxFPS=40 (AshFPS 30 or 60 for battery/performance)
+r.ScreenPercentage=59                 ; FSR Balanced
+r.Nanite.MaxPixelsPerEdge=4
+r.Shadow.Virtual.MaxQuality=1
+r.Shadow.Virtual.SMRT.RayCountDirectional=2
+r.Lumen.ScreenProbeGather.DownsampleFactor=32
+r.Lumen.TraceMeshSDFs=0
+r.RayTracing=0
+r.Streaming.PoolSize=1800
+r.ViewDistanceScale=0.65
+foliage.DensityScale=0.35
+HUD SafeZoneScale=0.07
+```
+
 `UAshlineGraphicsSettings::SetFrameGeneration(true)` sets `r.FidelityFX.FI.Enabled=1` when that CVar exists.
 
-Phase 2 import + 1440p Ultra notes after Megascans/MetaHuman land: **`Docs/PHASE2_FAB.md`** (Nanite/Lumen/FSR3, pool size, foliage cap).
+Phase 2 import + 1440p Ultra notes after Megascans/MetaHuman land: **`Docs/PHASE2_FAB.md`**.
 
 ## Upscaler order (Windows)
 
@@ -88,4 +123,4 @@ MetalFX modes are ignored on Windows.
 
 ## Hardware RT
 
-Gated on `GRHISupportsRayTracing`. RDNA4 should report RT on DX12. If a driver/OS combo does not, Ultra still runs Lumen software traces and logs a warning. We do **not** force `r.RayTracing=1` in `DefaultEngine.ini` so Mac stays safe; `Config/Windows/WindowsEngine.ini` opts in for Win64.
+Gated on `GRHISupportsRayTracing`. RDNA4 should report RT on DX12. Ultra/High may enable it; Performance / Deck / Laptop never force it. If a driver/OS combo does not report RT, Ultra still runs Lumen software traces and logs a warning. We do **not** force `r.RayTracing=1` in `DefaultEngine.ini` so Mac stays safe; `Config/Windows/WindowsEngine.ini` opts in for Win64.

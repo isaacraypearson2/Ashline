@@ -123,26 +123,26 @@ TArray<FName> UAshlineWeaponCatalog::DefaultKit(EAshlineWeaponClass Class)
 		}
 	};
 
-	Add({ TEXT("LSR_PEQ"), TEXT("LSR_5MW"), TEXT("AMMO_FMJ"), TEXT("AMMO_AP"), TEXT("AMMO_HP"), TEXT("AMMO_TRACER") });
+	Add({ TEXT("LSR_PEQ"), TEXT("LSR_5MW"), TEXT("LSR_IR"), TEXT("AMMO_FMJ"), TEXT("AMMO_AP"), TEXT("AMMO_HP"), TEXT("AMMO_TRACER") });
 
 	switch (Class)
 	{
 	case EAshlineWeaponClass::AssaultRifle:
-		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_IRON"), TEXT("OPT_ACOG"), TEXT("OPT_4X"), TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("MUZ_BRAKE"), TEXT("MUZ_FLASH"),
-			TEXT("UB_GRIP"), TEXT("UB_ANGLED"), TEXT("UB_LITE"), TEXT("MAG_60"), TEXT("MAG_FAST"), TEXT("MAG_SHORT"), TEXT("STK_SOPMOD"), TEXT("STK_PRECISION"), TEXT("STK_NOSTOCK") });
+		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_IRON"), TEXT("OPT_ACOG"), TEXT("OPT_4X"), TEXT("OPT_NV"), TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("MUZ_BRAKE"), TEXT("MUZ_FLASH"),
+			TEXT("UB_GRIP"), TEXT("UB_ANGLED"), TEXT("UB_LITE"), TEXT("MAG_60"), TEXT("MAG_FAST"), TEXT("MAG_SHORT"), TEXT("STK_SOPMOD"), TEXT("STK_PRECISION"), TEXT("STK_NOSTOCK"), TEXT("STK_FOLD") });
 		break;
 	case EAshlineWeaponClass::SMG:
 		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_IRON"), TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("UB_GRIP"), TEXT("UB_ANGLED"), TEXT("UB_LITE"),
-			TEXT("MAG_EXT_SMG"), TEXT("MAG_DRUM"), TEXT("MAG_SHORT"), TEXT("STK_WIRE"), TEXT("STK_SOPMOD"), TEXT("STK_NOSTOCK") });
+			TEXT("MAG_EXT_SMG"), TEXT("MAG_DRUM"), TEXT("MAG_SHORT"), TEXT("STK_WIRE"), TEXT("STK_SOPMOD"), TEXT("STK_NOSTOCK"), TEXT("STK_FOLD"), TEXT("AMMO_SUB") });
 		break;
 	case EAshlineWeaponClass::Sniper:
-		Add({ TEXT("OPT_8X"), TEXT("OPT_12X"), TEXT("OPT_THERM"), TEXT("MUZ_SUP_SN"), TEXT("MUZ_BRAKE"), TEXT("STK_PRECISION"), TEXT("UB_BIPOD"), TEXT("LSR_PEQ") });
+		Add({ TEXT("OPT_8X"), TEXT("OPT_12X"), TEXT("OPT_THERM"), TEXT("OPT_NV"), TEXT("MUZ_SUP_SN"), TEXT("MUZ_BRAKE"), TEXT("STK_PRECISION"), TEXT("UB_BIPOD"), TEXT("LSR_PEQ") });
 		break;
 	case EAshlineWeaponClass::Shotgun:
 		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("MUZ_CHOKE"), TEXT("UB_LITE"), TEXT("STK_BREACH"), TEXT("AMMO_SLUG"), TEXT("AMMO_BUCK") });
 		break;
 	case EAshlineWeaponClass::Sidearm:
-		Add({ TEXT("OPT_RMR"), TEXT("MUZ_SUP_P"), TEXT("MAG_EXT_P"), TEXT("LSR_5MW"), TEXT("AMMO_FMJ"), TEXT("AMMO_HP") });
+		Add({ TEXT("OPT_RMR"), TEXT("MUZ_SUP_P"), TEXT("MAG_EXT_P"), TEXT("LSR_5MW"), TEXT("AMMO_FMJ"), TEXT("AMMO_HP"), TEXT("AMMO_SUB") });
 		break;
 	case EAshlineWeaponClass::DMR:
 		Add({ TEXT("OPT_ACOG"), TEXT("OPT_4X"), TEXT("OPT_8X"), TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("UB_GRIP"), TEXT("MAG_DMR25"), TEXT("STK_PRECISION") });
@@ -154,6 +154,14 @@ TArray<FName> UAshlineWeaponCatalog::DefaultKit(EAshlineWeaponClass Class)
 		Add({ TEXT("OPT_RED"), TEXT("AMMO_HE"), TEXT("AMMO_FMJ") });
 		break;
 	case EAshlineWeaponClass::Melee:
+		break;
+	case EAshlineWeaponClass::BattleRifle:
+		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_ACOG"), TEXT("OPT_4X"), TEXT("MUZ_BRAKE"), TEXT("MUZ_COMP"), TEXT("MUZ_HEAVY"), TEXT("MUZ_SUP"),
+			TEXT("UB_GRIP"), TEXT("STK_HEAVY"), TEXT("STK_PRECISION"), TEXT("STK_SOPMOD"), TEXT("MAG_DMR25"), TEXT("AMMO_AP") });
+		break;
+	case EAshlineWeaponClass::PDW:
+		Add({ TEXT("OPT_RED"), TEXT("OPT_HOLO"), TEXT("OPT_IRON"), TEXT("MUZ_SUP"), TEXT("MUZ_COMP"), TEXT("UB_LITE"), TEXT("UB_GRIP"),
+			TEXT("MAG_EXT_SMG"), TEXT("STK_WIRE"), TEXT("STK_NOSTOCK"), TEXT("AMMO_SUB"), TEXT("AMMO_TRACER") });
 		break;
 	default:
 		break;
@@ -356,6 +364,47 @@ void UAshlineWeaponCatalog::ApplyClassGunfeel(FAshlineWeaponDefinition& Weapon)
 		Pattern({ {0.4f, 0.05f} });
 		Weapon.CollectionId = TEXT("SET_MELEE");
 		break;
+	case EAshlineWeaponClass::BattleRifle:
+		Weapon.SupportedFireModes = { EAshlineFireMode::Semi, EAshlineFireMode::Burst, EAshlineFireMode::Auto };
+		S.FireMode = EAshlineFireMode::Semi;
+		S.bAutomatic = false;
+		S.BurstCount = 3;
+		S.ADSTimeSeconds = 0.26f;
+		S.ADSFov = 54.f;
+		S.FalloffStartMeters = 55.f;
+		S.FalloffEndMeters = 420.f;
+		S.MinDamageMul = 0.64f;
+		S.SwayHipDegrees = 0.7f;
+		S.SwayAdsDegrees = 0.16f;
+		S.ArmorPenetration = 0.58f;
+		S.HeadshotMultiplier = 1.9f;
+		S.PelletCount = 1;
+		S.RecoilRecoveryPerSecond = 7.8f;
+		S.RecoilFirstShotMul = 1.22f;
+		S.RecoilAdsMul = 0.5f;
+		S.MovementSpreadMul = 1.35f;
+		Pattern({ {1.72f, 0.08f}, {1.55f, -0.16f}, {1.4f, 0.2f}, {1.28f, -0.12f}, {1.18f, 0.14f} });
+		Weapon.CollectionId = TEXT("SET_BATTLE");
+		break;
+	case EAshlineWeaponClass::PDW:
+		Weapon.SupportedFireModes = { EAshlineFireMode::Auto, EAshlineFireMode::Semi };
+		S.FireMode = EAshlineFireMode::Auto;
+		S.bAutomatic = true;
+		S.ADSTimeSeconds = 0.15f;
+		S.ADSFov = 70.f;
+		S.FalloffStartMeters = 16.f;
+		S.FalloffEndMeters = 85.f;
+		S.MinDamageMul = 0.4f;
+		S.SwayHipDegrees = 0.38f;
+		S.SwayAdsDegrees = 0.09f;
+		S.ArmorPenetration = 0.28f;
+		S.HeadshotMultiplier = 1.5f;
+		S.RecoilRecoveryPerSecond = 15.f;
+		S.RecoilAdsMul = 0.62f;
+		S.MovementSpreadMul = 1.08f;
+		Pattern({ {0.58f, 0.22f}, {0.54f, -0.3f}, {0.5f, 0.28f}, {0.48f, -0.18f}, {0.46f, 0.2f} });
+		Weapon.CollectionId = TEXT("SET_CQB");
+		break;
 	default:
 		Weapon.SupportedFireModes = { S.FireMode };
 		break;
@@ -372,7 +421,7 @@ TArray<FAshlineWeaponDefinition> UAshlineWeaponCatalog::BuildRoster()
 	using namespace AshlineWeapons;
 
 	TArray<FAshlineWeaponDefinition> Roster;
-	Roster.Reserve(40);
+	Roster.Reserve(56);
 
 	auto WithKit = [](FAshlineWeaponDefinition Def, EAshlineWeaponClass Class, std::initializer_list<const TCHAR*> Extra) -> FAshlineWeaponDefinition
 	{
@@ -576,6 +625,58 @@ TArray<FAshlineWeaponDefinition> UAshlineWeaponCatalog::BuildRoster()
 		{}, TEXT("Heavier swing. Slightly longer reach, slower recovery."), 600, 0),
 		EAshlineWeaponClass::Melee, {}));
 
+	Roster.Add(WithKit(W(TEXT("WPN_AR_M4C"), TEXT("M4-C Carbine"), EAshlineWeaponClass::AssaultRifle,
+		S(24.f, 790.f, 30, 180, 330.f, 1.02f, 0.4f, 2.1f, 2.15f, 0.34f, true), 4,
+		{}, TEXT("Issue carbine cut. Slightly slower than M4-K, tighter first-shot."), 380, 0),
+		EAshlineWeaponClass::AssaultRifle, {}));
+
+	Roster.Add(WithKit(W(TEXT("WPN_AR_G36"), TEXT("G36C"), EAshlineWeaponClass::AssaultRifle,
+		S(25.f, 750.f, 30, 180, 360.f, 1.08f, 0.3f, 2.25f, 2.15f, 0.3f, true), 9,
+		{}, TEXT("Integrated carry-handle 5.56. Clean mid, average CQB."), 720, 0),
+		EAshlineWeaponClass::AssaultRifle, {}));
+
+	Roster.Add(WithKit(W(TEXT("WPN_AR_M16"), TEXT("M16-A4"), EAshlineWeaponClass::AssaultRifle,
+		S(27.f, 800.f, 30, 180, 450.f, 1.22f, 0.22f, 2.45f, 2.5f, 0.26f, false), 11,
+		{}, TEXT("Burst specialist. Long barrel, first-burst laser."), 850, 0),
+		EAshlineWeaponClass::AssaultRifle, {}));
+	Roster.Last().SupportedFireModes = { EAshlineFireMode::Burst, EAshlineFireMode::Semi };
+	Roster.Last().BaseStats.FireMode = EAshlineFireMode::Burst;
+	Roster.Last().BaseStats.bAutomatic = false;
+	Roster.Last().BaseStats.BurstCount = 3;
+
+	Roster.Add(WithKit(W(TEXT("WPN_BR_FAL"), TEXT("FAL-E Battle Rifle"), EAshlineWeaponClass::BattleRifle,
+		S(38.f, 650.f, 20, 120, 520.f, 1.62f, 0.34f, 2.85f, 2.7f, 0.3f, false), 13,
+		{}, TEXT("7.62 battle rifle. Semi default, burst optional, hard first-shot."), 980, 0),
+		EAshlineWeaponClass::BattleRifle, {}));
+
+	Roster.Add(WithKit(W(TEXT("WPN_BR_G3"), TEXT("G3-A"), EAshlineWeaponClass::BattleRifle,
+		S(40.f, 520.f, 20, 100, 540.f, 1.78f, 0.28f, 2.95f, 2.85f, 0.28f, false), 17,
+		{}, TEXT("Roller-delayed 7.62. Slow cyclic, two-shot potential."), 1100, 0),
+		EAshlineWeaponClass::BattleRifle, {}));
+
+	Roster.Add(WithKit(W(TEXT("WPN_PDW_P90C"), TEXT("P90-C PDW"), EAshlineWeaponClass::PDW,
+		S(16.f, 950.f, 50, 200, 130.f, 0.64f, 0.34f, 2.2f, 1.7f, 0.46f, true), 10,
+		{}, TEXT("Bullpup PDW. Top-load 50, hallway laser, dies at range."), 850, 0),
+		EAshlineWeaponClass::PDW, {}));
+
+	Roster.Add(WithKit(W(TEXT("WPN_SMG_MP7"), TEXT("MP7-A"), EAshlineWeaponClass::SMG,
+		S(17.f, 950.f, 40, 160, 110.f, 0.68f, 0.36f, 1.75f, 1.9f, 0.44f, true), 12,
+		{}, TEXT("PDW-adjacent 4.6. Armor-friendlier than 9mm, tiny mag tax."), 920, 0),
+		EAshlineWeaponClass::SMG, { TEXT("AMMO_AP") }));
+	Roster.Last().BaseStats.ArmorPenetration = 0.34f;
+
+	Roster.Add(WithKit(W(TEXT("WPN_SNP_M82"), TEXT("M82-A"), EAshlineWeaponClass::Sniper,
+		S(92.f, 40.f, 10, 30, 1100.f, 5.2f, 0.22f, 3.8f, 4.6f, 0.22f, false), 28,
+		{}, TEXT("Anti-materiel. One-shot heavies. Glint, sway, prestige-adjacent."), 2400, 0),
+		EAshlineWeaponClass::Sniper, {}));
+	Roster.Last().BaseStats.ArmorPenetration = 0.95f;
+	Roster.Last().BaseStats.HeadshotMultiplier = 2.6f;
+
+	Roster.Add(WithKit(W(TEXT("WPN_PIS_M9"), TEXT("M9-A"), EAshlineWeaponClass::Sidearm,
+		S(20.f, 380.f, 15, 60, 52.f, 1.35f, 0.28f, 1.65f, 2.2f, 0.55f, false), 2,
+		{}, TEXT("Issue 9mm DA/SA. Bigger mag than M17, softer first shot."), 180, 0),
+		EAshlineWeaponClass::Sidearm, {}));
+
 	return Roster;
 }
 
@@ -593,6 +694,7 @@ TArray<FAshlineAttachmentDefinition> UAshlineWeaponCatalog::BuildAttachments()
 	List.Add(A(TEXT("OPT_8X"), TEXT("8x Glass"), EAshlineAttachmentSlot::Optic, 8, D(0, 0, 0, 0, 120.f, 0.1f, 0, 0.1f, 0.8f, -0.03f), 450, TEXT("8x. DMR/sniper default.")));
 	List.Add(A(TEXT("OPT_12X"), TEXT("12x Night Glass"), EAshlineAttachmentSlot::Optic, 12, D(0, 0, 0, 0, 200.f, 0.15f, 0, 0.15f, 1.2f, -0.02f), 700, TEXT("12x. Glint risk, max range.")));
 	List.Add(A(TEXT("OPT_THERM"), TEXT("Thermal 4x"), EAshlineAttachmentSlot::Optic, 18, D(0, 0, 0, 0, 60.f, 0.08f, 0, 0.12f, 0.4f, -0.05f), 1200, TEXT("Thermal overlay. Heavy, prestige-adjacent cost.")));
+	List.Add(A(TEXT("OPT_NV"), TEXT("NV 1x"), EAshlineAttachmentSlot::Optic, 16, D(0, 0, 0, 0, 10.f, 0.04f, 0, 0.06f, 0.12f, -0.03f), 900, TEXT("Night vision reflex. Night Glass / Catacomb.")));
 
 	List.Add(A(TEXT("MUZ_SUP"), TEXT("Rifle Suppressor"), EAshlineAttachmentSlot::Muzzle, 3, D(-1.f, 0, 0, 0, -20.f, -0.15f, -0.05f, 0, -0.1f, -0.02f), 220, TEXT("Hides flash. Slight velocity loss.")));
 	List.Add(A(TEXT("MUZ_SUP_SN"), TEXT("Long Suppressor"), EAshlineAttachmentSlot::Muzzle, 8, D(-2.f, 0, 0, 0, -40.f, -0.2f, 0, 0.1f, 0, 0), 360, TEXT("Sniper can. Adds ADS time.")));
@@ -624,9 +726,11 @@ TArray<FAshlineAttachmentDefinition> UAshlineWeaponCatalog::BuildAttachments()
 	List.Add(A(TEXT("STK_BREACH"), TEXT("Breacher Stock"), EAshlineAttachmentSlot::Stock, 5, D(0, 0, 0, 0, 0, -0.3f, 0, -0.05f, -0.2f, 0), 200, TEXT("Shotgun CQB stock.")));
 	List.Add(A(TEXT("STK_HEAVY"), TEXT("Heavy Stock"), EAshlineAttachmentSlot::Stock, 9, D(0, -20.f, 0, 0, 10.f, -0.22f, -0.12f, 0.15f, 0.15f, -0.04f), 260, TEXT("LMG ballast.")));
 	List.Add(A(TEXT("STK_NOSTOCK"), TEXT("No Stock"), EAshlineAttachmentSlot::Stock, 6, D(0, 40.f, 0, 0, -20.f, 0.22f, 0.18f, -0.15f, -0.15f, 0.08f), 120, TEXT("CQB. ADS snap, recoil tax.")));
+	List.Add(A(TEXT("STK_FOLD"), TEXT("Folding Stock"), EAshlineAttachmentSlot::Stock, 5, D(0, 25.f, 0, 0, -10.f, 0.1f, 0.08f, -0.08f, -0.1f, 0.04f), 160, TEXT("Fold. Faster ADS, a little more bounce.")));
 
 	List.Add(A(TEXT("LSR_PEQ"), TEXT("PEQ Laser"), EAshlineAttachmentSlot::Laser, 2, D(0, 0, 0, 0, 0, 0, 0, 0, -0.35f, -0.02f), 160, TEXT("Hip-fire laser. Night IR slot.")));
 	List.Add(A(TEXT("LSR_5MW"), TEXT("5mW Laser"), EAshlineAttachmentSlot::Laser, 5, D(0, 0, 0, 0, 0, 0, 0, 0, -0.5f, 0.02f), 220, TEXT("Visible laser. Stronger hip, ADS clutter.")));
+	List.Add(A(TEXT("LSR_IR"), TEXT("IR Laser"), EAshlineAttachmentSlot::Laser, 8, D(0, 0, 0, 0, 0, 0, 0, 0, -0.28f, -0.04f), 280, TEXT("IR-only. NV / night ops hip help, no visible bloom.")));
 
 	FAshlineWeaponStats AmmoFMJ;
 	List.Add(A(TEXT("AMMO_FMJ"), TEXT("FMJ"), EAshlineAttachmentSlot::Ammunition, 1, AmmoFMJ, 0, TEXT("Default ball. Balanced pen and flesh.")));
@@ -661,6 +765,15 @@ TArray<FAshlineAttachmentDefinition> UAshlineWeaponCatalog::BuildAttachments()
 	AmmoHE.RangeMeters = -30.f;
 	AmmoHE.HipFireSpread = 0.2f;
 	List.Add(A(TEXT("AMMO_HE"), TEXT("HE Warhead"), EAshlineAttachmentSlot::Ammunition, 14, AmmoHE, 400, TEXT("Launcher HE. More blast, less range.")));
+	FAshlineWeaponStats AmmoSub;
+	AmmoSub.Damage = -2.f;
+	AmmoSub.FireRateRPM = -20.f;
+	AmmoSub.RangeMeters = -20.f;
+	AmmoSub.RecoilPitch = -0.12f;
+	AmmoSub.RecoilYaw = -0.05f;
+	AmmoSub.ArmorPenetration = -0.08f;
+	AmmoSub.FalloffStartMeters = -8.f;
+	List.Add(A(TEXT("AMMO_SUB"), TEXT("Subsonic"), EAshlineAttachmentSlot::Ammunition, 6, AmmoSub, 200, TEXT("Subsonic. Quiet with a can. Recoil down, range tax.")));
 
 	return List;
 }
@@ -737,6 +850,7 @@ FAshlineWeaponStats UAshlineWeaponCatalog::ComposeStats(const FAshlineWeaponDefi
 			else if (Attachment.AttachmentId == TEXT("AMMO_SLUG")) { Ammo = EAshlineAmmoType::Slug; }
 			else if (Attachment.AttachmentId == TEXT("AMMO_BUCK")) { Ammo = EAshlineAmmoType::Buckshot; }
 			else if (Attachment.AttachmentId == TEXT("AMMO_HE")) { Ammo = EAshlineAmmoType::HE; }
+			else if (Attachment.AttachmentId == TEXT("AMMO_SUB")) { Ammo = EAshlineAmmoType::Subsonic; }
 			else { Ammo = EAshlineAmmoType::FMJ; }
 		}
 	}
@@ -810,9 +924,11 @@ int32 UAshlineWeaponCatalog::UpgradeCostForClass(EAshlineWeaponClass Class, int3
 	switch (Class)
 	{
 	case EAshlineWeaponClass::Sidearm: Base = 150; Step = 180; break;
-	case EAshlineWeaponClass::SMG: Base = 200; Step = 240; break;
+	case EAshlineWeaponClass::SMG:
+	case EAshlineWeaponClass::PDW: Base = 200; Step = 240; break;
 	case EAshlineWeaponClass::Shotgun: Base = 220; Step = 260; break;
-	case EAshlineWeaponClass::DMR: Base = 320; Step = 340; break;
+	case EAshlineWeaponClass::DMR:
+	case EAshlineWeaponClass::BattleRifle: Base = 320; Step = 340; break;
 	case EAshlineWeaponClass::Sniper:
 	case EAshlineWeaponClass::LMG:
 	case EAshlineWeaponClass::Launcher: Base = 400; Step = 420; break;
@@ -848,6 +964,7 @@ FString UAshlineWeaponCatalog::AmmoTypeName(EAshlineAmmoType Type)
 	case EAshlineAmmoType::Slug: return TEXT("SLUG");
 	case EAshlineAmmoType::Buckshot: return TEXT("BUCK");
 	case EAshlineAmmoType::HE: return TEXT("HE");
+	case EAshlineAmmoType::Subsonic: return TEXT("SUB");
 	default: return TEXT("FMJ");
 	}
 }

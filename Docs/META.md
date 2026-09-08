@@ -12,7 +12,7 @@ Save: slot `AshlineCampaign`, version **2.0.0** (`UAshlineSaveGame::MigrateIfNee
 | --- | --- | --- |
 | Credits / mission payout / upgrade costs | Saved, awarded, spent | UMG storefront |
 | Rank 1–50 curve + rank grants | `GrantXP` uses the table | Rank-up fanfare |
-| Operator slots (helmet, vest, pants, gloves, boots, camo, face, voice, charm) | Owned + equipped in save | MetaHuman wardrobe meshes |
+| Operator slots (helmet, vest, pants, gloves, boots, camo, face, voice, charm, **headset**, **backpack**) | Owned + equipped in save | MetaHuman wardrobe meshes |
 | Weapon skins (universal + per-gun) | Owned + equipped; tint applied to FPS gun | Fab material / unique meshes |
 | Prestige at rank 50 | Resets rank, keeps locker, grants gilt + prestige camo + spine charm | Prestige emblem art |
 | Play-earned crates | Tokens → rarity roll → cosmetic / skin / equipment id | Crate VFX |

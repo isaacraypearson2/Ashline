@@ -135,6 +135,30 @@ UMaterialInterface* UAshlinePresentationLibrary::GetSurfaceMaterial(EAshlineSurf
 			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
 			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
 		});
+	case EAshlineSurface::Dirt:
+		return LoadMaterial({
+			TEXT("/Game/StarterContent/Materials/M_Ground_Gravel.M_Ground_Gravel"),
+			TEXT("/Game/StarterContent/Materials/M_Ground_Moss.M_Ground_Moss"),
+			TEXT("/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"),
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+		});
+	case EAshlineSurface::Glass:
+		return LoadMaterial({
+			TEXT("/Game/StarterContent/Materials/M_Glass.M_Glass"),
+			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+		});
+	case EAshlineSurface::Asphalt:
+		return LoadMaterial({
+			TEXT("/Game/StarterContent/Materials/M_Concrete_Tiles.M_Concrete_Tiles"),
+			TEXT("/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"),
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+		});
+	case EAshlineSurface::Skin:
+		return LoadMaterial({
+			TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
+			TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+		});
 	case EAshlineSurface::Emissive:
 		return LoadMaterial({
 			TEXT("/Engine/EngineMaterials/EmissiveMeshMaterial.EmissiveMeshMaterial"),
@@ -811,6 +835,10 @@ FAshlineMaterialParams UAshlinePresentationLibrary::DefaultParamsForSurface(EAsh
 	case EAshlineSurface::Foliage: P.Roughness = 0.78f; P.Tint = FLinearColor(0.16f, 0.28f, 0.1f); break;
 	case EAshlineSurface::Emissive: P.Emissive = 4.f; P.EmissiveColor = FLinearColor(1.f, 0.25f, 0.08f); P.Roughness = 0.2f; break;
 	case EAshlineSurface::Plastic: P.Roughness = 0.4f; P.Metallic = 0.05f; P.Specular = 0.45f; break;
+	case EAshlineSurface::Dirt: P.Roughness = 0.88f; P.Metallic = 0.02f; P.Tint = FLinearColor(0.28f, 0.2f, 0.1f); break;
+	case EAshlineSurface::Glass: P.Roughness = 0.06f; P.Metallic = 0.02f; P.Specular = 0.95f; P.Tint = FLinearColor(0.55f, 0.62f, 0.7f); break;
+	case EAshlineSurface::Asphalt: P.Roughness = 0.8f; P.Metallic = 0.08f; P.Tint = FLinearColor(0.12f, 0.12f, 0.13f); break;
+	case EAshlineSurface::Skin: P.Roughness = 0.55f; P.Metallic = 0.02f; P.Specular = 0.35f; P.Tint = FLinearColor(0.45f, 0.34f, 0.26f); break;
 	default: break;
 	}
 	return P;
@@ -830,6 +858,8 @@ FAshlineMaterialParams UAshlinePresentationLibrary::DefaultParamsForWeaponClass(
 	case EAshlineWeaponClass::Shotgun: P.Roughness = 0.4f; P.Metallic = 0.65f; break;
 	case EAshlineWeaponClass::Launcher: P.Roughness = 0.5f; P.Metallic = 0.55f; P.Tint = FLinearColor(0.14f, 0.16f, 0.1f); break;
 	case EAshlineWeaponClass::Melee: P.Roughness = 0.3f; P.Metallic = 0.88f; break;
+	case EAshlineWeaponClass::BattleRifle: P.Roughness = 0.38f; P.Metallic = 0.78f; P.Tint = FLinearColor(0.1f, 0.1f, 0.09f); break;
+	case EAshlineWeaponClass::PDW: P.Roughness = 0.28f; P.Metallic = 0.72f; P.Tint = FLinearColor(0.07f, 0.08f, 0.09f); break;
 	default: break;
 	}
 	return P;
@@ -925,6 +955,8 @@ FName UAshlinePresentationLibrary::ClothingComponentName(EAshlineCosmeticSlot Sl
 	case EAshlineCosmeticSlot::Boots: return TEXT("AshlineCloth_Boots");
 	case EAshlineCosmeticSlot::Face: return TEXT("AshlineCloth_Face");
 	case EAshlineCosmeticSlot::Charm: return TEXT("AshlineCloth_Charm");
+	case EAshlineCosmeticSlot::Headset: return TEXT("AshlineCloth_Headset");
+	case EAshlineCosmeticSlot::Backpack: return TEXT("AshlineCloth_Backpack");
 	default: return TEXT("AshlineCloth_Other");
 	}
 }

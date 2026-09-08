@@ -42,6 +42,10 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 - [ ] `AshUnlockMeta` owns the catalog; prestige-gated gilt stays locked until prestige
 - [ ] `AshSetRank 50` then `AshPrestige` grants/equips `CAMO_PRESTIGE`, `SKIN_GOLD`, `CHARM_SPINE`; rank returns to 1. Second prestige grants diamond set.
 - [ ] `AshBuyWeapon WPN_AR_M4K` spends credits; service guns (cost 0) still auto-grant on rank.
+- [ ] **B** cycles ASH-16 AUTO → BURST → SEMI; HUD shows `SEMI/FMJ` (or current ammo)
+- [ ] `AshBuyWeapon WPN_BR_FAL` / `AshBuyWeapon WPN_PDW_P90C` after rank
+- [ ] `AshEquipCosmetic Headset HEAD_COMTAC` / `AshEquipCosmetic Backpack PACK_ASSAULT`
+- [ ] **F8** / `AshGfxCycle` walks Ultra → High → Balanced → Perf → Deck → Laptop
 - [ ] `AshBuyEquipment EQ_SEMTEX` + `AshEquipEquipment Lethal EQ_SEMTEX` shows on frontend.
 - [ ] Weapon upgrade spends credits (`UpgradeWeapon` / armory path)
 - [ ] 1.x save slot migrates to 2.0.0 without wiping missions; 2.x saves pick up starter equipment

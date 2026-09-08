@@ -14,7 +14,13 @@ struct FAshlineGraphicsState
 	EAshlineGraphicsPreset Preset = EAshlineGraphicsPreset::PC_Ultra;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Graphics")
+	EAshlineGraphicsPreset RecommendedPreset = EAshlineGraphicsPreset::PC_Ultra;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Graphics")
 	EAshlineUpscaler Upscaler = EAshlineUpscaler::FSR3;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Graphics")
+	EAshlineFrameTarget FrameTarget = EAshlineFrameTarget::Unlimited;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Graphics")
 	bool bMetalFXAvailable = false;
@@ -38,7 +44,25 @@ struct FAshlineGraphicsState
 	bool bWindows = false;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Graphics")
+	bool bSteamDeck = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Graphics")
+	bool bIntegratedGpu = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Graphics")
+	bool bHandheldLayout = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Graphics")
+	bool bAutoDetect = true;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Graphics")
+	float SafeZoneScale = 0.f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Graphics")
 	FString RHIName;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Graphics")
+	FString AdapterName;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ashline|Graphics")
 	FString CapabilityNotes;
@@ -47,6 +71,7 @@ struct FAshlineGraphicsState
 /**
  * Cross-platform graphics path.
  * Windows DX12: Nanite / Lumen / VSM / HW RT / FSR3 (TSR fallback, DLSS optional).
+ * Steam Deck / Proton: 800p FSR, aggressive Nanite/Lumen/VSM cuts, 30/40/60 caps.
  * Apple: MetalFX + capability-gated RT via AshlineApple.
  */
 UCLASS()
@@ -65,7 +90,16 @@ public:
 	void ApplyPreset(EAshlineGraphicsPreset Preset);
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Graphics")
+	void ApplyDetectedPreset();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Graphics")
+	void CycleNamedPreset(int32 Direction = 1);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Graphics")
 	void SetUpscaler(EAshlineUpscaler Upscaler);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Graphics")
+	void SetFrameTarget(EAshlineFrameTarget Target);
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Graphics")
 	bool TryEnableRayTracing(bool bEnable);
@@ -82,22 +116,35 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ashline|Graphics")
 	static FString DescribeTargetHardware();
 
+	UFUNCTION(BlueprintPure, Category = "Ashline|Graphics")
+	EAshlineGraphicsPreset DetectRecommendedPreset() const;
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Graphics")
+	static TArray<EAshlineGraphicsPreset> NamedPresetCycle();
+
 private:
 	void ProbeCapabilities();
 	void ApplyCVars();
-	void ApplyNamedPCPreset(EAshlineGraphicsPreset Preset);
+	void ApplyNamedMachinePreset(EAshlineGraphicsPreset Preset);
 	void ApplyUpscalerCVars();
 	void ApplyRayTracingCVars();
+	void ApplyFrameTargetCVars();
+	void ApplyResolutionForPreset(EAshlineGraphicsPreset Preset);
+	void PersistToUserSettings();
 	static void SetCVarInt(const TCHAR* Name, int32 Value);
 	static void SetCVarFloat(const TCHAR* Name, float Value);
 	static bool HasCVar(const TCHAR* Name);
+	static bool IsSteamDeckHardware();
+	static bool IsIntegratedGpu(const FString& AdapterName);
+	static bool LooksLikeUltraGpu(const FString& AdapterName);
+	static bool LooksLikeMidGpu(const FString& AdapterName);
 
 	void ApplyUltraPreset();
+	void ApplyHighPreset();
 	void ApplyBalancedPreset();
-	void ApplyPerfPreset();
+	void ApplyPerformancePreset();
 	void ApplySteamDeckPreset();
-	void ApplyLowPreset();
-	void ApplyMediumPreset();
+	void ApplyLaptopPreset();
 	void RegisterConsoleCommands();
 	void UnregisterConsoleCommands();
 

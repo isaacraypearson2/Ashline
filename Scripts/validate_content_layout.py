@@ -23,6 +23,8 @@ REQUIRED_DIRS = [
     "Characters/Hero/Parts/Boots",
     "Characters/Hero/Parts/Face",
     "Characters/Hero/Parts/Charm",
+    "Characters/Hero/Parts/Headset",
+    "Characters/Hero/Parts/Backpack",
     "Characters/AI",
     "Characters/MetaHuman",
     "Weapons/Meshes",

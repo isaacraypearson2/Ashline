@@ -14,7 +14,7 @@ AI is the same with `BodyMeshOverride` + per-archetype DataAssets + a tint so ri
 
 When a skeletal mesh is assigned, the cube `GrayboxBody` is hidden.
 
-Equipped operator cosmetics (`Docs/META.md`) tint the hero mesh (or the head/torso/limb blockout) from catalog `PreviewTint`. Catalog `MeshOverride` / `MaterialOverride` are **auto-bound** to `Content/Ashline/Data/ContentBindings.json` paths — when you drop `SK_CAMO_NIGHT` or `M_SKIN_FDE` they resolve with no extra assign. Clothing parts (helmet/vest/pants/gloves/boots) attach if `SM_{Id}` exists under `Characters/Hero/Parts/`. Voice packs are ids only until MetaSounds land. AI archetypes include Grenadier / Elite / Spotter (`Docs/PHASE_OVERNIGHT.md`).
+Equipped operator cosmetics (`Docs/META.md`) tint the hero mesh (or the head/torso/limb blockout) from catalog `PreviewTint`. Catalog `MeshOverride` / `MaterialOverride` are **auto-bound** to `Content/Ashline/Data/ContentBindings.json` paths — when you drop `SK_CAMO_NIGHT` or `M_SKIN_FDE` they resolve with no extra assign. Clothing parts (helmet/vest/pants/gloves/boots/headset/backpack) attach if `SM_{Id}` exists under `Characters/Hero/Parts/`. Voice packs are ids only until MetaSounds land. AI archetypes include Grenadier / Elite / Spotter / RadioOp / CQB (`Docs/PHASE_OVERNIGHT.md`).
 
 Run `Scripts/assign_interim_meshes.py` so hero+AI use Engine / GASP / TP mannequins instead of capsules.
 

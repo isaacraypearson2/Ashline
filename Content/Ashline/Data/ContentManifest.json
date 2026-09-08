@@ -37,7 +37,16 @@
     "WPN_LCH_RPG",
     "WPN_LCH_AT4",
     "WPN_MEL_KNIFE",
-    "WPN_MEL_TOMA"
+    "WPN_MEL_TOMA",
+    "WPN_AR_M4C",
+    "WPN_AR_G36",
+    "WPN_AR_M16",
+    "WPN_BR_FAL",
+    "WPN_BR_G3",
+    "WPN_PDW_P90C",
+    "WPN_SMG_MP7",
+    "WPN_SNP_M82",
+    "WPN_PIS_M9"
   ],
   "kits": [
     "ASH01_WireCut",

@@ -128,6 +128,8 @@ void AAshlinePlayerController::BindMenuKeys()
 	BindPaused(EKeys::Gamepad_DPad_Left, &AAshlinePlayerController::MenuLeft);
 	BindPaused(EKeys::Gamepad_DPad_Right, &AAshlinePlayerController::MenuRight);
 	BindPaused(EKeys::Gamepad_Special_Right, &AAshlinePlayerController::MenuBack);
+	BindPaused(EKeys::F8, &AAshlinePlayerController::AshGfxCycle);
+	BindPaused(EKeys::Gamepad_Special_Left, &AAshlinePlayerController::AshGfxCycle);
 }
 
 void AAshlinePlayerController::MenuUp()
@@ -226,6 +228,17 @@ void AAshlinePlayerController::AshPCUltra()
 	}
 }
 
+void AAshlinePlayerController::AshPCHigh()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->ApplyPreset(EAshlineGraphicsPreset::PC_High);
+		}
+	}
+}
+
 void AAshlinePlayerController::AshPCBalanced()
 {
 	if (UGameInstance* GI = GetGameInstance())
@@ -243,7 +256,7 @@ void AAshlinePlayerController::AshPCPerf()
 	{
 		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
 		{
-			Graphics->ApplyPreset(EAshlineGraphicsPreset::PC_Perf);
+			Graphics->ApplyPreset(EAshlineGraphicsPreset::PC_Performance);
 		}
 	}
 }
@@ -277,6 +290,63 @@ void AAshlinePlayerController::AshPCMed()
 		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
 		{
 			Graphics->ApplyPreset(EAshlineGraphicsPreset::Medium);
+		}
+	}
+}
+
+void AAshlinePlayerController::AshLaptop()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->ApplyPreset(EAshlineGraphicsPreset::Laptop);
+		}
+	}
+}
+
+void AAshlinePlayerController::AshGfxAuto()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->ApplyDetectedPreset();
+		}
+	}
+}
+
+void AAshlinePlayerController::AshGfxCycle()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->CycleNamedPreset(1);
+		}
+	}
+}
+
+void AAshlinePlayerController::AshFPS(int32 Target)
+{
+	EAshlineFrameTarget Frame = EAshlineFrameTarget::Unlimited;
+	if (Target == 30)
+	{
+		Frame = EAshlineFrameTarget::FPS_30;
+	}
+	else if (Target == 40)
+	{
+		Frame = EAshlineFrameTarget::FPS_40;
+	}
+	else if (Target == 60)
+	{
+		Frame = EAshlineFrameTarget::FPS_60;
+	}
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->SetFrameTarget(Frame);
 		}
 	}
 }

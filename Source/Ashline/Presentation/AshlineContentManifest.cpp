@@ -36,6 +36,8 @@ namespace AshlineManifest
 		case EAshlineAIArchetype::Grenadier: return TEXT("Grenadier");
 		case EAshlineAIArchetype::Elite: return TEXT("Elite");
 		case EAshlineAIArchetype::Spotter: return TEXT("Spotter");
+		case EAshlineAIArchetype::RadioOp: return TEXT("RadioOp");
+		case EAshlineAIArchetype::CQBSpecialist: return TEXT("CQB");
 		default: return TEXT("Rifleman");
 		}
 	}
@@ -215,9 +217,9 @@ TArray<FString> UAshlineContentManifest::FoliageMeshCandidates()
 {
 	return {
 		TEXT("/Game/Ashline/Environments/Shared/SM_Bush.SM_Bush"),
+		TEXT("/Engine/BasicShapes/Sphere.Sphere"),
 		TEXT("/Game/StarterContent/Props/SM_Bush.SM_Bush"),
-		TEXT("/Game/StarterContent/Props/SM_Rock.SM_Rock"),
-		TEXT("/Engine/BasicShapes/Sphere.Sphere")
+		TEXT("/Game/StarterContent/Props/SM_Rock.SM_Rock")
 	};
 }
 
@@ -225,8 +227,8 @@ TArray<FString> UAshlineContentManifest::TreeMeshCandidates()
 {
 	return {
 		TEXT("/Game/Ashline/Environments/Shared/SM_Tree.SM_Tree"),
-		TEXT("/Game/StarterContent/Props/SM_Rock.SM_Rock"),
-		TEXT("/Engine/BasicShapes/Cylinder.Cylinder")
+		TEXT("/Engine/BasicShapes/Cylinder.Cylinder"),
+		TEXT("/Game/StarterContent/Props/SM_Rock.SM_Rock")
 	};
 }
 
@@ -242,6 +244,8 @@ FString UAshlineContentManifest::SlotFolderName(EAshlineCosmeticSlot Slot)
 	case EAshlineCosmeticSlot::Camo: return TEXT("Camo");
 	case EAshlineCosmeticSlot::Face: return TEXT("Face");
 	case EAshlineCosmeticSlot::Charm: return TEXT("Charm");
+	case EAshlineCosmeticSlot::Headset: return TEXT("Headset");
+	case EAshlineCosmeticSlot::Backpack: return TEXT("Backpack");
 	default: return TEXT("Other");
 	}
 }
@@ -262,4 +266,36 @@ FString UAshlineContentManifest::EquipmentDataAssetPath(FName EquipmentId)
 {
 	return FString::Printf(TEXT("/Game/Ashline/Data/Kits/DA_EQ_%s.DA_EQ_%s"),
 		*EquipmentId.ToString(), *EquipmentId.ToString());
+}
+
+FString UAshlineContentManifest::SurfaceSlug(EAshlineSurface Surface)
+{
+	switch (Surface)
+	{
+	case EAshlineSurface::Ground: return TEXT("Dirt");
+	case EAshlineSurface::Concrete: return TEXT("Concrete");
+	case EAshlineSurface::Metal: return TEXT("Metal");
+	case EAshlineSurface::Wood: return TEXT("Wood");
+	case EAshlineSurface::Sand: return TEXT("Dirt");
+	case EAshlineSurface::Snow: return TEXT("Snow");
+	case EAshlineSurface::Water: return TEXT("Water");
+	case EAshlineSurface::Foliage: return TEXT("Foliage");
+	case EAshlineSurface::Emissive: return TEXT("Emissive");
+	case EAshlineSurface::Plastic: return TEXT("Plastic");
+	case EAshlineSurface::Dirt: return TEXT("Dirt");
+	case EAshlineSurface::Glass: return TEXT("Glass");
+	case EAshlineSurface::Asphalt: return TEXT("Asphalt");
+	case EAshlineSurface::Skin: return TEXT("Skin");
+	default: return TEXT("Concrete");
+	}
+}
+
+TArray<FString> UAshlineContentManifest::MasterMaterialCandidates(EAshlineSurface Surface)
+{
+	const FString Slug = SurfaceSlug(Surface);
+	return {
+		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/MI_Ashline%s.MI_Ashline%s"), *Slug, *Slug),
+		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/M_Ashline%s.M_Ashline%s"), *Slug, *Slug),
+		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/M_%s.M_%s"), *Slug, *Slug)
+	};
 }

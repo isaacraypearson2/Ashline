@@ -39,6 +39,8 @@ TArray<FAshlineAIArchetypeDef> UAshlineAICatalog::BuildArchetypes()
 	Add(EAshlineAIArchetype::Grenadier, TEXT("Grenadier"), TEXT("UGL / 40mm pressure. Holds mid, flushes cover, rifles between nades."), 105.f, 0.5f, 0.5f, 3000.f, 360.f, TEXT("WPN_AR_M4K"), true, false, FLinearColor(0.24f, 0.16f, 0.08f), TEXT("WPN_AR_ASH16"), 1.05f, 1.25f, 3, false, TEXT("Frag out."), TEXT("Grenadier"));
 	Add(EAshlineAIArchetype::Elite, TEXT("Elite"), TEXT("Campaign closer. High acc, mixed kit, does not panic."), 140.f, 0.72f, 0.32f, 4200.f, 400.f, TEXT("WPN_AR_416C"), false, true, FLinearColor(0.08f, 0.09f, 0.1f), TEXT("WPN_SMG_VEC"), 1.25f, 2.1f, 2, true, TEXT("They're in the wire."), TEXT("Elite"));
 	Add(EAshlineAIArchetype::Spotter, TEXT("Spotter"), TEXT("Pairs with marksman. Laser-designates, SMG if pushed."), 75.f, 0.58f, 0.3f, 6200.f, 410.f, TEXT("WPN_SMG_MPX"), true, true, FLinearColor(0.2f, 0.22f, 0.16f), TEXT("WPN_PIS_M17A"), 0.9f, 0.9f, 0, false, TEXT("Marked."), TEXT("Spotter"));
+	Add(EAshlineAIArchetype::RadioOp, TEXT("Radio Op"), TEXT("Calls QRF. Low aggression until backup, then tightens the net."), 90.f, 0.5f, 0.38f, 4000.f, 400.f, TEXT("WPN_SMG_UMP"), false, true, FLinearColor(0.18f, 0.16f, 0.12f), TEXT("WPN_PIS_M17A"), 0.9f, 1.1f, 1, false, TEXT("QRF inbound."), TEXT("RadioOp"));
+	Add(EAshlineAIArchetype::CQBSpecialist, TEXT("CQB"), TEXT("Room clearer. SMG/shotgun, aggressive peek, poor long range."), 100.f, 0.5f, 0.26f, 1600.f, 450.f, TEXT("WPN_PDW_P90C"), false, true, FLinearColor(0.1f, 0.1f, 0.12f), TEXT("WPN_SMG_VEC"), 1.05f, 1.2f, 1, false, TEXT("Clearing."), TEXT("CQB"));
 
 	return List;
 }

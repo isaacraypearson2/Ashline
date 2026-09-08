@@ -32,6 +32,12 @@ public:
 	TSoftObjectPtr<UNiagaraSystem> MuzzleFX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	TSoftObjectPtr<UNiagaraSystem> ReloadFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	TSoftObjectPtr<UNiagaraSystem> TracerFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
 	TSoftObjectPtr<UParticleSystem> MuzzleCascadeFX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")

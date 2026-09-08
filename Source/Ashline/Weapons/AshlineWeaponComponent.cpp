@@ -532,12 +532,12 @@ void UAshlineWeaponComponent::BuildCompoundPlaceholder()
 	FVector BarrelScale(0.08f, 0.08f, 0.42f);
 	FVector StockScale(0.18f, 0.07f, 0.08f);
 	FVector MagScale(0.08f, 0.05f, 0.14f);
-	if (Class == EAshlineWeaponClass::SMG)
+	if (Class == EAshlineWeaponClass::SMG || Class == EAshlineWeaponClass::PDW)
 	{
 		ReceiverScale = FVector(0.22f, 0.08f, 0.09f);
 		BarrelScale = FVector(0.06f, 0.06f, 0.28f);
 	}
-	else if (Class == EAshlineWeaponClass::Sniper || Class == EAshlineWeaponClass::DMR)
+	else if (Class == EAshlineWeaponClass::Sniper || Class == EAshlineWeaponClass::DMR || Class == EAshlineWeaponClass::BattleRifle)
 	{
 		ReceiverScale = FVector(0.34f, 0.08f, 0.09f);
 		BarrelScale = FVector(0.06f, 0.06f, 0.62f);

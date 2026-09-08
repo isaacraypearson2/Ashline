@@ -10,6 +10,10 @@ void UAshlineGameUserSettings::SetToDefaults()
 	PreferredUpscaler = EAshlineUpscaler::FSR3;
 	TargetResX = 2560;
 	TargetResY = 1440;
+	bAutoDetectPreset = true;
+	FrameTarget = EAshlineFrameTarget::Unlimited;
+	SafeZoneScale = 0.f;
+	bHandheldLayout = false;
 	SetScreenResolution(FIntPoint(TargetResX, TargetResY));
 	SetFullscreenMode(EWindowMode::Fullscreen);
 	SetVSyncEnabled(false);

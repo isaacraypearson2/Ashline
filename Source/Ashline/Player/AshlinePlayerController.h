@@ -38,6 +38,9 @@ public:
 	void AshPCUltra();
 
 	UFUNCTION(Exec)
+	void AshPCHigh();
+
+	UFUNCTION(Exec)
 	void AshPCBalanced();
 
 	UFUNCTION(Exec)
@@ -51,6 +54,18 @@ public:
 
 	UFUNCTION(Exec)
 	void AshPCMed();
+
+	UFUNCTION(Exec)
+	void AshLaptop();
+
+	UFUNCTION(Exec)
+	void AshGfxAuto();
+
+	UFUNCTION(Exec)
+	void AshGfxCycle();
+
+	UFUNCTION(Exec)
+	void AshFPS(int32 Target);
 
 	UFUNCTION(Exec)
 	void AshGrantCredits(int32 Amount);

@@ -143,15 +143,16 @@ void AAshlineHUD::DrawFrontend(AAshlineGameMode* GameMode, UAshlineSaveGame* Sav
 		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
 		{
 			const FAshlineGraphicsState State = Graphics->GetState();
-			PresetLine = FString::Printf(TEXT("Graphics: %s   RHI %s   RT %s   FSR3 %s"),
+			PresetLine = FString::Printf(TEXT("Graphics: %s   RHI %s   RT %s   FSR3 %s   rec %s"),
 				*UAshlineGraphicsSettings::GetPresetDisplayName(State.Preset),
 				*State.RHIName,
 				State.bRayTracingEnabled ? TEXT("ON") : TEXT("off"),
-				State.bFSR3Available ? TEXT("ready") : TEXT("TSR fallback"));
+				State.bFSR3Available ? TEXT("ready") : TEXT("TSR fallback"),
+				*UAshlineGraphicsSettings::GetPresetDisplayName(State.RecommendedPreset));
 		}
 	}
 	DrawTextLine(PresetLine, 48.f, Canvas->SizeY - 44.f, FLinearColor(0.5f, 0.62f, 0.55f));
-	DrawTextLine(TEXT("Console: AshUnlockAll  AshUnlockMeta  AshGrantCredits  AshPrestige  AshBuySkin  AshBuyWeapon  AshBuyEquipment  AshPCUltra / AshPCPerf / AshSteamDeck"), 48.f, Canvas->SizeY - 24.f, FLinearColor(0.45f, 0.5f, 0.45f));
+	DrawTextLine(TEXT("Console: AshUnlockAll  AshUnlockMeta  AshBuyWeapon  AshPCUltra / AshPCHigh / AshPCPerf / AshSteamDeck  AshGfxCycle  AshGfxAuto"), 48.f, Canvas->SizeY - 24.f, FLinearColor(0.45f, 0.5f, 0.45f));
 }
 
 void AAshlineHUD::DrawCombat(AAshlineGameMode* GameMode)
@@ -216,11 +217,51 @@ void AAshlineHUD::DrawPause()
 	DrawTextLine(TEXT("PAUSED"), 48.f, 80.f, FLinearColor(0.95f, 0.86f, 0.55f));
 	DrawTextLine(TEXT("Enter  —  resume"), 48.f, 120.f, FLinearColor::White);
 	DrawTextLine(TEXT("Esc    —  abort to campaign select"), 48.f, 144.f, FLinearColor::White);
+	DrawTextLine(TEXT("F8 / Select  —  cycle graphics (Ultra/High/Balanced/Perf/Deck/Laptop)"), 48.f, 176.f, FLinearColor(0.7f, 0.78f, 0.65f));
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			const FAshlineGraphicsState State = Graphics->GetState();
+			DrawTextLine(FString::Printf(TEXT("Now: %s   Recommended: %s   GPU %s"),
+				*UAshlineGraphicsSettings::GetPresetDisplayName(State.Preset),
+				*UAshlineGraphicsSettings::GetPresetDisplayName(State.RecommendedPreset),
+				*State.AdapterName),
+				48.f, 200.f, FLinearColor(0.55f, 0.7f, 0.6f));
+		}
+	}
 }
 
 void AAshlineHUD::DrawTextLine(const FString& Text, float X, float Y, const FLinearColor& Color)
 {
-	FCanvasTextItem Item(FVector2D(X, Y), FText::FromString(Text), GEngine->GetSmallFont(), Color);
+	float PadX = 0.f;
+	float PadY = 0.f;
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			const FAshlineGraphicsState State = Graphics->GetState();
+			if (Canvas && State.SafeZoneScale > 0.f)
+			{
+				PadX = Canvas->SizeX * State.SafeZoneScale;
+				PadY = Canvas->SizeY * State.SafeZoneScale;
+			}
+		}
+	}
+	float DrawX = X + PadX;
+	float DrawY = Y;
+	if (Canvas)
+	{
+		if (Y > Canvas->SizeY * 0.55f)
+		{
+			DrawY = Y - PadY;
+		}
+		else
+		{
+			DrawY = Y + PadY;
+		}
+	}
+	FCanvasTextItem Item(FVector2D(DrawX, DrawY), FText::FromString(Text), GEngine->GetSmallFont(), Color);
 	Item.EnableShadow(FLinearColor::Black);
 	Canvas->DrawItem(Item);
 }

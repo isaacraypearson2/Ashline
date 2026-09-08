@@ -25,6 +25,8 @@ FOLDERS = [
     "/Game/Ashline/Characters/Hero/Parts/Boots",
     "/Game/Ashline/Characters/Hero/Parts/Face",
     "/Game/Ashline/Characters/Hero/Parts/Charm",
+    "/Game/Ashline/Characters/Hero/Parts/Headset",
+    "/Game/Ashline/Characters/Hero/Parts/Backpack",
     "/Game/Ashline/Characters/AI",
     "/Game/Ashline/Characters/MetaHuman",
     "/Game/Ashline/Weapons/Meshes",
@@ -98,6 +100,15 @@ WEAPONS = [
     "WPN_LCH_AT4",
     "WPN_MEL_KNIFE",
     "WPN_MEL_TOMA",
+    "WPN_AR_M4C",
+    "WPN_AR_G36",
+    "WPN_AR_M16",
+    "WPN_BR_FAL",
+    "WPN_BR_G3",
+    "WPN_PDW_P90C",
+    "WPN_SMG_MP7",
+    "WPN_SNP_M82",
+    "WPN_PIS_M9",
 ]
 
 AI_ARCHETYPES = (
@@ -112,6 +123,8 @@ AI_ARCHETYPES = (
     "Grenadier",
     "Elite",
     "Spotter",
+    "RadioOp",
+    "CQB",
 )
 
 COSMETICS = [
@@ -137,6 +150,8 @@ COSMETICS = [
     "FACE_01",
     "CHARM_WIRE",
     "CHARM_SPINE",
+    "HEAD_COMTAC",
+    "PACK_ASSAULT",
 ]
 
 SKINS = [

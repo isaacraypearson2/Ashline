@@ -8,7 +8,9 @@
 #include "Components/BoxComponent.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/ExponentialHeightFogComponent.h"
+#include "Components/LightComponent.h"
 #include "Components/SkyLightComponent.h"
+#include "Components/SpotLightComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/DecalComponent.h"
 #include "Components/PointLightComponent.h"
@@ -17,19 +19,23 @@
 #include "Engine/DirectionalLight.h"
 #include "Engine/ExponentialHeightFog.h"
 #include "Engine/GameInstance.h"
+#include "Engine/Light.h"
 #include "Engine/PointLight.h"
 #include "Engine/PostProcessVolume.h"
+#include "Engine/SpotLight.h"
 #include "Components/SkyAtmosphereComponent.h"
 #include "Engine/SkyLight.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/PlayerStart.h"
+#include "GameFramework/WorldSettings.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 #include "Presentation/AshlineAudioDirector.h"
 #include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlineEnvironmentKit.h"
+#include "Presentation/AshlineLoad.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Progression/AshlineProgressionSubsystem.h"
 
@@ -49,22 +55,26 @@ void AAshlineGrayboxBuilder::LoadPrimitives()
 {
 	if (!CubeMesh)
 	{
-		CubeMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+		CubeMesh = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	}
 	if (!CylinderMesh)
 	{
-		CylinderMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+		CylinderMesh = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
 	}
 	if (!SphereMesh)
 	{
-		SphereMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Sphere.Sphere"));
+		SphereMesh = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
 	}
 	if (!ShapeMaterial)
 	{
-		ShapeMaterial = UAshlinePresentationLibrary::GetSurfaceMaterial(EAshlineSurface::Concrete);
+		ShapeMaterial = AshlineLoad::Object<UMaterialInterface>(TEXT("/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"));
 		if (!ShapeMaterial)
 		{
-			ShapeMaterial = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+			ShapeMaterial = AshlineLoad::Object<UMaterialInterface>(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+		}
+		if (!ShapeMaterial)
+		{
+			ShapeMaterial = UAshlinePresentationLibrary::GetSurfaceMaterial(EAshlineSurface::Concrete);
 		}
 	}
 }
@@ -97,29 +107,35 @@ void AAshlineGrayboxBuilder::BuildFrontendHub()
 	ActiveMood.GroundTint = FLinearColor(0.16f, 0.15f, 0.12f);
 	SpawnFullAtmosphere();
 
-	Floor(FVector::ZeroVector, FVector2D(4000.f, 4000.f), FLinearColor(0.18f, 0.17f, 0.14f));
-	Box(FVector(0.f, 0.f, 80.f), FVector(8.f, 1.2f, 1.6f), FLinearColor(0.35f, 0.28f, 0.16f));
-	Box(FVector(-400.f, 500.f, 90.f), FVector(2.f, 2.f, 1.8f), FLinearColor(0.22f, 0.24f, 0.2f));
-	Box(FVector(500.f, -350.f, 70.f), FVector(1.6f, 3.f, 1.4f), FLinearColor(0.28f, 0.2f, 0.14f));
-	Cylinder(FVector(0.f, 0.f, 220.f), FVector(0.4f, 0.4f, 2.4f), FLinearColor(0.7f, 0.55f, 0.2f), EAshlineSurface::Metal);
-	Practical(FVector(0.f, 0.f, 380.f), FLinearColor(1.f, 0.78f, 0.4f), 6000.f, 1400.f);
-	Tree(FVector(-700.f, 900.f, 0.f), 380.f);
-	Tree(FVector(800.f, -700.f, 0.f), 320.f);
-	Bush(FVector(300.f, 400.f, 0.f));
+	Floor(FVector::ZeroVector, FVector2D(14000.f, 14000.f), FLinearColor(0.18f, 0.17f, 0.14f));
+	Building(FVector(0.f, 0.f, 0.f), FVector2D(900.f, 280.f), 220.f, FLinearColor(0.35f, 0.28f, 0.16f));
+	Building(FVector(-900.f, 1100.f, 0.f), FVector2D(420.f, 420.f), 260.f, FLinearColor(0.22f, 0.24f, 0.2f));
+	Building(FVector(1100.f, -800.f, 0.f), FVector2D(360.f, 620.f), 200.f, FLinearColor(0.28f, 0.2f, 0.14f));
+	Building(FVector(1600.f, 1400.f, 0.f), FVector2D(500.f, 360.f), 180.f, FLinearColor(0.2f, 0.18f, 0.14f));
+	Cylinder(FVector(0.f, 0.f, 280.f), FVector(0.4f, 0.4f, 3.2f), FLinearColor(0.7f, 0.55f, 0.2f), EAshlineSurface::Metal);
+	Practical(FVector(0.f, 0.f, 480.f), FLinearColor(1.f, 0.78f, 0.4f), 8000.f, 2200.f);
+	Watchtower(FVector(-1800.f, 1600.f, 0.f), 720.f);
+	TreeBelt(FVector(-2400.f, -2200.f, 0.f), FVector(2400.f, -2200.f, 0.f), 8, 360.f);
+	TreeBelt(FVector(-2400.f, 2200.f, 0.f), FVector(2400.f, 2200.f, 0.f), 8, 340.f);
+	Bush(FVector(500.f, 600.f, 0.f));
+	CoverLine(FVector(-600.f, -400.f, 0.f), FVector(600.f, 400.f, 0.f), 5);
 	DecalMark(FVector(0.f, 0.f, 4.f), FRotator(-90.f, 0.f, 0.f), FVector(400.f, 400.f, 20.f));
+	ScatterKitProps(FVector::ZeroVector, 1800.f, 10);
+	ScatterDress(FVector::ZeroVector, 1400.f, 8);
+	StreetLamp(FVector(-800.f, -600.f, 0.f), 420.f);
 
 	if (UWorld* World = GetWorld())
 	{
 		FActorSpawnParameters Params;
 		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		FrontendCamera = World->SpawnActor<ACameraActor>(FVector(-900.f, 0.f, 380.f), FRotator(-12.f, 0.f, 0.f), Params);
+		FrontendCamera = World->SpawnActor<ACameraActor>(FVector(-2400.f, 0.f, 520.f), FRotator(-14.f, 0.f, 0.f), Params);
 		if (FrontendCamera)
 		{
 			BuiltActors.Add(FrontendCamera);
 		}
 	}
 
-	PlayerStartAt(FVector(-200.f, 0.f, 120.f), FRotator::ZeroRotator);
+	PlayerStartAt(FVector(-400.f, 0.f, 120.f), FRotator::ZeroRotator);
 }
 
 void AAshlineGrayboxBuilder::BuildMission(EAshlineMissionId MissionId)
@@ -184,7 +200,7 @@ void AAshlineGrayboxBuilder::BuildMission(EAshlineMissionId MissionId)
 		break;
 	}
 
-	ExtraAIAround(LastPlayerStartLocation + FVector(900.f, 0.f, 0.f), 700.f);
+	ExtraAIAround(LastPlayerStartLocation + FVector(6200.f, 0.f, 0.f), 5200.f);
 	DressMission(MissionId);
 }
 
@@ -399,6 +415,8 @@ void AAshlineGrayboxBuilder::SpawnFullAtmosphere()
 		return;
 	}
 
+	ConfigureDynamicWorldLighting();
+
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
@@ -406,11 +424,10 @@ void AAshlineGrayboxBuilder::SpawnFullAtmosphere()
 	{
 		if (UDirectionalLightComponent* Light = Sun->GetComponent())
 		{
+			ConfigureSun(Light);
 			Light->SetIntensity(ActiveMood.SunIntensity);
 			Light->SetLightColor(ActiveMood.SunColor);
-			Light->SetAtmosphereSunLight(true);
 			Light->SetCastShadows(true);
-			Light->SetMobility(EComponentMobility::Stationary);
 			Light->bUseTemperature = true;
 			Light->SetTemperature(ActiveMood.ColorTempKelvin);
 		}
@@ -423,11 +440,10 @@ void AAshlineGrayboxBuilder::SpawnFullAtmosphere()
 		{
 			if (UDirectionalLightComponent* Light = Fill->GetComponent())
 			{
+				ConfigureSecondaryDirectional(Light);
 				Light->SetIntensity(ActiveMood.FillLightIntensity);
 				Light->SetLightColor(ActiveMood.FillLightColor);
-				Light->SetAtmosphereSunLight(false);
 				Light->SetCastShadows(false);
-				Light->SetMobility(EComponentMobility::Stationary);
 			}
 			BuiltActors.Add(Fill);
 		}
@@ -440,11 +456,10 @@ void AAshlineGrayboxBuilder::SpawnFullAtmosphere()
 		{
 			if (UDirectionalLightComponent* Light = Moon->GetComponent())
 			{
+				ConfigureSecondaryDirectional(Light);
 				Light->SetIntensity(ActiveMood.MoonIntensity);
 				Light->SetLightColor(ActiveMood.MoonColor);
-				Light->SetAtmosphereSunLight(false);
 				Light->SetCastShadows(true);
-				Light->SetMobility(EComponentMobility::Stationary);
 			}
 			BuiltActors.Add(Moon);
 		}
@@ -454,6 +469,7 @@ void AAshlineGrayboxBuilder::SpawnFullAtmosphere()
 	{
 		if (USkyLightComponent* SkyComp = Sky->GetLightComponent())
 		{
+			MakeRuntimeMovable(SkyComp);
 			SkyComp->SetRealTimeCapture(true);
 			SkyComp->SetIntensity(ActiveMood.SkyLightIntensity);
 			SkyComp->bLowerHemisphereIsBlack = false;
@@ -558,14 +574,116 @@ void AAshlineGrayboxBuilder::Practical(const FVector& Location, const FLinearCol
 	{
 		if (UPointLightComponent* Comp = Light->PointLightComponent)
 		{
+			MakeRuntimeMovable(Comp);
 			Comp->SetIntensity(Intensity);
 			Comp->SetLightColor(Color);
 			Comp->SetAttenuationRadius(Radius);
 			Comp->SetCastShadows(bCastShadows);
-			Comp->SetMobility(EComponentMobility::Stationary);
 		}
 		BuiltActors.Add(Light);
 	}
+}
+
+void AAshlineGrayboxBuilder::ConfigureDynamicWorldLighting()
+{
+	if (UWorld* World = GetWorld())
+	{
+		if (AWorldSettings* Settings = World->GetWorldSettings())
+		{
+			Settings->bForceNoPrecomputedLighting = true;
+		}
+	}
+}
+
+void AAshlineGrayboxBuilder::MakeRuntimeMovable(USceneComponent* Component) const
+{
+	if (Component)
+	{
+		Component->SetMobility(EComponentMobility::Movable);
+	}
+}
+
+void AAshlineGrayboxBuilder::ConfigureSun(UDirectionalLightComponent* Light) const
+{
+	if (!Light)
+	{
+		return;
+	}
+	MakeRuntimeMovable(Light);
+	Light->SetAtmosphereSunLight(true);
+	Light->SetAtmosphereSunLightIndex(0);
+	Light->ForwardShadingPriority = 2;
+}
+
+void AAshlineGrayboxBuilder::ConfigureSecondaryDirectional(UDirectionalLightComponent* Light) const
+{
+	if (!Light)
+	{
+		return;
+	}
+	MakeRuntimeMovable(Light);
+	Light->SetAtmosphereSunLight(false);
+	Light->ForwardShadingPriority = 0;
+}
+
+void AAshlineGrayboxBuilder::Spot(const FVector& Location, const FRotator& Rotation, const FLinearColor& Color, float Intensity, float Radius, float InnerCone, float OuterCone, bool bCastShadows)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	if (ASpotLight* Light = World->SpawnActor<ASpotLight>(Location, Rotation, Params))
+	{
+		if (USpotLightComponent* Comp = Cast<USpotLightComponent>(Light->GetLightComponent()))
+		{
+			MakeRuntimeMovable(Comp);
+			Comp->SetIntensity(Intensity);
+			Comp->SetLightColor(Color);
+			Comp->SetAttenuationRadius(Radius);
+			Comp->SetInnerConeAngle(InnerCone);
+			Comp->SetOuterConeAngle(OuterCone);
+			Comp->SetCastShadows(bCastShadows);
+		}
+		BuiltActors.Add(Light);
+	}
+}
+
+void AAshlineGrayboxBuilder::InteriorVolume(const FVector& Location, const FVector& Extent, float ExtraVignette, float ExposureBias)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	APostProcessVolume* Volume = World->SpawnActor<APostProcessVolume>(Location, FRotator::ZeroRotator, Params);
+	if (!Volume)
+	{
+		return;
+	}
+	Volume->bUnbound = false;
+	Volume->BlendRadius = 420.f;
+	Volume->Priority = 20.f;
+	Volume->BlendWeight = 1.f;
+	Volume->SetActorScale3D(FVector(
+		FMath::Max(Extent.X, 80.f) / 200.f,
+		FMath::Max(Extent.Y, 80.f) / 200.f,
+		FMath::Max(Extent.Z, 80.f) / 200.f));
+
+	FPostProcessSettings& S = Volume->Settings;
+	S.bOverride_VignetteIntensity = true;
+	S.VignetteIntensity = FMath::Clamp(ActiveMood.Vignette + ExtraVignette, 0.f, 1.f);
+	S.bOverride_AutoExposureBias = true;
+	S.AutoExposureBias = ExposureBias;
+	S.bOverride_AmbientOcclusionIntensity = true;
+	S.AmbientOcclusionIntensity = FMath::Min(ActiveMood.AmbientOcclusion + 0.25f, 1.f);
+	S.bOverride_IndirectLightingIntensity = true;
+	S.IndirectLightingIntensity = ActiveMood.bNight ? 0.45f : 0.8f;
+	BuiltActors.Add(Volume);
 }
 
 void AAshlineGrayboxBuilder::DecalMark(const FVector& Location, const FRotator& Rotation, const FVector& Size)
@@ -578,7 +696,7 @@ void AAshlineGrayboxBuilder::DecalMark(const FVector& Location, const FRotator& 
 	UMaterialInterface* DecalMat = nullptr;
 	if (ActiveKit)
 	{
-		DecalMat = ActiveKit->DecalMaterial.LoadSynchronous();
+		DecalMat = AshlineLoad::Soft(ActiveKit->DecalMaterial);
 	}
 	if (!DecalMat)
 	{
@@ -607,7 +725,7 @@ void AAshlineGrayboxBuilder::Tree(const FVector& Location, float Height)
 		{
 			if (Slot.SlotId == TEXT("Tree"))
 			{
-				if (UStaticMesh* KitTree = Slot.Mesh.LoadSynchronous())
+				if (UStaticMesh* KitTree = AshlineLoad::Soft(Slot.Mesh))
 				{
 					if (AActor* Actor = Sphere(Location + FVector(0.f, 0.f, Height * 0.4f), FVector::OneVector, ActiveMood.GroundTint, EAshlineSurface::Foliage))
 					{
@@ -653,7 +771,7 @@ void AAshlineGrayboxBuilder::Bush(const FVector& Location)
 		{
 			if (Slot.SlotId == TEXT("Bush"))
 			{
-				if (UStaticMesh* KitBush = Slot.Mesh.LoadSynchronous())
+				if (UStaticMesh* KitBush = AshlineLoad::Soft(Slot.Mesh))
 				{
 					if (AActor* Actor = Sphere(Location + FVector(0.f, 0.f, 30.f), FVector(0.7f, 0.85f, 0.45f), FLinearColor(0.1f, 0.2f, 0.08f), EAshlineSurface::Foliage))
 					{
@@ -710,27 +828,29 @@ void AAshlineGrayboxBuilder::ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AA
 	UMaterialInterface* KitMat = nullptr;
 	if (ActiveKit)
 	{
-		if (Surface == EAshlineSurface::Ground || Surface == EAshlineSurface::Sand || Surface == EAshlineSurface::Snow)
+		if (Surface == EAshlineSurface::Ground || Surface == EAshlineSurface::Sand || Surface == EAshlineSurface::Snow
+			|| Surface == EAshlineSurface::Dirt || Surface == EAshlineSurface::Asphalt)
 		{
-			KitMat = ActiveKit->GroundMaterial.LoadSynchronous();
+			KitMat = AshlineLoad::Soft(ActiveKit->GroundMaterial);
 		}
 		else if (Surface == EAshlineSurface::Foliage)
 		{
-			KitMat = ActiveKit->FoliageMaterial.LoadSynchronous();
+			KitMat = AshlineLoad::Soft(ActiveKit->FoliageMaterial);
 		}
 		else if (Surface == EAshlineSurface::Metal)
 		{
-			KitMat = ActiveKit->TrimMaterial.LoadSynchronous();
+			KitMat = AshlineLoad::Soft(ActiveKit->TrimMaterial);
 		}
 		else
 		{
-			KitMat = ActiveKit->WallMaterial.LoadSynchronous();
+			KitMat = AshlineLoad::Soft(ActiveKit->WallMaterial);
 		}
 	}
 
 	if (!KitMat && ActiveMissionId != EAshlineMissionId::None)
 	{
-		if (Surface == EAshlineSurface::Ground || Surface == EAshlineSurface::Sand || Surface == EAshlineSurface::Snow)
+		if (Surface == EAshlineSurface::Ground || Surface == EAshlineSurface::Sand || Surface == EAshlineSurface::Snow
+			|| Surface == EAshlineSurface::Dirt || Surface == EAshlineSurface::Asphalt)
 		{
 			KitMat = UAshlinePresentationLibrary::LoadMaterial({ UAshlineContentManifest::KitGroundPath(ActiveMissionId) });
 		}
@@ -801,7 +921,7 @@ void AAshlineGrayboxBuilder::WindowStrip(const FVector& Location, int32 Count, f
 	{
 		const FVector Loc = Location + FVector(0.f, (i - Count * 0.5f) * Spacing, 0.f);
 		Box(Loc, FVector(0.08f, 0.55f, 0.7f), Glow, false, EAshlineSurface::Emissive);
-		Practical(Loc, Glow, 900.f, 280.f, false);
+		Spot(Loc + FVector(-40.f, 0.f, 20.f), FRotator(-12.f, 180.f, 0.f), Glow, 1400.f, 520.f, 18.f, 38.f, false);
 	}
 }
 
@@ -813,494 +933,278 @@ void AAshlineGrayboxBuilder::Doorway(const FVector& Location, const FRotator& Ro
 	(void)Rotation;
 }
 
-void AAshlineGrayboxBuilder::DressMission(EAshlineMissionId MissionId)
+void AAshlineGrayboxBuilder::CoverLine(const FVector& From, const FVector& To, int32 Count)
 {
-	switch (MissionId)
+	const int32 N = FMath::Max(1, Count);
+	for (int32 i = 0; i < N; ++i)
 	{
-	case EAshlineMissionId::ASH_01_WireCut:
-		Practical(FVector(350.f, 0.f, 300.f), FLinearColor(1.f, 0.55f, 0.2f), 5000.f, 900.f);
-		Practical(FVector(-1400.f, 0.f, 260.f), FLinearColor(0.4f, 0.7f, 1.f), 2500.f, 700.f);
-		Tree(FVector(-2400.f, -700.f, 0.f), 360.f);
-		Tree(FVector(-2100.f, 800.f, 0.f), 300.f);
-		Bush(FVector(-1800.f, -300.f, 0.f));
-		GrassPatch(FVector(-2000.f, 0.f, 0.f), 220.f, 10);
-		DecalMark(FVector(-200.f, 0.f, 4.f), FRotator(-90.f, 20.f, 0.f), FVector(280.f, 180.f, 16.f));
-		Doorway(FVector(-1400.f, 0.f, 0.f));
-		Sandbag(FVector(-1650.f, -160.f, 0.f));
-		Sandbag(FVector(-1480.f, 200.f, 0.f));
-		WindowStrip(FVector(350.f, 0.f, 220.f), 3, 90.f, FLinearColor(1.f, 0.55f, 0.15f));
-		break;
-	case EAshlineMissionId::ASH_02_DustMarket:
-		Practical(FVector(0.f, 0.f, 260.f), FLinearColor(1.f, 0.7f, 0.25f), 4000.f, 800.f);
-		Practical(FVector(-700.f, -700.f, 200.f), FLinearColor(1.f, 0.45f, 0.15f), 2200.f, 500.f);
-		Practical(FVector(700.f, 700.f, 200.f), FLinearColor(1.f, 0.5f, 0.2f), 2200.f, 500.f);
-		DecalMark(FVector(0.f, 0.f, 4.f), FRotator(-90.f, 0.f, 0.f), FVector(220.f, 220.f, 12.f));
-		Bush(FVector(1500.f, -400.f, 0.f));
-		VehicleHull(FVector(0.f, 1550.f, 0.f), FRotator(0.f, 90.f, 0.f), FLinearColor(0.12f, 0.1f, 0.08f), 4.2f);
-		WindowStrip(FVector(-700.f, -700.f, 160.f), 2, 80.f, FLinearColor(1.f, 0.6f, 0.2f));
-		break;
-	case EAshlineMissionId::ASH_03_Holdfast:
-		Practical(FVector(-200.f, -500.f, 160.f), FLinearColor(1.f, 0.85f, 0.5f), 3500.f, 600.f);
-		Tree(FVector(-1600.f, 400.f, 0.f), 280.f);
-		Tree(FVector(1600.f, -300.f, 0.f), 260.f);
-		GrassPatch(FVector(0.f, 400.f, 0.f), 300.f, 12);
-		Sandbag(FVector(-180.f, 0.f, 0.f));
-		Sandbag(FVector(180.f, 0.f, 0.f));
-		VehicleHull(FVector(1100.f, -900.f, 0.f), FRotator::ZeroRotator, FLinearColor(0.18f, 0.2f, 0.12f), 4.8f);
-		break;
-	case EAshlineMissionId::ASH_04_NightGlass:
-		Practical(FVector(-1600.f, 200.f, 420.f), FLinearColor(1.f, 0.2f, 0.1f), 2800.f, 700.f);
-		Practical(FVector(1600.f, -150.f, 520.f), FLinearColor(0.4f, 0.7f, 1.f), 3200.f, 800.f);
-		Practical(FVector(0.f, 0.f, 220.f), FLinearColor(0.6f, 0.75f, 1.f), 1800.f, 500.f);
-		break;
-	case EAshlineMissionId::ASH_05_ConvoyGhost:
-		Practical(FVector(-800.f, 0.f, 160.f), FLinearColor(1.f, 0.85f, 0.4f), 2500.f, 400.f);
-		Practical(FVector(200.f, 40.f, 180.f), FLinearColor(1.f, 0.35f, 0.08f), 4000.f, 500.f);
-		Practical(FVector(900.f, -30.f, 180.f), FLinearColor(1.f, 0.35f, 0.08f), 4000.f, 500.f);
-		Bush(FVector(-400.f, -500.f, 0.f));
-		Bush(FVector(1400.f, 480.f, 0.f));
-		break;
-	case EAshlineMissionId::ASH_06_AshHarbor:
-		Practical(FVector(-900.f, -400.f, 520.f), FLinearColor(1.f, 0.7f, 0.25f), 7000.f, 1200.f);
-		Practical(FVector(1600.f, 0.f, 280.f), FLinearColor(0.5f, 0.7f, 1.f), 3500.f, 800.f);
-		Practical(FVector(-400.f, 200.f, 160.f), FLinearColor(1.f, 0.8f, 0.4f), 2000.f, 400.f);
-		DecalMark(FVector(-400.f, 0.f, 44.f), FRotator(-90.f, 0.f, 0.f), FVector(360.f, 240.f, 14.f));
-		break;
-	case EAshlineMissionId::ASH_07_Whiteout:
-		Practical(FVector(1400.f, 0.f, 360.f), FLinearColor(0.3f, 0.7f, 1.f), 8000.f, 1600.f);
-		Tree(FVector(-1200.f, 500.f, 0.f), 240.f);
-		Tree(FVector(-400.f, -400.f, 0.f), 200.f);
-		break;
-	case EAshlineMissionId::ASH_08_Catacomb:
-		Practical(FVector(-1600.f, 0.f, 180.f), FLinearColor(1.f, 0.55f, 0.2f), 1800.f, 400.f);
-		Practical(FVector(-200.f, 0.f, 180.f), FLinearColor(1.f, 0.45f, 0.15f), 1800.f, 400.f);
-		Practical(FVector(1000.f, 0.f, 180.f), FLinearColor(1.f, 0.4f, 0.12f), 1800.f, 400.f);
-		Practical(FVector(2200.f, 0.f, 200.f), FLinearColor(0.2f, 0.8f, 0.4f), 2200.f, 500.f);
-		break;
-	case EAshlineMissionId::ASH_09_RidgeWire:
-		Practical(FVector(1200.f, 0.f, 560.f), FLinearColor(0.5f, 0.85f, 1.f), 4500.f, 900.f);
-		Tree(FVector(-1000.f, -400.f, 80.f), 300.f);
-		Bush(FVector(400.f, -200.f, 180.f));
-		break;
-	case EAshlineMissionId::ASH_10_FalseFlag:
-		Practical(FVector(-400.f, 0.f, 240.f), FLinearColor(0.4f, 0.7f, 1.f), 2200.f, 500.f);
-		Practical(FVector(200.f, 400.f, 200.f), FLinearColor(1.f, 0.15f, 0.1f), 2800.f, 400.f);
-		Practical(FVector(1800.f, 0.f, 180.f), FLinearColor(1.f, 0.75f, 0.3f), 3000.f, 600.f);
-		DecalMark(FVector(0.f, 0.f, 4.f), FRotator(-90.f, 45.f, 0.f), FVector(200.f, 140.f, 12.f));
-		break;
-	case EAshlineMissionId::ASH_11_LastTrain:
-		Practical(FVector(-2200.f, 0.f, 160.f), FLinearColor(1.f, 0.7f, 0.3f), 2500.f, 500.f);
-		Practical(FVector(500.f, 0.f, 220.f), FLinearColor(1.f, 0.35f, 0.1f), 2000.f, 400.f);
-		Practical(FVector(3200.f, 0.f, 240.f), FLinearColor(0.3f, 0.6f, 1.f), 3500.f, 600.f);
-		break;
-	case EAshlineMissionId::ASH_12_Ashline:
-		Practical(FVector(-1600.f, 0.f, 240.f), FLinearColor(1.f, 0.12f, 0.06f), 5000.f, 800.f);
-		Practical(FVector(-400.f, 0.f, 220.f), FLinearColor(1.f, 0.2f, 0.08f), 3500.f, 600.f);
-		Practical(FVector(800.f, 0.f, 220.f), FLinearColor(1.f, 0.18f, 0.08f), 3500.f, 600.f);
-		Practical(FVector(2000.f, 0.f, 220.f), FLinearColor(1.f, 0.16f, 0.06f), 3500.f, 600.f);
-		Practical(FVector(3200.f, 0.f, 260.f), FLinearColor(1.f, 0.75f, 0.25f), 6000.f, 900.f);
-		break;
-	default:
-		break;
+		const float Alpha = (N == 1) ? 0.5f : static_cast<float>(i) / static_cast<float>(N - 1);
+		Cover(FMath::Lerp(From, To, Alpha));
 	}
+}
 
-	if (ActiveMood.FoliageDensity > 0)
+void AAshlineGrayboxBuilder::TreeBelt(const FVector& From, const FVector& To, int32 Count, float Height)
+{
+	const int32 N = FMath::Max(1, Count);
+	for (int32 i = 0; i < N; ++i)
 	{
-		const FVector Origin = LastPlayerStartLocation + FVector(600.f, 0.f, 0.f);
-		for (int32 i = 0; i < FMath::Min(ActiveMood.FoliageDensity, 16); ++i)
+		const float Alpha = (N == 1) ? 0.5f : static_cast<float>(i) / static_cast<float>(N - 1);
+		const FVector Loc = FMath::Lerp(From, To, Alpha);
+		const float Jitter = static_cast<float>((i % 3) - 1) * 80.f;
+		Tree(Loc + FVector(0.f, Jitter, 0.f), Height + static_cast<float>(i % 4) * 28.f);
+	}
+}
+
+void AAshlineGrayboxBuilder::ScatterFoliage(const FVector& Center, float Radius, int32 Trees, int32 Bushes)
+{
+	for (int32 i = 0; i < Trees; ++i)
+	{
+		const float Angle = (2.f * PI * i) / FMath::Max(1, Trees);
+		Tree(Center + FVector(FMath::Cos(Angle) * Radius, FMath::Sin(Angle) * Radius * 0.85f, 0.f), 280.f + (i % 5) * 40.f);
+	}
+	for (int32 i = 0; i < Bushes; ++i)
+	{
+		const float Angle = (2.f * PI * i) / FMath::Max(1, Bushes) + 0.35f;
+		Bush(Center + FVector(FMath::Cos(Angle) * Radius * 0.55f, FMath::Sin(Angle) * Radius * 0.55f, 0.f));
+	}
+}
+
+void AAshlineGrayboxBuilder::Watchtower(const FVector& Location, float Height)
+{
+	const float H = FMath::Max(500.f, Height);
+	Cylinder(Location + FVector(0.f, 0.f, H * 0.45f), FVector(0.45f, 0.45f, H / 100.f * 0.9f), FLinearColor(0.18f, 0.16f, 0.12f), EAshlineSurface::Wood);
+	Box(Location + FVector(0.f, 0.f, H), FVector(2.4f, 2.4f, 0.18f), FLinearColor(0.22f, 0.2f, 0.16f), true, EAshlineSurface::Wood);
+	Box(Location + FVector(0.f, 0.f, H + 90.f), FVector(2.2f, 2.2f, 1.1f), FLinearColor(0.16f, 0.14f, 0.12f), true, EAshlineSurface::Wood);
+	Spot(Location + FVector(0.f, 0.f, H + 40.f), FRotator(-55.f, 0.f, 0.f), FLinearColor(1.f, 0.75f, 0.4f), 3500.f, 1600.f, 25.f, 48.f, false);
+}
+
+void AAshlineGrayboxBuilder::Building(const FVector& Location, const FVector2D& Footprint, float Height, const FLinearColor& Color)
+{
+	Box(Location + FVector(0.f, 0.f, Height * 0.5f),
+		FVector(Footprint.X / 100.f, Footprint.Y / 100.f, Height / 100.f),
+		Color, true, EAshlineSurface::Concrete);
+	TrimBand(Location, Footprint, Height);
+	if (Footprint.X >= 500.f || Footprint.Y >= 500.f)
+	{
+		const int32 Windows = FMath::Clamp(static_cast<int32>(Footprint.Y / 180.f), 2, 6);
+		WindowStrip(Location + FVector(Footprint.X * 0.5f + 8.f, 0.f, Height * 0.55f), Windows, 110.f,
+			ActiveMood.bNight ? FLinearColor(1.f, 0.62f, 0.28f) : FLinearColor(0.55f, 0.72f, 0.9f));
+		GlassPane(Location + FVector(Footprint.X * 0.5f + 6.f, 0.f, Height * 0.45f),
+			FVector(0.06f, FMath::Min(Footprint.Y, 420.f) / 100.f * 0.55f, Height / 100.f * 0.28f));
+	}
+}
+
+void AAshlineGrayboxBuilder::WalledYard(const FVector& Center, const FVector2D& HalfExtent, float WallHeight, const FLinearColor& Color, int32 OpenSide, float GateWidth)
+{
+	const float Hx = HalfExtent.X;
+	const float Hy = HalfExtent.Y;
+	const float Z = Center.Z + WallHeight * 0.5f;
+	const float Thick = 55.f;
+	const float Gate = FMath::Clamp(GateWidth, 250.f, FMath::Min(Hx, Hy) * 1.6f);
+
+	auto Edge = [this, WallHeight, &Color](const FVector& Loc, float SizeX, float SizeY)
+	{
+		Wall(Loc, FVector(SizeX / 100.f, SizeY / 100.f, WallHeight / 100.f), Color);
+	};
+
+	auto GatedAxis = [&](bool bWestEast, float AxisPos, bool bOpen)
+	{
+		if (!bOpen)
 		{
-			const float Angle = (2.f * PI * i) / FMath::Max(1, ActiveMood.FoliageDensity);
-			const FVector Loc = Origin + FVector(FMath::Cos(Angle) * 420.f, FMath::Sin(Angle) * 380.f, 0.f);
-			if (i % 3 == 0)
+			if (bWestEast)
 			{
-				Tree(Loc, 240.f + (i % 4) * 30.f);
+				Edge(FVector(Center.X + AxisPos, Center.Y, Z), Thick, Hy * 2.f);
 			}
 			else
 			{
-				Bush(Loc);
+				Edge(FVector(Center.X, Center.Y + AxisPos, Z), Hx * 2.f, Thick);
 			}
+			return;
 		}
-	}
-
-	if (UGameInstance* GI = GetGameInstance())
-	{
-		if (UAshlineAudioDirector* Audio = GI->GetSubsystem<UAshlineAudioDirector>())
+		if (bWestEast)
 		{
-			Audio->StartMusicBed(this, MissionId);
+			const float Seg = Hy - Gate * 0.5f;
+			const float Off = 0.5f * (Hy + Gate * 0.5f);
+			Edge(FVector(Center.X + AxisPos, Center.Y - Off, Z), Thick, Seg);
+			Edge(FVector(Center.X + AxisPos, Center.Y + Off, Z), Thick, Seg);
 		}
+		else
+		{
+			const float Seg = Hx - Gate * 0.5f;
+			const float Off = 0.5f * (Hx + Gate * 0.5f);
+			Edge(FVector(Center.X - Off, Center.Y + AxisPos, Z), Seg, Thick);
+			Edge(FVector(Center.X + Off, Center.Y + AxisPos, Z), Seg, Thick);
+		}
+	};
+
+	GatedAxis(true, -Hx, OpenSide == 0);
+	GatedAxis(true, Hx, OpenSide == 1);
+	GatedAxis(false, -Hy, OpenSide == 2);
+	GatedAxis(false, Hy, OpenSide == 3);
+}
+
+void AAshlineGrayboxBuilder::RoadStrip(const FVector& From, const FVector& To, float Width)
+{
+	const FVector Delta = To - From;
+	const float Len = Delta.Size2D();
+	if (Len < 50.f)
+	{
+		return;
+	}
+	const FVector Mid = (From + To) * 0.5f + FVector(0.f, 0.f, 6.f);
+	if (AActor* Strip = Box(Mid, FVector(Len / 100.f, Width / 100.f, 0.08f), FLinearColor(0.12f, 0.12f, 0.11f), true, EAshlineSurface::Asphalt))
+	{
+		Strip->SetActorRotation(FVector(Delta.X, Delta.Y, 0.f).GetSafeNormal().Rotation());
 	}
 }
 
-void AAshlineGrayboxBuilder::BuildWireCut()
+void AAshlineGrayboxBuilder::ScatterKitProps(const FVector& Center, float Radius, int32 Count)
 {
-	SpawnAtmosphere(FLinearColor(0.35f, 0.45f, 0.75f), 3.2f, FLinearColor(0.05f, 0.07f, 0.12f), 0.03f);
-	Floor(FVector::ZeroVector, FVector2D(7000.f, 5000.f), FLinearColor(0.08f, 0.1f, 0.07f));
-
-	// Approach trench / west berm.
-	Wall(FVector(-2200.f, -400.f, 80.f), FVector(8.f, 0.6f, 1.6f), FLinearColor(0.12f, 0.16f, 0.1f));
-	Wall(FVector(-2200.f, 400.f, 80.f), FVector(8.f, 0.6f, 1.6f), FLinearColor(0.12f, 0.16f, 0.1f));
-	Cover(FVector(-1600.f, -180.f, 0.f));
-	Cover(FVector(-1400.f, 220.f, 0.f));
-
-	// Compound walls.
-	Wall(FVector(-200.f, -1100.f, 160.f), FVector(24.f, 0.5f, 3.2f), FLinearColor(0.2f, 0.18f, 0.14f));
-	Wall(FVector(-200.f, 1100.f, 160.f), FVector(24.f, 0.5f, 3.2f), FLinearColor(0.2f, 0.18f, 0.14f));
-	Wall(FVector(-1400.f, 0.f, 160.f), FVector(0.5f, 22.f, 3.2f), FLinearColor(0.2f, 0.18f, 0.14f));
-	Wall(FVector(1000.f, 0.f, 160.f), FVector(0.5f, 22.f, 3.2f), FLinearColor(0.2f, 0.18f, 0.14f));
-	// Gate opening on west wall (gap around Y=0).
-	Wall(FVector(-1400.f, -700.f, 160.f), FVector(0.5f, 8.f, 3.2f), FLinearColor(0.22f, 0.2f, 0.16f));
-	Wall(FVector(-1400.f, 700.f, 160.f), FVector(0.5f, 8.f, 3.2f), FLinearColor(0.22f, 0.2f, 0.16f));
-
-	// Comms hut.
-	Box(FVector(350.f, 0.f, 140.f), FVector(6.f, 5.f, 2.8f), FLinearColor(0.16f, 0.18f, 0.22f));
-	Cylinder(FVector(350.f, 0.f, 360.f), FVector(0.35f, 0.35f, 2.2f), FLinearColor(0.55f, 0.55f, 0.5f));
-	Cover(FVector(-200.f, -250.f, 0.f));
-	Cover(FVector(80.f, 320.f, 0.f));
-
-	// Creek exfil east.
-	Box(FVector(1800.f, 0.f, 20.f), FVector(10.f, 18.f, 0.3f), FLinearColor(0.1f, 0.14f, 0.18f));
-
-	PlayerStartAt(FVector(-2800.f, 0.f, 120.f), FRotator(0.f, 0.f, 0.f));
-	Objective(TEXT("INFIL"), FVector(-1450.f, 0.f, 80.f), false, FLinearColor(0.4f, 0.8f, 0.4f));
-	Objective(TEXT("CUT"), FVector(350.f, 280.f, 80.f), false, FLinearColor(0.9f, 0.4f, 0.2f));
-	Objective(TEXT("EXFIL"), FVector(2100.f, 0.f, 80.f), true, FLinearColor(0.3f, 0.6f, 1.f));
-	Objective(TEXT("GHOST"), FVector(200.f, -800.f, 80.f), false, FLinearColor(0.7f, 0.7f, 0.9f));
-
-	SpawnAI(FVector(-400.f, -200.f, 100.f), EAshlineAIArchetype::Rifleman);
-	SpawnAI(FVector(100.f, 280.f, 100.f), EAshlineAIArchetype::Scout);
-	SpawnAI(FVector(500.f, -180.f, 100.f), EAshlineAIArchetype::Officer);
-}
-
-void AAshlineGrayboxBuilder::BuildDustMarket()
-{
-	SpawnAtmosphere(FLinearColor(0.95f, 0.72f, 0.4f), 7.5f, FLinearColor(0.35f, 0.25f, 0.12f), 0.022f);
-	Floor(FVector::ZeroVector, FVector2D(6000.f, 6000.f), FLinearColor(0.32f, 0.24f, 0.14f));
-
-	for (int32 x = -2; x <= 2; ++x)
+	if (Count <= 0)
 	{
-		for (int32 y = -2; y <= 2; ++y)
+		return;
+	}
+
+	int32 Placed = 0;
+	if (ActiveKit && ActiveKit->PropMeshes.Num() > 0)
+	{
+		for (int32 i = 0; i < Count && Placed < Count; ++i)
 		{
-			if (x == 0 && y == 0)
+			const FAshlineSoftMeshSlot& Slot = ActiveKit->PropMeshes[i % ActiveKit->PropMeshes.Num()];
+			UStaticMesh* MeshAsset = AshlineLoad::Soft(Slot.Mesh);
+			if (!MeshAsset)
 			{
 				continue;
 			}
-			Box(FVector(x * 700.f, y * 700.f, 90.f), FVector(3.4f, 3.4f, 1.8f), FLinearColor(0.45f, 0.28f, 0.16f));
+			const float Angle = (2.f * PI * i) / FMath::Max(1, Count);
+			const FVector Loc = Center + FVector(FMath::Cos(Angle) * Radius, FMath::Sin(Angle) * Radius * 0.9f, 40.f);
+			if (AActor* Actor = Box(Loc, FVector(1.f), FLinearColor(0.2f, 0.18f, 0.14f), true, EAshlineSurface::Concrete))
+			{
+				if (UStaticMeshComponent* Mesh = Actor->FindComponentByClass<UStaticMeshComponent>())
+				{
+					Mesh->SetStaticMesh(MeshAsset);
+					Mesh->SetWorldScale3D(Slot.Scale.IsNearlyZero() ? FVector(1.f) : Slot.Scale);
+				}
+				++Placed;
+			}
 		}
 	}
 
-	// Safe-house balcony south.
-	Box(FVector(0.f, -1800.f, 180.f), FVector(8.f, 3.f, 0.3f), FLinearColor(0.3f, 0.22f, 0.16f));
-	Box(FVector(0.f, -1950.f, 120.f), FVector(8.f, 1.2f, 2.4f), FLinearColor(0.28f, 0.2f, 0.14f));
-	Cover(FVector(-400.f, -400.f, 0.f));
-	Cover(FVector(450.f, 200.f, 0.f));
-
-	// Case table + van alley north.
-	Box(FVector(0.f, 0.f, 50.f), FVector(1.2f, 1.2f, 1.f), FLinearColor(0.15f, 0.1f, 0.08f));
-	Wall(FVector(0.f, 2000.f, 140.f), FVector(16.f, 0.5f, 2.8f), FLinearColor(0.25f, 0.2f, 0.15f));
-
-	PlayerStartAt(FVector(0.f, -2300.f, 120.f), FRotator(0.f, 90.f, 0.f));
-	Objective(TEXT("CONFIRM"), FVector(0.f, -1750.f, 220.f), false);
-	Objective(TEXT("CASE"), FVector(0.f, 0.f, 80.f), false, FLinearColor(0.9f, 0.75f, 0.2f));
-	Objective(TEXT("EXTRACT"), FVector(0.f, 1700.f, 80.f), true, FLinearColor(0.3f, 0.6f, 1.f));
-	Objective(TEXT("CIV"), FVector(1400.f, 0.f, 80.f), false, FLinearColor(0.8f, 0.8f, 0.4f));
-
-	SpawnAI(FVector(-600.f, 200.f, 100.f), EAshlineAIArchetype::CivilianIrregular);
-	SpawnAI(FVector(600.f, 400.f, 100.f), EAshlineAIArchetype::Rifleman);
-	SpawnAI(FVector(200.f, 900.f, 100.f), EAshlineAIArchetype::Scout);
-	SpawnAI(FVector(-200.f, -200.f, 100.f), EAshlineAIArchetype::Officer);
-}
-
-void AAshlineGrayboxBuilder::BuildHoldfast()
-{
-	SpawnAtmosphere(FLinearColor(0.9f, 0.85f, 0.7f), 9.f, FLinearColor(0.4f, 0.38f, 0.3f), 0.012f);
-	Floor(FVector::ZeroVector, FVector2D(8000.f, 6000.f), FLinearColor(0.22f, 0.2f, 0.14f));
-
-	// Sandbag berm.
-	for (int32 i = -6; i <= 6; ++i)
+	if (Placed == 0)
 	{
-		Box(FVector(i * 180.f, 0.f, 45.f), FVector(1.6f, 1.1f, 0.9f), FLinearColor(0.4f, 0.32f, 0.18f));
+		ScatterDress(Center, Radius, Count);
 	}
-	// Mortar pit.
-	Cylinder(FVector(-200.f, -500.f, 40.f), FVector(3.5f, 3.5f, 0.4f), FLinearColor(0.25f, 0.22f, 0.16f));
-	Cylinder(FVector(-200.f, -500.f, 90.f), FVector(0.5f, 0.5f, 1.1f), FLinearColor(0.15f, 0.15f, 0.12f));
-	// Gate / relief.
-	Wall(FVector(0.f, -1600.f, 140.f), FVector(18.f, 0.6f, 2.8f), FLinearColor(0.3f, 0.28f, 0.2f));
-	Box(FVector(0.f, -1600.f, 80.f), FVector(3.f, 0.4f, 1.6f), FLinearColor(0.18f, 0.16f, 0.1f), false);
-
-	Cover(FVector(400.f, 200.f, 0.f));
-	Cover(FVector(-500.f, 180.f, 0.f));
-
-	PlayerStartAt(FVector(0.f, -900.f, 120.f), FRotator(0.f, 90.f, 0.f));
-	Objective(TEXT("BERM"), FVector(0.f, 80.f, 80.f), false);
-	Objective(TEXT("MORTAR"), FVector(-200.f, -500.f, 80.f), false, FLinearColor(0.8f, 0.4f, 0.2f));
-	Objective(TEXT("RELIEF"), FVector(0.f, -1500.f, 80.f), true, FLinearColor(0.3f, 0.7f, 1.f));
-	Objective(TEXT("NOFALL"), FVector(900.f, 0.f, 80.f), false);
-
-	SpawnAI(FVector(-300.f, 900.f, 100.f), EAshlineAIArchetype::Rifleman);
-	SpawnAI(FVector(200.f, 1100.f, 100.f), EAshlineAIArchetype::Heavy);
-	SpawnAI(FVector(700.f, 800.f, 100.f), EAshlineAIArchetype::MachineGunner);
-	SpawnAI(FVector(-800.f, 700.f, 100.f), EAshlineAIArchetype::Breacher);
 }
 
-void AAshlineGrayboxBuilder::BuildNightGlass()
+void AAshlineGrayboxBuilder::TrimBand(const FVector& Location, const FVector2D& Footprint, float Height)
 {
-	SpawnAtmosphere(FLinearColor(0.25f, 0.35f, 0.7f), 2.4f, FLinearColor(0.04f, 0.05f, 0.1f), 0.035f);
-	Floor(FVector::ZeroVector, FVector2D(7000.f, 5000.f), FLinearColor(0.12f, 0.12f, 0.14f));
-
-	// Ridge.
-	Box(FVector(0.f, 0.f, 80.f), FVector(40.f, 8.f, 1.6f), FLinearColor(0.18f, 0.17f, 0.16f));
-	// Nest Alpha (west kiln).
-	Box(FVector(-1600.f, 200.f, 220.f), FVector(4.f, 4.f, 3.5f), FLinearColor(0.28f, 0.16f, 0.1f));
-	Cylinder(FVector(-1600.f, 200.f, 420.f), FVector(1.2f, 1.2f, 1.4f), FLinearColor(0.2f, 0.12f, 0.08f));
-	// Nest Bravo water tower.
-	Cylinder(FVector(1600.f, -150.f, 240.f), FVector(1.6f, 1.6f, 4.6f), FLinearColor(0.25f, 0.28f, 0.3f));
-	Cylinder(FVector(1600.f, -150.f, 500.f), FVector(3.2f, 3.2f, 0.8f), FLinearColor(0.2f, 0.22f, 0.25f));
-	Cover(FVector(-400.f, 80.f, 160.f));
-	Cover(FVector(400.f, -60.f, 160.f));
-
-	PlayerStartAt(FVector(0.f, -900.f, 200.f), FRotator(0.f, 90.f, 0.f));
-	Objective(TEXT("NEST_A"), FVector(-1600.f, 200.f, 280.f), false);
-	Objective(TEXT("NEST_B"), FVector(1600.f, -150.f, 280.f), false);
-	Objective(TEXT("OWN"), FVector(0.f, 0.f, 200.f), true, FLinearColor(0.3f, 0.6f, 1.f));
-	Objective(TEXT("SILENT"), FVector(0.f, 600.f, 200.f), false);
-
-	SpawnAI(FVector(-1600.f, 80.f, 280.f), EAshlineAIArchetype::Marksman);
-	SpawnAI(FVector(1600.f, -40.f, 280.f), EAshlineAIArchetype::Marksman);
-	SpawnAI(FVector(200.f, 200.f, 220.f), EAshlineAIArchetype::Scout);
+	const float Z = Location.Z + Height + 8.f;
+	const float Hx = Footprint.X * 0.5f;
+	const float Hy = Footprint.Y * 0.5f;
+	const FLinearColor Trim = ActiveMood.MetalTint;
+	Box(Location + FVector(0.f, Hy, Height + 6.f), FVector(Footprint.X / 100.f + 0.12f, 0.12f, 0.14f), Trim, false, EAshlineSurface::Metal);
+	Box(Location + FVector(0.f, -Hy, Height + 6.f), FVector(Footprint.X / 100.f + 0.12f, 0.12f, 0.14f), Trim, false, EAshlineSurface::Metal);
+	Box(Location + FVector(Hx, 0.f, Height + 6.f), FVector(0.12f, Footprint.Y / 100.f + 0.12f, 0.14f), Trim, false, EAshlineSurface::Metal);
+	Box(Location + FVector(-Hx, 0.f, Height + 6.f), FVector(0.12f, Footprint.Y / 100.f + 0.12f, 0.14f), Trim, false, EAshlineSurface::Metal);
+	(void)Z;
 }
 
-void AAshlineGrayboxBuilder::BuildConvoyGhost()
+void AAshlineGrayboxBuilder::GlassPane(const FVector& Location, const FVector& Scale, const FRotator& Rotation)
 {
-	SpawnAtmosphere(FLinearColor(0.85f, 0.75f, 0.45f), 8.f, FLinearColor(0.45f, 0.38f, 0.2f), 0.018f);
-	Floor(FVector::ZeroVector, FVector2D(10000.f, 4000.f), FLinearColor(0.42f, 0.36f, 0.2f));
-
-	// Highway strip.
-	Box(FVector(0.f, 0.f, 8.f), FVector(90.f, 8.f, 0.12f), FLinearColor(0.18f, 0.18f, 0.16f));
-	// Lead, tankers, command wagon.
-	Box(FVector(-800.f, 0.f, 80.f), FVector(4.5f, 2.2f, 1.6f), FLinearColor(0.15f, 0.16f, 0.12f));
-	Box(FVector(200.f, 40.f, 90.f), FVector(5.5f, 2.4f, 1.8f), FLinearColor(0.35f, 0.18f, 0.08f));
-	Box(FVector(900.f, -30.f, 90.f), FVector(5.5f, 2.4f, 1.8f), FLinearColor(0.35f, 0.18f, 0.08f));
-	Box(FVector(1800.f, 20.f, 80.f), FVector(4.2f, 2.2f, 1.6f), FLinearColor(0.1f, 0.12f, 0.18f));
-	Cover(FVector(-400.f, -400.f, 0.f));
-	Cover(FVector(400.f, 380.f, 0.f));
-		Cover(FVector(1400.f, -360.f, 0.f));
-		VehicleHull(FVector(-800.f, 0.f, 0.f), FRotator::ZeroRotator, FLinearColor(0.14f, 0.15f, 0.11f), 4.5f);
-
-	PlayerStartAt(FVector(-2200.f, -500.f, 120.f), FRotator(0.f, 10.f, 0.f));
-	Objective(TEXT("LEAD"), FVector(-800.f, 0.f, 80.f), false);
-	Objective(TEXT("FUEL"), FVector(550.f, 0.f, 80.f), false, FLinearColor(0.9f, 0.35f, 0.1f));
-	Objective(TEXT("CMD"), FVector(1800.f, 20.f, 80.f), false);
-	Objective(TEXT("GHOST"), FVector(2600.f, 0.f, 80.f), true, FLinearColor(0.3f, 0.6f, 1.f));
-
-	SpawnAI(FVector(-600.f, 180.f, 100.f), EAshlineAIArchetype::Rifleman);
-	SpawnAI(FVector(200.f, -200.f, 100.f), EAshlineAIArchetype::MachineGunner);
-	SpawnAI(FVector(1800.f, 200.f, 100.f), EAshlineAIArchetype::Officer);
-	SpawnAI(FVector(900.f, 220.f, 100.f), EAshlineAIArchetype::Breacher);
-}
-
-void AAshlineGrayboxBuilder::BuildAshHarbor()
-{
-	SpawnAtmosphere(FLinearColor(0.55f, 0.65f, 0.8f), 6.5f, FLinearColor(0.15f, 0.2f, 0.28f), 0.02f);
-	Floor(FVector::ZeroVector, FVector2D(8000.f, 6000.f), FLinearColor(0.16f, 0.17f, 0.18f));
-	// Water.
-	Box(FVector(1800.f, 0.f, 6.f), FVector(30.f, 50.f, 0.08f), FLinearColor(0.08f, 0.14f, 0.22f));
-	// Dock + crane.
-	Box(FVector(-400.f, 0.f, 40.f), FVector(22.f, 16.f, 0.6f), FLinearColor(0.28f, 0.26f, 0.22f));
-	Box(FVector(-900.f, -400.f, 280.f), FVector(2.f, 2.f, 5.4f), FLinearColor(0.55f, 0.4f, 0.15f));
-	Box(FVector(-700.f, -400.f, 520.f), FVector(8.f, 1.2f, 0.5f), FLinearColor(0.5f, 0.38f, 0.12f));
-	// Freighter.
-	Box(FVector(1600.f, 0.f, 140.f), FVector(18.f, 6.f, 2.6f), FLinearColor(0.2f, 0.22f, 0.25f));
-	Box(FVector(2000.f, 0.f, 260.f), FVector(4.f, 5.f, 2.2f), FLinearColor(0.18f, 0.2f, 0.24f));
-	Cover(FVector(-200.f, 200.f, 40.f));
-	Cover(FVector(200.f, -180.f, 40.f));
-
-	PlayerStartAt(FVector(-1800.f, 0.f, 120.f), FRotator::ZeroRotator);
-	Objective(TEXT("CRANE"), FVector(-900.f, -400.f, 120.f), false);
-	Objective(TEXT("BOARD"), FVector(1200.f, 0.f, 180.f), false);
-	Objective(TEXT("CARGO"), FVector(2000.f, 0.f, 200.f), true, FLinearColor(0.3f, 0.6f, 1.f));
-	Objective(TEXT("HOSTAGE"), FVector(-200.f, 700.f, 80.f), false);
-
-	SpawnAI(FVector(-600.f, 150.f, 120.f), EAshlineAIArchetype::Rifleman);
-	SpawnAI(FVector(200.f, -120.f, 120.f), EAshlineAIArchetype::Breacher);
-	SpawnAI(FVector(1500.f, 180.f, 220.f), EAshlineAIArchetype::Officer);
-	SpawnAI(FVector(1800.f, -160.f, 220.f), EAshlineAIArchetype::Heavy);
-}
-
-void AAshlineGrayboxBuilder::BuildWhiteout()
-{
-	SpawnAtmosphere(FLinearColor(0.8f, 0.85f, 0.95f), 4.f, FLinearColor(0.7f, 0.75f, 0.82f), 0.06f);
-	Floor(FVector::ZeroVector, FVector2D(9000.f, 5000.f), FLinearColor(0.78f, 0.8f, 0.84f));
-
-	for (int32 i = 0; i < 8; ++i)
+	if (AActor* Pane = Box(Location, Scale, FLinearColor(0.42f, 0.58f, 0.72f), false, EAshlineSurface::Glass))
 	{
-		Cylinder(FVector(-2400.f + i * 550.f, FMath::Sin(i * 0.8f) * 180.f, 80.f), FVector(0.25f, 0.25f, 1.6f), FLinearColor(0.2f, 0.2f, 0.22f));
+		Pane->SetActorRotation(Rotation);
 	}
-	// Beacon + post + sled LZ.
-	Cylinder(FVector(1400.f, 0.f, 160.f), FVector(1.4f, 1.4f, 3.2f), FLinearColor(0.35f, 0.4f, 0.55f));
-	Sphere(FVector(1400.f, 0.f, 360.f), FVector(0.8f, 0.8f, 0.8f), FLinearColor(0.2f, 0.6f, 1.f));
-	Box(FVector(1400.f, 400.f, 80.f), FVector(5.f, 4.f, 1.6f), FLinearColor(0.45f, 0.48f, 0.52f));
-	Box(FVector(2600.f, 0.f, 30.f), FVector(8.f, 6.f, 0.4f), FLinearColor(0.55f, 0.3f, 0.15f));
-
-	PlayerStartAt(FVector(-2800.f, 0.f, 120.f), FRotator::ZeroRotator);
-	Objective(TEXT("WIRE"), FVector(-1800.f, 0.f, 80.f), false);
-	Objective(TEXT("BEACON"), FVector(1400.f, 0.f, 80.f), false, FLinearColor(0.2f, 0.6f, 1.f));
-	Objective(TEXT("CREW"), FVector(2600.f, 0.f, 80.f), true);
-	Objective(TEXT("STORM"), FVector(1400.f, 400.f, 80.f), false);
-
-	SpawnAI(FVector(-400.f, 200.f, 100.f), EAshlineAIArchetype::Scout);
-	SpawnAI(FVector(800.f, -180.f, 100.f), EAshlineAIArchetype::Rifleman);
-	SpawnAI(FVector(1600.f, 250.f, 100.f), EAshlineAIArchetype::Marksman);
 }
 
-void AAshlineGrayboxBuilder::BuildCatacomb()
+void AAshlineGrayboxBuilder::CrateStack(const FVector& Location, int32 Count)
 {
-	SpawnAtmosphere(FLinearColor(0.35f, 0.3f, 0.25f), 1.6f, FLinearColor(0.05f, 0.04f, 0.03f), 0.05f);
-	Floor(FVector::ZeroVector, FVector2D(8000.f, 4000.f), FLinearColor(0.12f, 0.1f, 0.08f));
-
-	auto Tunnel = [this](float X0, float X1, float Y)
+	const int32 N = FMath::Clamp(Count, 2, 8);
+	for (int32 i = 0; i < N; ++i)
 	{
-		Wall(FVector((X0 + X1) * 0.5f, Y - 220.f, 160.f), FVector(FMath::Abs(X1 - X0) / 100.f, 0.4f, 3.2f), FLinearColor(0.18f, 0.15f, 0.12f));
-		Wall(FVector((X0 + X1) * 0.5f, Y + 220.f, 160.f), FVector(FMath::Abs(X1 - X0) / 100.f, 0.4f, 3.2f), FLinearColor(0.18f, 0.15f, 0.12f));
-	};
-	Tunnel(-2500.f, -800.f, 0.f);
-	Tunnel(-800.f, 400.f, 0.f);
-	Tunnel(400.f, 1600.f, 0.f);
-	// Platforms.
-	Box(FVector(-1600.f, 0.f, 20.f), FVector(8.f, 6.f, 0.3f), FLinearColor(0.2f, 0.18f, 0.14f));
-	Box(FVector(-200.f, 0.f, 20.f), FVector(8.f, 6.f, 0.3f), FLinearColor(0.2f, 0.18f, 0.14f));
-	Box(FVector(1000.f, 0.f, 20.f), FVector(8.f, 6.f, 0.3f), FLinearColor(0.2f, 0.18f, 0.14f));
-	// Server racks.
-	for (int32 i = 0; i < 5; ++i)
-	{
-		Box(FVector(2200.f, -300.f + i * 150.f, 110.f), FVector(1.4f, 1.f, 2.2f), FLinearColor(0.1f, 0.12f, 0.16f));
+		const float Ox = static_cast<float>(i % 2) * 70.f;
+		const float Oy = static_cast<float>((i / 2) % 2) * 64.f;
+		const float Oz = 28.f + (i / 4) * 56.f;
+		Box(Location + FVector(Ox, Oy, Oz), FVector(0.7f, 0.64f, 0.55f),
+			FLinearColor(0.28f, 0.2f, 0.1f), true, EAshlineSurface::Wood);
 	}
-	Cover(FVector(-1600.f, 120.f, 0.f));
-	Cover(FVector(-200.f, -140.f, 0.f));
-	Cover(FVector(1000.f, 100.f, 0.f));
-
-	PlayerStartAt(FVector(-2800.f, 0.f, 120.f), FRotator::ZeroRotator);
-	Objective(TEXT("PUSH"), FVector(-200.f, 0.f, 80.f), false);
-	Objective(TEXT("DUMP"), FVector(2200.f, 0.f, 80.f), false, FLinearColor(0.3f, 0.8f, 0.4f));
-	Objective(TEXT("COLLAPSE"), FVector(2800.f, 0.f, 80.f), true);
-	Objective(TEXT("INTEL"), FVector(2200.f, 400.f, 80.f), false);
-
-	SpawnAI(FVector(-1400.f, 80.f, 100.f), EAshlineAIArchetype::Breacher);
-	SpawnAI(FVector(-200.f, -80.f, 100.f), EAshlineAIArchetype::Rifleman);
-	SpawnAI(FVector(1000.f, 80.f, 100.f), EAshlineAIArchetype::Heavy);
-	SpawnAI(FVector(2200.f, -200.f, 100.f), EAshlineAIArchetype::Officer);
 }
 
-void AAshlineGrayboxBuilder::BuildRidgeWire()
+void AAshlineGrayboxBuilder::StreetLamp(const FVector& Location, float Height)
 {
-	SpawnAtmosphere(FLinearColor(0.6f, 0.7f, 0.85f), 7.f, FLinearColor(0.3f, 0.35f, 0.4f), 0.02f);
-	Floor(FVector::ZeroVector, FVector2D(7000.f, 5000.f), FLinearColor(0.2f, 0.22f, 0.16f));
-
-	Box(FVector(-1600.f, 0.f, 40.f), FVector(16.f, 10.f, 0.8f), FLinearColor(0.24f, 0.26f, 0.18f));
-	Box(FVector(-200.f, 200.f, 140.f), FVector(14.f, 10.f, 0.8f), FLinearColor(0.26f, 0.28f, 0.2f));
-	Box(FVector(1200.f, 0.f, 260.f), FVector(12.f, 10.f, 0.8f), FLinearColor(0.28f, 0.3f, 0.22f));
-	Cylinder(FVector(1200.f, 0.f, 520.f), FVector(0.5f, 0.5f, 5.f), FLinearColor(0.6f, 0.6f, 0.55f));
-	Box(FVector(1600.f, 500.f, 280.f), FVector(2.5f, 2.5f, 1.4f), FLinearColor(0.3f, 0.15f, 0.1f));
-	Cover(FVector(-800.f, 80.f, 80.f));
-	Cover(FVector(400.f, 160.f, 180.f));
-
-	PlayerStartAt(FVector(-2200.f, 0.f, 140.f), FRotator::ZeroRotator);
-	Objective(TEXT("CLIMB"), FVector(1200.f, 0.f, 320.f), false);
-	Objective(TEXT("PLANT"), FVector(1200.f, 80.f, 320.f), false, FLinearColor(0.4f, 0.8f, 1.f));
-	Objective(TEXT("HOLD"), FVector(900.f, 0.f, 320.f), true);
-	Objective(TEXT("DRONE"), FVector(1600.f, 500.f, 320.f), false);
-
-	SpawnAI(FVector(-200.f, 200.f, 220.f), EAshlineAIArchetype::Scout);
-	SpawnAI(FVector(1000.f, -180.f, 340.f), EAshlineAIArchetype::Marksman);
-	SpawnAI(FVector(1400.f, 200.f, 340.f), EAshlineAIArchetype::Rifleman);
+	const float H = FMath::Max(240.f, Height);
+	Cylinder(Location + FVector(0.f, 0.f, H * 0.5f), FVector(0.12f, 0.12f, H / 100.f), FLinearColor(0.12f, 0.12f, 0.13f), EAshlineSurface::Metal);
+	Sphere(Location + FVector(0.f, 0.f, H + 18.f), FVector(0.28f, 0.28f, 0.28f),
+		ActiveMood.bNight ? FLinearColor(1.f, 0.78f, 0.42f) : FLinearColor(0.7f, 0.72f, 0.65f), EAshlineSurface::Emissive);
+	Practical(Location + FVector(0.f, 0.f, H),
+		ActiveMood.bNight ? FLinearColor(1.f, 0.72f, 0.38f) : FLinearColor(0.9f, 0.92f, 0.85f),
+		ActiveMood.bNight ? 4200.f : 1800.f, 900.f, false);
 }
 
-void AAshlineGrayboxBuilder::BuildFalseFlag()
+void AAshlineGrayboxBuilder::AntennaMast(const FVector& Location, float Height)
 {
-	SpawnAtmosphere(FLinearColor(0.2f, 0.25f, 0.45f), 2.8f, FLinearColor(0.06f, 0.06f, 0.1f), 0.028f);
-	Floor(FVector::ZeroVector, FVector2D(7000.f, 5000.f), FLinearColor(0.1f, 0.1f, 0.12f));
-
-	// Campus block.
-	Wall(FVector(0.f, -900.f, 180.f), FVector(28.f, 0.5f, 3.6f), FLinearColor(0.22f, 0.22f, 0.26f));
-	Wall(FVector(0.f, 900.f, 180.f), FVector(28.f, 0.5f, 3.6f), FLinearColor(0.22f, 0.22f, 0.26f));
-	Wall(FVector(-1400.f, 0.f, 180.f), FVector(0.5f, 18.f, 3.6f), FLinearColor(0.22f, 0.22f, 0.26f));
-	Wall(FVector(1400.f, 0.f, 180.f), FVector(0.5f, 18.f, 3.6f), FLinearColor(0.22f, 0.22f, 0.26f));
-	// Interior rooms.
-	Wall(FVector(-400.f, 0.f, 140.f), FVector(0.4f, 12.f, 2.8f), FLinearColor(0.28f, 0.26f, 0.3f));
-	Wall(FVector(400.f, 200.f, 140.f), FVector(10.f, 0.4f, 2.8f), FLinearColor(0.28f, 0.26f, 0.3f));
-	Box(FVector(200.f, 400.f, 80.f), FVector(3.f, 2.f, 1.4f), FLinearColor(0.15f, 0.16f, 0.2f));
-	// Loading dock.
-	Box(FVector(1800.f, 0.f, 50.f), FVector(6.f, 8.f, 1.f), FLinearColor(0.18f, 0.16f, 0.12f));
-	Cover(FVector(-200.f, -200.f, 0.f));
-	Cover(FVector(600.f, 0.f, 0.f));
-
-	PlayerStartAt(FVector(-1800.f, 0.f, 120.f), FRotator::ZeroRotator);
-	Objective(TEXT("INFIL"), FVector(-1200.f, 0.f, 80.f), false);
-	Objective(TEXT("SWAP"), FVector(200.f, 400.f, 80.f), false, FLinearColor(0.8f, 0.3f, 0.3f));
-	Objective(TEXT("WALK"), FVector(1800.f, 0.f, 80.f), true, FLinearColor(0.3f, 0.6f, 1.f));
-	Objective(TEXT("CLEAN"), FVector(200.f, -500.f, 80.f), false);
-
-	SpawnAI(FVector(-200.f, 200.f, 100.f), EAshlineAIArchetype::Officer);
-	SpawnAI(FVector(500.f, -100.f, 100.f), EAshlineAIArchetype::Rifleman);
-	SpawnAI(FVector(1100.f, 150.f, 100.f), EAshlineAIArchetype::Scout);
+	const float H = FMath::Max(600.f, Height);
+	Cylinder(Location + FVector(0.f, 0.f, H * 0.5f), FVector(0.18f, 0.18f, H / 100.f), FLinearColor(0.18f, 0.18f, 0.2f), EAshlineSurface::Metal);
+	Box(Location + FVector(0.f, 0.f, H + 20.f), FVector(1.4f, 0.12f, 0.12f), FLinearColor(0.55f, 0.55f, 0.5f), false, EAshlineSurface::Metal);
+	Sphere(Location + FVector(0.f, 0.f, H + 40.f), FVector(0.22f, 0.22f, 0.22f), FLinearColor(0.9f, 0.15f, 0.1f), EAshlineSurface::Emissive);
 }
 
-void AAshlineGrayboxBuilder::BuildLastTrain()
+void AAshlineGrayboxBuilder::Barricade(const FVector& Location, const FRotator& Rotation)
 {
-	SpawnAtmosphere(FLinearColor(0.4f, 0.45f, 0.5f), 4.5f, FLinearColor(0.12f, 0.12f, 0.12f), 0.025f);
-	Floor(FVector::ZeroVector, FVector2D(10000.f, 4000.f), FLinearColor(0.16f, 0.16f, 0.15f));
+	Sandbag(Location, Rotation);
+	Sandbag(Location + FVector(90.f, 20.f, 0.f), Rotation);
+	Cover(Location + FVector(40.f, -80.f, 0.f));
+}
 
-	Box(FVector(-2200.f, 0.f, 40.f), FVector(16.f, 10.f, 0.6f), FLinearColor(0.22f, 0.2f, 0.18f));
-	for (int32 i = 0; i < 4; ++i)
+void AAshlineGrayboxBuilder::DebrisPile(const FVector& Location)
+{
+	Box(Location + FVector(0.f, 0.f, 18.f), FVector(1.1f, 0.7f, 0.28f), FLinearColor(0.22f, 0.2f, 0.16f), true, EAshlineSurface::Concrete);
+	Box(Location + FVector(40.f, 30.f, 22.f), FVector(0.55f, 0.8f, 0.22f), FLinearColor(0.16f, 0.14f, 0.12f), true, EAshlineSurface::Metal);
+	Box(Location + FVector(-30.f, -20.f, 16.f), FVector(0.7f, 0.4f, 0.2f), FLinearColor(0.24f, 0.16f, 0.1f), true, EAshlineSurface::Wood);
+}
+
+void AAshlineGrayboxBuilder::FenceRun(const FVector& From, const FVector& To, int32 Posts)
+{
+	const int32 N = FMath::Max(2, Posts);
+	for (int32 i = 0; i < N; ++i)
 	{
-		Box(FVector(-400.f + i * 900.f, 0.f, 130.f), FVector(7.5f, 3.2f, 2.4f), FLinearColor(0.18f, 0.14f, 0.1f));
+		const float Alpha = static_cast<float>(i) / static_cast<float>(N - 1);
+		const FVector Loc = FMath::Lerp(From, To, Alpha);
+		Cylinder(Loc + FVector(0.f, 0.f, 90.f), FVector(0.08f, 0.08f, 1.8f), FLinearColor(0.14f, 0.14f, 0.12f), EAshlineSurface::Metal);
 	}
-	Box(FVector(3200.f, 0.f, 140.f), FVector(5.f, 3.f, 2.6f), FLinearColor(0.12f, 0.12f, 0.14f));
-	Cover(FVector(-2000.f, 200.f, 40.f));
-	Cover(FVector(-400.f, 220.f, 40.f));
-	Cover(FVector(1400.f, -220.f, 40.f));
-
-	PlayerStartAt(FVector(-2800.f, 0.f, 140.f), FRotator::ZeroRotator);
-	Objective(TEXT("PLATFORM"), FVector(-2200.f, 0.f, 80.f), false);
-	Objective(TEXT("RIDE"), FVector(500.f, 0.f, 160.f), false);
-	Objective(TEXT("ENGINE"), FVector(3200.f, 0.f, 160.f), true);
-	Objective(TEXT("WITNESS"), FVector(1400.f, 0.f, 160.f), false);
-
-	SpawnAI(FVector(-2000.f, 180.f, 140.f), EAshlineAIArchetype::Rifleman);
-	SpawnAI(FVector(-200.f, -160.f, 200.f), EAshlineAIArchetype::Breacher);
-	SpawnAI(FVector(1400.f, 160.f, 200.f), EAshlineAIArchetype::Heavy);
-	SpawnAI(FVector(2800.f, -120.f, 200.f), EAshlineAIArchetype::Officer);
-}
-
-void AAshlineGrayboxBuilder::BuildAshlineFinale()
-{
-	SpawnAtmosphere(FLinearColor(0.55f, 0.15f, 0.12f), 3.5f, FLinearColor(0.12f, 0.03f, 0.02f), 0.04f);
-	Floor(FVector::ZeroVector, FVector2D(9000.f, 5000.f), FLinearColor(0.08f, 0.07f, 0.07f));
-
-	// Buried gate.
-	Wall(FVector(-1600.f, 0.f, 200.f), FVector(0.8f, 18.f, 4.f), FLinearColor(0.16f, 0.14f, 0.14f));
-	Box(FVector(-1600.f, 0.f, 120.f), FVector(0.3f, 4.f, 2.4f), FLinearColor(0.4f, 0.1f, 0.08f), false);
-	// Spine chambers.
-	for (int32 i = 0; i < 3; ++i)
+	const FVector Mid = (From + To) * 0.5f + FVector(0.f, 0.f, 110.f);
+	const float Len = FVector::Dist2D(From, To);
+	if (AActor* Rail = Box(Mid, FVector(Len / 100.f, 0.06f, 0.06f), FLinearColor(0.16f, 0.16f, 0.14f), false, EAshlineSurface::Metal))
 	{
-		const float X = -400.f + i * 1200.f;
-		Wall(FVector(X, -700.f, 180.f), FVector(10.f, 0.5f, 3.6f), FLinearColor(0.2f, 0.12f, 0.12f));
-		Wall(FVector(X, 700.f, 180.f), FVector(10.f, 0.5f, 3.6f), FLinearColor(0.2f, 0.12f, 0.12f));
-		Cylinder(FVector(X + 200.f, 0.f, 160.f), FVector(1.8f, 1.8f, 3.f), FLinearColor(0.35f, 0.08f, 0.08f));
-		Cover(FVector(X - 150.f, 180.f, 0.f));
+		Rail->SetActorRotation(FVector(To.X - From.X, To.Y - From.Y, 0.f).GetSafeNormal().Rotation());
 	}
-	// Lift.
-	Box(FVector(3200.f, 0.f, 40.f), FVector(5.f, 5.f, 0.5f), FLinearColor(0.25f, 0.22f, 0.1f));
-	Box(FVector(3200.f, 0.f, 200.f), FVector(0.3f, 0.3f, 4.f), FLinearColor(0.4f, 0.35f, 0.15f));
-
-	PlayerStartAt(FVector(-2400.f, 0.f, 120.f), FRotator::ZeroRotator);
-	Objective(TEXT("BREACH"), FVector(-1500.f, 0.f, 80.f), false, FLinearColor(0.9f, 0.2f, 0.15f));
-	Objective(TEXT("CUT"), FVector(800.f, 0.f, 80.f), false, FLinearColor(1.f, 0.3f, 0.2f));
-	Objective(TEXT("COLLAPSE"), FVector(3200.f, 0.f, 80.f), true, FLinearColor(0.9f, 0.8f, 0.3f));
-	Objective(TEXT("END"), FVector(2000.f, 0.f, 80.f), false);
-
-	SpawnAI(FVector(-1200.f, 200.f, 100.f), EAshlineAIArchetype::Heavy);
-	SpawnAI(FVector(-200.f, -180.f, 100.f), EAshlineAIArchetype::Officer);
-	SpawnAI(FVector(800.f, 220.f, 100.f), EAshlineAIArchetype::MachineGunner);
-	SpawnAI(FVector(2000.f, -160.f, 100.f), EAshlineAIArchetype::Marksman);
-	SpawnAI(FVector(2800.f, 140.f, 100.f), EAshlineAIArchetype::Rifleman);
 }
+
+void AAshlineGrayboxBuilder::ScatterDress(const FVector& Center, float Radius, int32 Count)
+{
+	const int32 N = FMath::Max(3, Count);
+	for (int32 i = 0; i < N; ++i)
+	{
+		const float Angle = (2.f * PI * i) / static_cast<float>(N);
+		const FVector Loc = Center + FVector(FMath::Cos(Angle) * Radius, FMath::Sin(Angle) * Radius * 0.88f, 0.f);
+		switch (i % 5)
+		{
+		case 0: CrateStack(Loc, 3 + (i % 3)); break;
+		case 1: DebrisPile(Loc); break;
+		case 2: Barricade(Loc); break;
+		case 3: StreetLamp(Loc, 360.f + (i % 2) * 80.f); break;
+		default: Cover(Loc); break;
+		}
+	}
+}
+
+void AAshlineGrayboxBuilder::DestructibleStub(const FVector& Location)
+{
+	// Visual stand-in only. No Chaos / Geometry Collection dependency.
+	if (AActor* Stub = Box(Location + FVector(0.f, 0.f, 40.f), FVector(0.9f, 0.7f, 0.8f), FLinearColor(0.32f, 0.22f, 0.12f), true, EAshlineSurface::Wood))
+	{
+		Stub->Tags.Add(TEXT("AshlineDestructibleStub"));
+	}
+}
+
+

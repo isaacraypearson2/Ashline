@@ -61,7 +61,9 @@ enum class EAshlineWeaponClass : uint8
 	DMR,
 	LMG,
 	Launcher,
-	Melee
+	Melee,
+	BattleRifle,
+	PDW
 };
 
 UENUM(BlueprintType)
@@ -89,7 +91,9 @@ enum class EAshlineAIArchetype : uint8
 	CivilianIrregular,
 	Grenadier,
 	Elite,
-	Spotter
+	Spotter,
+	RadioOp,
+	CQBSpecialist
 };
 
 UENUM(BlueprintType)
@@ -113,7 +117,9 @@ enum class EAshlineCosmeticSlot : uint8
 	Camo,
 	Face,
 	Voice,
-	Charm
+	Charm,
+	Headset,
+	Backpack
 };
 
 UENUM(BlueprintType)
@@ -128,10 +134,23 @@ enum class EAshlineGraphicsPreset : uint8
 	PC_Balanced UMETA(DisplayName = "Ashline_PC_Balanced"),
 	/** Default Windows target: 1440p Ultra, Nanite/Lumen/VSM, HW RT when supported. */
 	PC_Ultra UMETA(DisplayName = "Ashline_PC_Ultra"),
-	/** 9070 GRE / high-end PC max fps: FSR3 Performance, cheaper Lumen, no RT shadows. */
-	PC_Perf UMETA(DisplayName = "Ashline_PC_Perf"),
-	/** Steam Deck / handheld: 1280×800, 60 fps cap, Lumen software, RT off. */
-	SteamDeck UMETA(DisplayName = "Ashline_SteamDeck")
+	/** Discrete mid GPU (8 GB class) at 1440p or 1080p. */
+	PC_High UMETA(DisplayName = "Ashline_PC_High"),
+	/** 6 GB / last-gen discrete. Aggressive FSR/TSR, software Lumen. Also `AshPCPerf`. */
+	PC_Performance UMETA(DisplayName = "Ashline_PC_Performance"),
+	/** Steam Deck / Proton handheld: 800p, FSR, 30/40/60 caps, HUD safe zone. */
+	SteamDeck UMETA(DisplayName = "Ashline_SteamDeck"),
+	/** Laptop / iGPU fallback. */
+	Laptop UMETA(DisplayName = "Ashline_Laptop")
+};
+
+UENUM(BlueprintType)
+enum class EAshlineFrameTarget : uint8
+{
+	Unlimited = 0,
+	FPS_30,
+	FPS_40,
+	FPS_60
 };
 
 UENUM(BlueprintType)
@@ -171,7 +190,11 @@ enum class EAshlineSurface : uint8
 	Water,
 	Foliage,
 	Emissive,
-	Plastic
+	Plastic,
+	Dirt,
+	Glass,
+	Asphalt,
+	Skin
 };
 
 UENUM(BlueprintType)
@@ -191,7 +214,8 @@ enum class EAshlineAmmoType : uint8
 	Tracer,
 	Slug,
 	Buckshot,
-	HE
+	HE,
+	Subsonic
 };
 
 UENUM(BlueprintType)
@@ -413,6 +437,12 @@ struct FAshlineWeaponDefinition
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	FString PreviewIconPath;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	EAshlineAmmoType DefaultAmmo = EAshlineAmmoType::FMJ;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	int32 MaxUpgradeTier = 5;
 };
 
 USTRUCT(BlueprintType)

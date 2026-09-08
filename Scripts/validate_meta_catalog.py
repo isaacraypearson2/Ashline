@@ -32,7 +32,7 @@ REQUIRED_SKINS = {
     "SKIN_VOID",
     "SKIN_DIAMOND",
 }
-SLOTS = {"Helmet", "Vest", "Pants", "Gloves", "Boots", "Camo", "Face", "Voice", "Charm"}
+SLOTS = {"Helmet", "Vest", "Pants", "Gloves", "Boots", "Camo", "Face", "Voice", "Charm", "Headset", "Backpack"}
 
 
 def fail(msg: str) -> None:
@@ -98,6 +98,10 @@ def main() -> None:
         "WPN_AR_AUG",
         "WPN_LCH_RPG",
         "WPN_MEL_KNIFE",
+        "WPN_BR_FAL",
+        "WPN_PDW_P90C",
+        "WPN_AR_M4C",
+        "WPN_SNP_M82",
     ):
         if expected not in weapons:
             fail(f"missing per-weapon skin for {expected}")
@@ -107,7 +111,7 @@ def main() -> None:
     if not {"CAMO_PRESTIGE", "SKIN_GOLD", "CHARM_SPINE"} <= grants:
         fail("prestige must grant camo, gold skin, spine charm")
 
-    extra_clothing = {"HELM_BOONIE", "VEST_RECON", "PANT_CRYE", "GLOVE_WINTER", "BOOT_DESERT", "HELM_NVG", "VEST_RAID", "CAMO_URBAN", "CAMO_DIAMOND", "CHARM_DIAMOND"}
+    extra_clothing = {"HELM_BOONIE", "VEST_RECON", "PANT_CRYE", "GLOVE_WINTER", "BOOT_DESERT", "HELM_NVG", "VEST_RAID", "CAMO_URBAN", "CAMO_DIAMOND", "CHARM_DIAMOND", "HEAD_COMTAC", "PACK_ASSAULT"}
     if not extra_clothing <= set(cosmetic_ids):
         fail(f"missing Phase 2 clothing {sorted(extra_clothing - set(cosmetic_ids))}")
 

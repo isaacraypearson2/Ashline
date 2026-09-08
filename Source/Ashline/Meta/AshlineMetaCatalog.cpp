@@ -4,6 +4,7 @@
 #include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlineCosmeticVisual.h"
 #include "Weapons/AshlineWeaponCatalog.h"
+#include "Presentation/AshlineLoad.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInterface.h"
@@ -186,6 +187,19 @@ TArray<FAshlineCosmeticDefinition> UAshlineMetaCatalog::BuildCosmetics()
 	List.Add(C(TEXT("CHARM_KNIFE"), TEXT("Folding knife"), EAshlineCosmeticSlot::Charm, EAshlineLootRarity::Uncommon, 4, 140, 0, false, FLinearColor(0.4f, 0.4f, 0.38f), TEXT("SET_FIELD")));
 	List.Add(C(TEXT("CHARM_DIAMOND"), TEXT("Diamond chip"), EAshlineCosmeticSlot::Charm, EAshlineLootRarity::Legendary, 1, 0, 2, false, FLinearColor(0.8f, 0.88f, 0.95f), TEXT("SET_PRESTIGE"), TEXT("Prestige 2.")));
 
+	List.Add(C(TEXT("HEAD_COMTAC"), TEXT("ComTac headset"), EAshlineCosmeticSlot::Headset, EAshlineLootRarity::Uncommon, 7, 450, 0, false, FLinearColor(0.1f, 0.1f, 0.1f), TEXT("SET_FIELD"), TEXT("Issue comms. PTT + earpro.")));
+	List.Add(C(TEXT("HEAD_PTT"), TEXT("PTT pack"), EAshlineCosmeticSlot::Headset, EAshlineLootRarity::Rare, 13, 600, 0, false, FLinearColor(0.12f, 0.14f, 0.1f), TEXT("SET_FIELD"), TEXT("Radio PTT + boom mic.")));
+	List.Add(C(TEXT("HEAD_WALKER"), TEXT("Walker electronic"), EAshlineCosmeticSlot::Headset, EAshlineLootRarity::Rare, 16, 720, 0, false, FLinearColor(0.16f, 0.16f, 0.14f), TEXT("SET_URBAN"), TEXT("Electronic earpro. Sporting cut.")));
+	List.Add(C(TEXT("HEAD_AMP"), TEXT("AMP headset"), EAshlineCosmeticSlot::Headset, EAshlineLootRarity::Epic, 24, 980, 0, false, FLinearColor(0.08f, 0.08f, 0.09f), TEXT("SET_NIGHT"), TEXT("High-cut AMP. NVG-friendly.")));
+	List.Add(C(TEXT("HEAD_BONE"), TEXT("Bone mic"), EAshlineCosmeticSlot::Headset, EAshlineLootRarity::Uncommon, 9, 380, 0, false, FLinearColor(0.14f, 0.12f, 0.1f), TEXT("SET_URBAN"), TEXT("Covert throat/bone set.")));
+
+	List.Add(C(TEXT("PACK_ASSAULT"), TEXT("Assault pack"), EAshlineCosmeticSlot::Backpack, EAshlineLootRarity::Common, 1, 0, 0, true, FLinearColor(0.16f, 0.18f, 0.12f), TEXT("SET_FIELD"), TEXT("Issue 3-day. Every operator starts here.")));
+	List.Add(C(TEXT("PACK_RADIO"), TEXT("Radio bag"), EAshlineCosmeticSlot::Backpack, EAshlineLootRarity::Rare, 18, 800, 0, false, FLinearColor(0.14f, 0.12f, 0.08f), TEXT("SET_FIELD"), TEXT("Manpack radio. Radio Op silhouette.")));
+	List.Add(C(TEXT("PACK_FAST"), TEXT("Fast-rope pack"), EAshlineCosmeticSlot::Backpack, EAshlineLootRarity::Uncommon, 11, 520, 0, false, FLinearColor(0.12f, 0.12f, 0.1f), TEXT("SET_URBAN"), TEXT("Low-profile CQB bag.")));
+	List.Add(C(TEXT("PACK_HYDRA"), TEXT("Hydration pack"), EAshlineCosmeticSlot::Backpack, EAshlineLootRarity::Uncommon, 8, 360, 0, false, FLinearColor(0.18f, 0.2f, 0.12f), TEXT("SET_RIDGE"), TEXT("Bladder + tube. Ridge / Whiteout.")));
+	List.Add(C(TEXT("PACK_MED"), TEXT("Medic pack"), EAshlineCosmeticSlot::Backpack, EAshlineLootRarity::Rare, 20, 740, 0, false, FLinearColor(0.22f, 0.1f, 0.08f), TEXT("SET_FIELD"), TEXT("IFAK expansion. Red cross tab.")));
+	List.Add(C(TEXT("PACK_BREACH"), TEXT("Breach bag"), EAshlineCosmeticSlot::Backpack, EAshlineLootRarity::Epic, 26, 1100, 0, false, FLinearColor(0.1f, 0.08f, 0.06f), TEXT("SET_BREACH"), TEXT("Charges + shotgun shells.")));
+
 	return List;
 }
 
@@ -254,6 +268,18 @@ TArray<FAshlineWeaponSkinDefinition> UAshlineMetaCatalog::BuildWeaponSkins()
 	List.Add(S(TEXT("SKIN_AT4_OD"), TEXT("AT4 OD"), TEXT("WPN_LCH_AT4"), EAshlineLootRarity::Rare, 21, 860, 0, false, FLinearColor(0.16f, 0.2f, 0.1f), TEXT("SET_DEMO")));
 	List.Add(S(TEXT("SKIN_KNIFE_BLACK"), TEXT("Knife Blackout"), TEXT("WPN_MEL_KNIFE"), EAshlineLootRarity::Uncommon, 4, 220, 0, false, FLinearColor(0.06f, 0.06f, 0.07f), TEXT("SET_MELEE")));
 	List.Add(S(TEXT("SKIN_TOMA_RUST"), TEXT("Tomahawk Rust"), TEXT("WPN_MEL_TOMA"), EAshlineLootRarity::Rare, 23, 640, 0, false, FLinearColor(0.38f, 0.18f, 0.08f), TEXT("SET_MELEE")));
+	List.Add(S(TEXT("SKIN_M4C_FDE"), TEXT("M4-C FDE"), TEXT("WPN_AR_M4C"), EAshlineLootRarity::Uncommon, 5, 400, 0, false, FLinearColor(0.34f, 0.28f, 0.16f), TEXT("SET_FIELD")));
+	List.Add(S(TEXT("SKIN_G36_FLECK"), TEXT("G36 Flecktarn"), TEXT("WPN_AR_G36"), EAshlineLootRarity::Rare, 12, 680, 0, false, FLinearColor(0.22f, 0.26f, 0.12f), TEXT("SET_FIELD")));
+	List.Add(S(TEXT("SKIN_M16_A4"), TEXT("M16 Black"), TEXT("WPN_AR_M16"), EAshlineLootRarity::Uncommon, 11, 520, 0, false, FLinearColor(0.07f, 0.07f, 0.08f), TEXT("SET_SERVICE")));
+	List.Add(S(TEXT("SKIN_FAL_WOOD"), TEXT("FAL Wood"), TEXT("WPN_BR_FAL"), EAshlineLootRarity::Rare, 13, 760, 0, false, FLinearColor(0.34f, 0.2f, 0.1f), TEXT("SET_BATTLE")));
+	List.Add(S(TEXT("SKIN_G3_OD"), TEXT("G3 OD"), TEXT("WPN_BR_G3"), EAshlineLootRarity::Rare, 17, 820, 0, false, FLinearColor(0.16f, 0.2f, 0.1f), TEXT("SET_BATTLE")));
+	List.Add(S(TEXT("SKIN_P90C_NATO"), TEXT("P90-C NATO"), TEXT("WPN_PDW_P90C"), EAshlineLootRarity::Rare, 10, 700, 0, false, FLinearColor(0.12f, 0.14f, 0.12f), TEXT("SET_CQB")));
+	List.Add(S(TEXT("SKIN_MP7_GRAPHITE"), TEXT("MP7 Graphite"), TEXT("WPN_SMG_MP7"), EAshlineLootRarity::Uncommon, 12, 540, 0, false, FLinearColor(0.16f, 0.16f, 0.18f), TEXT("SET_URBAN")));
+	List.Add(S(TEXT("SKIN_M82_SAND"), TEXT("M82 Sand"), TEXT("WPN_SNP_M82"), EAshlineLootRarity::Epic, 28, 1800, 0, false, FLinearColor(0.42f, 0.34f, 0.18f), TEXT("SET_OVERWATCH")));
+	List.Add(S(TEXT("SKIN_M9_ISSUE"), TEXT("M9 Issue"), TEXT("WPN_PIS_M9"), EAshlineLootRarity::Uncommon, 3, 220, 0, false, FLinearColor(0.1f, 0.11f, 0.12f), TEXT("SET_SIDEARM")));
+	List.Add(S(TEXT("SKIN_KRYPTEK"), TEXT("Kryptek"), TEXT(""), EAshlineLootRarity::Epic, 27, 1500, 0, false, FLinearColor(0.18f, 0.16f, 0.12f), TEXT("SET_FIELD")));
+	List.Add(S(TEXT("SKIN_AOR1"), TEXT("AOR1"), TEXT(""), EAshlineLootRarity::Rare, 19, 860, 0, false, FLinearColor(0.4f, 0.34f, 0.2f), TEXT("SET_DUST")));
+	List.Add(S(TEXT("SKIN_NAVY"), TEXT("Navy"), TEXT(""), EAshlineLootRarity::Rare, 21, 880, 0, false, FLinearColor(0.08f, 0.12f, 0.2f), TEXT("SET_HARBOR")));
 	List.Add(S(TEXT("SKIN_DIAMOND"), TEXT("Prestige diamond"), TEXT(""), EAshlineLootRarity::Legendary, 1, 0, 2, false, FLinearColor(0.82f, 0.9f, 0.96f), TEXT("SET_PRESTIGE"), TEXT("Prestige 2 diamond."), true));
 
 	return List;
@@ -536,6 +562,8 @@ bool UAshlineMetaCatalog::SlotFromName(FName SlotName, EAshlineCosmeticSlot& Out
 	if (S.Equals(TEXT("Face"), ESearchCase::IgnoreCase)) { OutSlot = EAshlineCosmeticSlot::Face; return true; }
 	if (S.Equals(TEXT("Voice"), ESearchCase::IgnoreCase)) { OutSlot = EAshlineCosmeticSlot::Voice; return true; }
 	if (S.Equals(TEXT("Charm"), ESearchCase::IgnoreCase)) { OutSlot = EAshlineCosmeticSlot::Charm; return true; }
+	if (S.Equals(TEXT("Headset"), ESearchCase::IgnoreCase)) { OutSlot = EAshlineCosmeticSlot::Headset; return true; }
+	if (S.Equals(TEXT("Backpack"), ESearchCase::IgnoreCase)) { OutSlot = EAshlineCosmeticSlot::Backpack; return true; }
 	return false;
 }
 
@@ -569,8 +597,8 @@ void UAshlineMetaCatalog::BindSkinContentPaths(FAshlineWeaponSkinDefinition& Ski
 
 void UAshlineMetaCatalog::OverlayCosmeticDataAsset(FAshlineCosmeticDefinition& Cosmetic)
 {
-	if (UAshlineCosmeticVisual* Visual = LoadObject<UAshlineCosmeticVisual>(
-		nullptr, *UAshlineContentManifest::CosmeticDataAssetPath(Cosmetic.CosmeticId), nullptr, LOAD_NoWarn | LOAD_Quiet))
+	if (UAshlineCosmeticVisual* Visual = AshlineLoad::Object<UAshlineCosmeticVisual>(
+		UAshlineContentManifest::CosmeticDataAssetPath(Cosmetic.CosmeticId)))
 	{
 		if (!Visual->MeshOverride.IsNull())
 		{
@@ -585,8 +613,8 @@ void UAshlineMetaCatalog::OverlayCosmeticDataAsset(FAshlineCosmeticDefinition& C
 
 void UAshlineMetaCatalog::OverlaySkinDataAsset(FAshlineWeaponSkinDefinition& Skin)
 {
-	if (UAshlineCosmeticVisual* Visual = LoadObject<UAshlineCosmeticVisual>(
-		nullptr, *UAshlineContentManifest::SkinDataAssetPath(Skin.SkinId), nullptr, LOAD_NoWarn | LOAD_Quiet))
+	if (UAshlineCosmeticVisual* Visual = AshlineLoad::Object<UAshlineCosmeticVisual>(
+		UAshlineContentManifest::SkinDataAssetPath(Skin.SkinId)))
 	{
 		if (!Visual->MaterialOverride.IsNull())
 		{

@@ -26,6 +26,7 @@
 #include "Meta/AshlineMetaCatalog.h"
 #include "Presentation/AshlineAudioDirector.h"
 #include "Presentation/AshlineCharacterPresentation.h"
+#include "Presentation/AshlineLoad.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlinePresentationSettings.h"
 #include "Weapons/AshlineWeaponComponent.h"
@@ -528,18 +529,18 @@ void AAshlineCharacter::ApplyPresentationMesh()
 
 	if (!HeroMeshOverride.IsNull())
 	{
-		Hero = HeroMeshOverride.LoadSynchronous();
+		Hero = AshlineLoad::Soft(HeroMeshOverride);
 	}
 	if (!Hero)
 	{
 		if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
 		{
-			Hero = Settings->DefaultHeroMesh.LoadSynchronous();
-			if (!Hero && Settings->HeroPresentation.IsValid())
+			Hero = AshlineLoad::Soft(Settings->DefaultHeroMesh);
+			if (!Hero)
 			{
-				if (UAshlineCharacterPresentation* Pres = Settings->HeroPresentation.LoadSynchronous())
+				if (UAshlineCharacterPresentation* Pres = AshlineLoad::Soft(Settings->HeroPresentation))
 				{
-					Hero = Pres->BodyMesh.LoadSynchronous();
+					Hero = AshlineLoad::Soft(Pres->BodyMesh);
 					RelLoc = Pres->MeshRelativeLocation;
 					RelRot = Pres->MeshRelativeRotation;
 					RelScale = Pres->MeshScale;
@@ -551,7 +552,7 @@ void AAshlineCharacter::ApplyPresentationMesh()
 	{
 		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(true, EAshlineAIArchetype::Rifleman))
 		{
-			Hero = Pres->BodyMesh.LoadSynchronous();
+			Hero = AshlineLoad::Soft(Pres->BodyMesh);
 			RelLoc = Pres->MeshRelativeLocation;
 			RelRot = Pres->MeshRelativeRotation;
 			RelScale = Pres->MeshScale;
@@ -572,7 +573,7 @@ void AAshlineCharacter::ApplyPresentationMesh()
 				FAshlineCosmeticDefinition CamoDef;
 				if (UAshlineMetaCatalog::FindCosmetic(CamoId, CamoDef))
 				{
-					if (USkeletalMesh* OverrideMesh = CamoDef.MeshOverride.LoadSynchronous())
+					if (USkeletalMesh* OverrideMesh = AshlineLoad::Soft(CamoDef.MeshOverride))
 					{
 						Hero = OverrideMesh;
 					}
@@ -666,6 +667,8 @@ void AAshlineCharacter::ApplyOperatorLook()
 	const FName BootsId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Boots);
 	const FName FaceId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Face);
 	const FName CharmId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Charm);
+	const FName HeadsetId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Headset);
+	const FName BackpackId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Backpack);
 
 	const FLinearColor CamoTint = UAshlineMetaCatalog::CosmeticTint(CamoId, FLinearColor(0.18f, 0.24f, 0.16f));
 	const FLinearColor HelmetTint = UAshlineMetaCatalog::CosmeticTint(HelmetId, CamoTint * 0.65f);
@@ -715,6 +718,8 @@ void AAshlineCharacter::ApplyOperatorLook()
 	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Gloves, GlovesId, GlovesTint);
 	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Boots, BootsId, BootsTint);
 	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Face, FaceId, FaceTint);
+	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Headset, HeadsetId, HelmetTint);
+	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Backpack, BackpackId, VestTint);
 
 	if (WeaponComponent)
 	{

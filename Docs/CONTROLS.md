@@ -14,12 +14,12 @@ Console cheats (Output Log or `~` if enabled):
 
 - `AshUnlockAll` — every mission becomes playable
 - `AshDeploy 3` — jump to ASH-03 (also unlocks all)
-- `AshPCUltra` / `AshPCBalanced` / `AshPCPerf` / `AshSteamDeck` / `AshPCLow` / `AshPCMed` — named presets (`Docs/GRAPHICS.md`)
+- `AshPCUltra` / `AshPCHigh` / `AshPCBalanced` / `AshPCPerf` / `AshSteamDeck` / `AshPCLow` / `AshPCMed` / `AshLaptop` / `AshGfxAuto` / `AshGfxCycle` / `AshFPS 40` — named presets (`Docs/GRAPHICS.md`). **F8** cycles Ultra → High → Balanced → Perf → Deck → Laptop.
 - `AshComplete` — finish the active mission and grant XP + credits
 - `AshFrontend` — abort back to campaign select
 - `AshGrantCredits 5000` / `AshSetRank 50` / `AshPrestige` / `AshOpenCrate`
 - `AshBuySkin SKIN_FDE` / `AshEquipSkin WPN_AR_ASH16 SKIN_FDE`
-- `AshBuyCosmetic CAMO_NIGHT` / `AshEquipCosmetic Camo CAMO_NIGHT`
+- `AshBuyCosmetic CAMO_NIGHT` / `AshEquipCosmetic Camo CAMO_NIGHT` / `AshEquipCosmetic Headset HEAD_COMTAC` / `AshEquipCosmetic Backpack PACK_ASSAULT`
 - `AshBuyWeapon WPN_AR_M4K` / `AshBuyAttachment WPN_AR_ASH16 MAG_60`
 - `AshBuyEquipment EQ_SEMTEX` / `AshEquipEquipment Lethal EQ_SEMTEX`
 - `AshUnlockMeta` / `AshListMeta` / `AshListArmory` — locker + armory (`Docs/META.md`)

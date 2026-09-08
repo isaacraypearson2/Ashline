@@ -216,6 +216,60 @@
       "name": "Tomahawk",
       "class": "Melee",
       "unlock": 21
+    },
+    {
+      "id": "WPN_AR_M4C",
+      "name": "M4-C Carbine",
+      "class": "AssaultRifle",
+      "unlock": 4
+    },
+    {
+      "id": "WPN_AR_G36",
+      "name": "G36C",
+      "class": "AssaultRifle",
+      "unlock": 9
+    },
+    {
+      "id": "WPN_AR_M16",
+      "name": "M16-A4",
+      "class": "AssaultRifle",
+      "unlock": 11
+    },
+    {
+      "id": "WPN_BR_FAL",
+      "name": "FAL-E Battle Rifle",
+      "class": "BattleRifle",
+      "unlock": 13
+    },
+    {
+      "id": "WPN_BR_G3",
+      "name": "G3-A",
+      "class": "BattleRifle",
+      "unlock": 17
+    },
+    {
+      "id": "WPN_PDW_P90C",
+      "name": "P90-C PDW",
+      "class": "PDW",
+      "unlock": 10
+    },
+    {
+      "id": "WPN_SMG_MP7",
+      "name": "MP7-A",
+      "class": "SMG",
+      "unlock": 12
+    },
+    {
+      "id": "WPN_SNP_M82",
+      "name": "M82-A",
+      "class": "Sniper",
+      "unlock": 28
+    },
+    {
+      "id": "WPN_PIS_M9",
+      "name": "M9-A",
+      "class": "Sidearm",
+      "unlock": 2
     }
   ],
   "attachmentSlots": [
@@ -236,7 +290,9 @@
     "DMR",
     "LMG",
     "Launcher",
-    "Melee"
+    "Melee",
+    "BattleRifle",
+    "PDW"
   ],
   "attachments": [
     "OPT_RED",
@@ -248,6 +304,7 @@
     "OPT_8X",
     "OPT_12X",
     "OPT_THERM",
+    "OPT_NV",
     "MUZ_SUP",
     "MUZ_SUP_SN",
     "MUZ_SUP_P",
@@ -275,15 +332,18 @@
     "STK_BREACH",
     "STK_HEAVY",
     "STK_NOSTOCK",
+    "STK_FOLD",
     "LSR_PEQ",
     "LSR_5MW",
+    "LSR_IR",
     "AMMO_FMJ",
     "AMMO_AP",
     "AMMO_HP",
     "AMMO_TRACER",
     "AMMO_SLUG",
     "AMMO_BUCK",
-    "AMMO_HE"
+    "AMMO_HE",
+    "AMMO_SUB"
   ],
   "gunfeel": {
     "recoilPatterns": "Per-class TArray<FVector2D> on FAshlineWeaponStats.RecoilPattern",
@@ -296,7 +356,8 @@
       "Tracer",
       "Slug",
       "Buckshot",
-      "HE"
+      "HE",
+      "Subsonic"
     ],
     "falloff": "DamageAtRange(FalloffStart/End, MinDamageMul)",
     "reload": "EmptyReloadMul vs TacticalReloadMul"

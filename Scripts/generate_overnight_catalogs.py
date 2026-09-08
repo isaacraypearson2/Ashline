@@ -125,18 +125,34 @@ def main() -> None:
         r'Add\(EAshlineAIArchetype::(\w+),\s*TEXT\("([^"]+)"\)',
         ai_src,
     )
+    ai_slug = {
+        "MachineGunner": "Gunner",
+        "CivilianIrregular": "Irregular",
+        "CQBSpecialist": "CQB",
+    }
+    ai_archetypes = []
+    for enum_name, display in ai_names:
+        slug = ai_slug.get(enum_name, enum_name)
+        ai_archetypes.append(
+            {
+                "enum": enum_name,
+                "name": display,
+                "presentation": f"/Game/Ashline/Data/Kits/DA_AI_{slug}.DA_AI_{slug}",
+                "mesh": f"/Game/Ashline/Characters/AI/SK_AI_{slug}.SK_AI_{slug}",
+            }
+        )
 
     weapons_json = {
         "note": "Designer mirror. Runtime source of truth is UAshlineWeaponCatalog.",
         "roster": weapon_defs,
         "attachmentSlots": ["Optic", "Muzzle", "Underbarrel", "Magazine", "Stock", "Laser", "Ammunition"],
-        "classes": ["AssaultRifle", "SMG", "Sniper", "Shotgun", "Sidearm", "DMR", "LMG", "Launcher", "Melee"],
+        "classes": ["AssaultRifle", "SMG", "Sniper", "Shotgun", "Sidearm", "DMR", "LMG", "Launcher", "Melee", "BattleRifle", "PDW"],
         "attachments": attachment_ids,
         "gunfeel": {
             "recoilPatterns": "Per-class TArray<FVector2D> on FAshlineWeaponStats.RecoilPattern",
             "ads": "ADSTimeSeconds + ADSFov + hip/ADS spread + sway lerp",
             "fireModes": "Semi / Burst / Auto via B / D-pad right",
-            "ammoTypes": ["FMJ", "AP", "HP", "Tracer", "Slug", "Buckshot", "HE"],
+            "ammoTypes": ["FMJ", "AP", "HP", "Tracer", "Slug", "Buckshot", "HE", "Subsonic"],
             "falloff": "DamageAtRange(FalloffStart/End, MinDamageMul)",
             "reload": "EmptyReloadMul vs TacticalReloadMul",
         },
@@ -191,22 +207,7 @@ def main() -> None:
 
     ai_json = {
         "note": "Designer mirror. Runtime source of truth is UAshlineAICatalog.",
-        "archetypes": [
-            {"enum": enum_name, "name": display, "presentation": f"/Game/Ashline/Data/Kits/DA_AI_{slug}.DA_AI_{slug}", "mesh": f"/Game/Ashline/Characters/AI/SK_AI_{slug}.SK_AI_{slug}"}
-            for enum_name, display, slug in [
-                ("Rifleman", "Rifleman", "Rifleman"),
-                ("Breacher", "Breacher", "Breacher"),
-                ("Marksman", "Marksman", "Marksman"),
-                ("MachineGunner", "Machine Gunner", "Gunner"),
-                ("Officer", "Officer", "Officer"),
-                ("Scout", "Scout", "Scout"),
-                ("Heavy", "Heavy", "Heavy"),
-                ("CivilianIrregular", "Irregular", "Irregular"),
-                ("Grenadier", "Grenadier", "Grenadier"),
-                ("Elite", "Elite", "Elite"),
-                ("Spotter", "Spotter", "Spotter"),
-            ]
-        ],
+        "archetypes": ai_archetypes,
     }
 
     bindings = {
@@ -262,19 +263,13 @@ def main() -> None:
         ],
     }
 
-    # Fix AI bindings keys to match previous convention
     bindings["ai"] = {
-        "Rifleman": "/Game/Ashline/Characters/AI/SK_AI_Rifleman.SK_AI_Rifleman",
-        "Breacher": "/Game/Ashline/Characters/AI/SK_AI_Breacher.SK_AI_Breacher",
-        "Marksman": "/Game/Ashline/Characters/AI/SK_AI_Marksman.SK_AI_Marksman",
-        "Gunner": "/Game/Ashline/Characters/AI/SK_AI_Gunner.SK_AI_Gunner",
-        "Officer": "/Game/Ashline/Characters/AI/SK_AI_Officer.SK_AI_Officer",
-        "Scout": "/Game/Ashline/Characters/AI/SK_AI_Scout.SK_AI_Scout",
-        "Heavy": "/Game/Ashline/Characters/AI/SK_AI_Heavy.SK_AI_Heavy",
-        "Irregular": "/Game/Ashline/Characters/AI/SK_AI_Irregular.SK_AI_Irregular",
-        "Grenadier": "/Game/Ashline/Characters/AI/SK_AI_Grenadier.SK_AI_Grenadier",
-        "Elite": "/Game/Ashline/Characters/AI/SK_AI_Elite.SK_AI_Elite",
-        "Spotter": "/Game/Ashline/Characters/AI/SK_AI_Spotter.SK_AI_Spotter",
+        {
+            "MachineGunner": "Gunner",
+            "CivilianIrregular": "Irregular",
+            "CQBSpecialist": "CQB",
+        }.get(row["enum"], row["enum"]): row["mesh"]
+        for row in ai_archetypes
     }
 
     for item in cosmetics:
@@ -283,7 +278,7 @@ def main() -> None:
             "mesh": f"/Game/Ashline/Characters/Hero/Cosmetics/SK_{item['id']}.SK_{item['id']}",
             "material": f"/Game/Ashline/Materials/Cosmetics/M_{item['id']}.M_{item['id']}",
         }
-        if item["slot"] in {"Helmet", "Vest", "Pants", "Gloves", "Boots", "Face"}:
+        if item["slot"] in {"Helmet", "Vest", "Pants", "Gloves", "Boots", "Face", "Headset", "Backpack"}:
             spec["part"] = f"/Game/Ashline/Characters/Hero/Parts/{item['slot']}/SM_{item['id']}.SM_{item['id']}"
         if item["slot"] == "Charm":
             spec["part"] = f"/Game/Ashline/Weapons/Charms/SM_{item['id']}.SM_{item['id']}"

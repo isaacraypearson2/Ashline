@@ -66,6 +66,18 @@
       "name": "Spotter",
       "presentation": "/Game/Ashline/Data/Kits/DA_AI_Spotter.DA_AI_Spotter",
       "mesh": "/Game/Ashline/Characters/AI/SK_AI_Spotter.SK_AI_Spotter"
+    },
+    {
+      "enum": "RadioOp",
+      "name": "Radio Op",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_RadioOp.DA_AI_RadioOp",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_RadioOp.SK_AI_RadioOp"
+    },
+    {
+      "enum": "CQBSpecialist",
+      "name": "CQB",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_CQB.DA_AI_CQB",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_CQB.SK_AI_CQB"
     }
   ]
 }

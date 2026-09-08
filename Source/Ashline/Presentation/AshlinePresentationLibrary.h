@@ -17,7 +17,7 @@ class UObject;
 class AActor;
 class ACharacter;
 
-/** Runtime resolver: authored DataAssets → StarterContent → Engine fallbacks. Never assumes Fab binaries exist. */
+/** Runtime resolver: Engine materials/meshes first, then authored DataAssets / StarterContent only if the package exists. Never assumes Fab binaries exist. */
 UCLASS()
 class ASHLINE_API UAshlinePresentationLibrary : public UBlueprintFunctionLibrary
 {
@@ -35,6 +35,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
 	static UMaterialInterface* GetSurfaceMaterial(EAshlineSurface Surface);
+
+	/** Authored MI first, then Engine, then StarterContent if the pack exists. */
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Presentation")
 	static UMaterialInstanceDynamic* MakeTintedMaterial(UObject* Outer, EAshlineSurface Surface, const FLinearColor& Tint);
