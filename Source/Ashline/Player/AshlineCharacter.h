@@ -49,6 +49,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Combat")
 	void SwapWeapon();
 
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Combat")
+	void CycleFireMode();
+
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Camera")
@@ -96,6 +99,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
 	TObjectPtr<UInputAction> CrouchAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
+	TObjectPtr<UInputAction> FireModeAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Movement")
 	float AimWalkMul = 0.55f;
 
@@ -136,4 +142,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Combat")
 	bool bIsAiming = false;
+
+	float HipFov = 90.f;
 };

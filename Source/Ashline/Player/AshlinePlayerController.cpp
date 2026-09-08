@@ -13,7 +13,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Settings/AshlineGraphicsSettings.h"
 #include "Meta/AshlineMetaCatalog.h"
+#include "Meta/AshlineEquipmentCatalog.h"
 #include "Progression/AshlineProgressionSubsystem.h"
+#include "Weapons/AshlineWeaponCatalog.h"
 #include "UI/AshlineTouchHUD.h"
 
 AAshlinePlayerController::AAshlinePlayerController()
@@ -270,6 +272,28 @@ void AAshlinePlayerController::AshSteamDeck()
 	}
 }
 
+void AAshlinePlayerController::AshPCLow()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->ApplyPreset(EAshlineGraphicsPreset::Low);
+		}
+	}
+}
+
+void AAshlinePlayerController::AshPCMed()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->ApplyPreset(EAshlineGraphicsPreset::Medium);
+		}
+	}
+}
+
 void AAshlinePlayerController::AshLaptop()
 {
 	if (UGameInstance* GI = GetGameInstance())
@@ -455,5 +479,67 @@ void AAshlinePlayerController::AshListMeta()
 		UE_LOG(LogAshline, Log, TEXT("  %s  %s  weapon=%s  %dcr"),
 			*Item.SkinId.ToString(), *Item.DisplayName.ToString(),
 			Item.WeaponId.IsNone() ? TEXT("*") : *Item.WeaponId.ToString(), Item.CreditCost);
+	}
+}
+
+void AAshlinePlayerController::AshBuyWeapon(const FString& WeaponId)
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const bool bOk = Progression->PurchaseWeapon(FName(*WeaponId));
+		UE_LOG(LogAshline, Log, TEXT("AshBuyWeapon %s -> %s (credits %d)"), *WeaponId, bOk ? TEXT("ok") : TEXT("fail"), Progression->GetCredits());
+	}
+}
+
+void AAshlinePlayerController::AshBuyAttachment(const FString& WeaponId, const FString& AttachmentId)
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const bool bOk = Progression->PurchaseAttachment(FName(*WeaponId), FName(*AttachmentId));
+		UE_LOG(LogAshline, Log, TEXT("AshBuyAttachment %s on %s -> %s"), *AttachmentId, *WeaponId, bOk ? TEXT("ok") : TEXT("fail"));
+	}
+}
+
+void AAshlinePlayerController::AshBuyEquipment(const FString& EquipmentId)
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const bool bOk = Progression->PurchaseEquipment(FName(*EquipmentId));
+		UE_LOG(LogAshline, Log, TEXT("AshBuyEquipment %s -> %s (credits %d)"), *EquipmentId, bOk ? TEXT("ok") : TEXT("fail"), Progression->GetCredits());
+	}
+}
+
+void AAshlinePlayerController::AshEquipEquipment(const FString& SlotName, const FString& EquipmentId)
+{
+	EAshlineEquipmentSlot Slot = EAshlineEquipmentSlot::Lethal;
+	if (SlotName.Equals(TEXT("Tactical"), ESearchCase::IgnoreCase))
+	{
+		Slot = EAshlineEquipmentSlot::Tactical;
+	}
+	else if (SlotName.Equals(TEXT("Field"), ESearchCase::IgnoreCase))
+	{
+		Slot = EAshlineEquipmentSlot::Field;
+	}
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const bool bOk = Progression->EquipEquipment(Slot, FName(*EquipmentId));
+		UE_LOG(LogAshline, Log, TEXT("AshEquipEquipment %s in %s -> %s"), *EquipmentId, *SlotName, bOk ? TEXT("ok") : TEXT("fail"));
+	}
+}
+
+void AAshlinePlayerController::AshListArmory()
+{
+	UE_LOG(LogAshline, Log, TEXT("=== Ashline weapons ==="));
+	for (const FAshlineWeaponDefinition& Item : UAshlineWeaponCatalog::BuildRoster())
+	{
+		UE_LOG(LogAshline, Log, TEXT("  %s  %s  rank%d  %dcr  P%d"),
+			*Item.WeaponId.ToString(), *Item.DisplayName.ToString(), Item.UnlockLevel, Item.CreditCost, Item.RequiredPrestige);
+	}
+	UE_LOG(LogAshline, Log, TEXT("=== Ashline equipment ==="));
+	for (const FAshlineEquipmentDefinition& Item : UAshlineEquipmentCatalog::BuildRoster())
+	{
+		UE_LOG(LogAshline, Log, TEXT("  %s  %s  %s  rank%d  %dcr"),
+			*Item.EquipmentId.ToString(), *Item.DisplayName.ToString(),
+			*UAshlineEquipmentCatalog::SlotName(Item.Slot), Item.UnlockRank, Item.CreditCost);
 	}
 }

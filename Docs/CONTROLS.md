@@ -14,13 +14,15 @@ Console cheats (Output Log or `~` if enabled):
 
 - `AshUnlockAll` — every mission becomes playable
 - `AshDeploy 3` — jump to ASH-03 (also unlocks all)
-- `AshPCUltra` / `AshPCBalanced` — named 1440p presets for the 9070 GRE
+- `AshPCUltra` / `AshPCHigh` / `AshPCBalanced` / `AshPCPerf` / `AshSteamDeck` / `AshPCLow` / `AshPCMed` / `AshLaptop` / `AshGfxAuto` / `AshGfxCycle` / `AshFPS 40` — named presets (`Docs/GRAPHICS.md`). **F8** cycles Ultra → High → Balanced → Perf → Deck → Laptop.
 - `AshComplete` — finish the active mission and grant XP + credits
 - `AshFrontend` — abort back to campaign select
 - `AshGrantCredits 5000` / `AshSetRank 50` / `AshPrestige` / `AshOpenCrate`
 - `AshBuySkin SKIN_FDE` / `AshEquipSkin WPN_AR_ASH16 SKIN_FDE`
-- `AshBuyCosmetic CAMO_NIGHT` / `AshEquipCosmetic Camo CAMO_NIGHT`
-- `AshUnlockMeta` / `AshListMeta` — locker catalog (`Docs/META.md`)
+- `AshBuyCosmetic CAMO_NIGHT` / `AshEquipCosmetic Camo CAMO_NIGHT` / `AshEquipCosmetic Headset HEAD_COMTAC` / `AshEquipCosmetic Backpack PACK_ASSAULT`
+- `AshBuyWeapon WPN_AR_M4K` / `AshBuyAttachment WPN_AR_ASH16 MAG_60`
+- `AshBuyEquipment EQ_SEMTEX` / `AshEquipEquipment Lethal EQ_SEMTEX`
+- `AshUnlockMeta` / `AshListMeta` / `AshListArmory` — locker + armory (`Docs/META.md`)
 
 ## Keyboard / mouse (in mission)
 
@@ -33,6 +35,7 @@ Console cheats (Output Log or `~` if enabled):
 - **C** or **Left Ctrl** — crouch
 - **V** — FPS / TPS (saved)
 - **Q** or **1 / 2** — swap weapon
+- **B** — cycle fire mode (Semi / Burst / Auto when the gun supports it)
 - **Esc** — pause (Enter resume, Esc again abort to campaign)
 
 ## DualSense (`IMC_Ashline_Gamepad`, still applied on Mac/iOS)
@@ -41,6 +44,7 @@ Console cheats (Output Log or `~` if enabled):
 - **R2** fire, **L2** aim
 - **Square** reload, **Cross** jump, **Circle** crouch, **Triangle** swap
 - Share / D-pad up — camera toggle
+- D-pad right — cycle fire mode
 - Adaptive triggers and haptics: `UAshlineDualSense` → `AshlineGameController.mm`
 
 ## iOS touch (`IMC_Ashline_Touch`)

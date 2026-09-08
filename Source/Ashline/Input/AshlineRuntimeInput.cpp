@@ -48,6 +48,7 @@ void UAshlineRuntimeInput::EnsureBuilt()
 	CameraToggle = MakeAction(TEXT("IA_Ashline_Camera"), static_cast<uint8>(EInputActionValueType::Boolean));
 	SwapWeapon = MakeAction(TEXT("IA_Ashline_Swap"), static_cast<uint8>(EInputActionValueType::Boolean));
 	Crouch = MakeAction(TEXT("IA_Ashline_Crouch"), static_cast<uint8>(EInputActionValueType::Boolean));
+	FireMode = MakeAction(TEXT("IA_Ashline_FireMode"), static_cast<uint8>(EInputActionValueType::Boolean));
 
 	KeyboardMouseContext = NewObject<UInputMappingContext>(this, TEXT("IMC_Ashline_KBM_Runtime"));
 	GamepadContext = NewObject<UInputMappingContext>(this, TEXT("IMC_Ashline_Gamepad_Runtime"));
@@ -101,6 +102,7 @@ void UAshlineRuntimeInput::MapButtons()
 	KeyboardMouseContext->MapKey(SwapWeapon, EKeys::Two);
 	KeyboardMouseContext->MapKey(Crouch, EKeys::C);
 	KeyboardMouseContext->MapKey(Crouch, EKeys::LeftControl);
+	KeyboardMouseContext->MapKey(FireMode, EKeys::B);
 }
 
 void UAshlineRuntimeInput::MapGamepad()
@@ -119,6 +121,7 @@ void UAshlineRuntimeInput::MapGamepad()
 	GamepadContext->MapKey(SwapWeapon, EKeys::Gamepad_FaceButton_Top);
 	GamepadContext->MapKey(CameraToggle, EKeys::Gamepad_Special_Left);
 	GamepadContext->MapKey(CameraToggle, EKeys::Gamepad_DPad_Up);
+	GamepadContext->MapKey(FireMode, EKeys::Gamepad_DPad_Right);
 
 	// Touch context mirrors fire/aim/jump so a later UMG HUD can inject the same actions.
 	TouchContext->MapKey(Fire, EKeys::LeftMouseButton);

@@ -14,14 +14,13 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 
 ## Graphics
 
-- [ ] PIE HUD shows **Ashline_PC_Ultra** (or the auto-detected rec) and an RHI name containing **D3D12**
-- [ ] `stat fps` at 1440p — high-refresh capable (VSync off) on the 9070 GRE
+- [ ] PIE HUD shows **Ashline_PC_Ultra** and an RHI name containing **D3D12**
+- [ ] `stat fps` at 1440p — high-refresh capable (VSync off)
 - [ ] `r.RayTracing` / `r.Lumen.HardwareRayTracing` are 1 if the driver reports HW RT
-- [ ] `AshPCHigh` / `AshPCBalanced` / `AshPCPerf` drop cost; `AshPCUltra` restores
-- [ ] `AshSteamDeck` snaps 1280×800, 40 fps, safe-zone HUD; `AshPCUltra` returns to 1440p
-- [ ] `AshGfxAuto` re-detects; **F8** cycles named presets
+- [ ] `AshPCBalanced` / `AshPCPerf` / `AshSteamDeck` / `AshPCUltra` swap screen percentage / RT / fps cap as documented
 - [ ] Nanite/Lumen/VSM do not spam fatal logs
 - [ ] DLSS is **not** required; game looks correct with FSR3 or TSR only
+- [ ] Steam Deck preset: VSync on, `t.MaxFPS=60`, RT off
 
 ## Campaign loop (do not break)
 
@@ -41,22 +40,24 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 - [ ] `AshGrantCredits 5000` then `AshBuySkin SKIN_FDE` then `AshEquipSkin WPN_AR_ASH16 SKIN_FDE` — redeploy and the ASH-16 tints tan
 - [ ] `AshBuyCosmetic CAMO_NIGHT` + `AshEquipCosmetic Camo CAMO_NIGHT` — TPS / blockout body reads darker blue
 - [ ] `AshUnlockMeta` owns the catalog; prestige-gated gilt stays locked until prestige
-- [ ] `AshSetRank 50` then `AshPrestige` grants/equips `CAMO_PRESTIGE`, `SKIN_GOLD`, `CHARM_SPINE`; rank returns to 1
+- [ ] `AshSetRank 50` then `AshPrestige` grants/equips `CAMO_PRESTIGE`, `SKIN_GOLD`, `CHARM_SPINE`; rank returns to 1. Second prestige grants diamond set.
+- [ ] `AshBuyWeapon WPN_AR_M4K` spends credits; service guns (cost 0) still auto-grant on rank.
+- [ ] **B** cycles ASH-16 AUTO → BURST → SEMI; HUD shows `SEMI/FMJ` (or current ammo)
+- [ ] `AshBuyWeapon WPN_BR_FAL` / `AshBuyWeapon WPN_PDW_P90C` after rank
+- [ ] `AshEquipCosmetic Headset HEAD_COMTAC` / `AshEquipCosmetic Backpack PACK_ASSAULT`
+- [ ] **F8** / `AshGfxCycle` walks Ultra → High → Balanced → Perf → Deck → Laptop
+- [ ] `AshBuyEquipment EQ_SEMTEX` + `AshEquipEquipment Lethal EQ_SEMTEX` shows on frontend.
 - [ ] Weapon upgrade spends credits (`UpgradeWeapon` / armory path)
-- [ ] 1.x save slot migrates to 2.0.0 without wiping missions
-- [ ] `AshListMeta` dumps cosmetic + skin ids
+- [ ] 1.x save slot migrates to 2.0.0 without wiping missions; 2.x saves pick up starter equipment
+- [ ] `AshListMeta` / `AshListArmory` dump ids to the log
+- [ ] **B** cycles fire mode on ASH-16; HUD shows `AUTO/FMJ`
 - [ ] No multiplayer / listen-server objects were added
 
 ## Presentation (Phase 1 bar)
 
 - [ ] Each of ASH-01…12 has a **distinct** lighting/fog mood (night vs desert vs snow vs red finale)
-- [ ] ASH-01 is a **night raid**, not a courtyard: LZ woods → trench → outer fence → motor pool → relay compound → creek / QRF (≈520 m class)
-- [ ] Remaining missions have long infil → objective → exfil lanes (3–6× the old graybox footprint)
-- [ ] Buildings show metal trim + glass; roads read asphalt; crates/lamps/debris exist without Fab kits
-- [ ] No editor banner **Lighting needs to be rebuilt** in PIE (Movable lights + force no precomputed lighting)
-- [ ] No spam about competing directional lights / missing StarterContent when the pack is not installed
-- [ ] Surfaces are not a single flat gray — materials tint / Engine PBR (StarterContent only if the pack exists)
-- [ ] Practical lights on objectives; fog + post-process visible; interior volumes in CQB maps
+- [ ] Surfaces are not a single flat gray — materials tint / StarterContent / Engine PBR
+- [ ] Practical lights on objectives; fog + post-process visible
 - [ ] FPS weapon is a **compound rifle-like mesh**, not a lone cube
 - [ ] Firing shows a muzzle flash light; impacts spawn a decal when the engine decal material exists
 - [ ] AI is a humanoid mesh when a mannequin/MetaHuman path resolves; otherwise a tinted body (not an invisible capsule)

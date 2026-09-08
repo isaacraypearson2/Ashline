@@ -4,6 +4,7 @@
 #include "AshlineTypes.generated.h"
 
 class USkeletalMesh;
+class UStaticMesh;
 class UMaterialInterface;
 
 UENUM(BlueprintType)
@@ -59,6 +60,8 @@ enum class EAshlineWeaponClass : uint8
 	Sidearm,
 	DMR,
 	LMG,
+	Launcher,
+	Melee,
 	BattleRifle,
 	PDW
 };
@@ -87,6 +90,8 @@ enum class EAshlineAIArchetype : uint8
 	Heavy,
 	CivilianIrregular,
 	Grenadier,
+	Elite,
+	Spotter,
 	RadioOp,
 	CQBSpecialist
 };
@@ -131,7 +136,7 @@ enum class EAshlineGraphicsPreset : uint8
 	PC_Ultra UMETA(DisplayName = "Ashline_PC_Ultra"),
 	/** Discrete mid GPU (8 GB class) at 1440p or 1080p. */
 	PC_High UMETA(DisplayName = "Ashline_PC_High"),
-	/** 6 GB / last-gen discrete. Aggressive FSR/TSR, software Lumen. */
+	/** 6 GB / last-gen discrete. Aggressive FSR/TSR, software Lumen. Also `AshPCPerf`. */
 	PC_Performance UMETA(DisplayName = "Ashline_PC_Performance"),
 	/** Steam Deck / Proton handheld: 800p, FSR, 30/40/60 caps, HUD safe zone. */
 	SteamDeck UMETA(DisplayName = "Ashline_SteamDeck"),
@@ -190,6 +195,35 @@ enum class EAshlineSurface : uint8
 	Glass,
 	Asphalt,
 	Skin
+};
+
+UENUM(BlueprintType)
+enum class EAshlineFireMode : uint8
+{
+	Semi,
+	Burst,
+	Auto
+};
+
+UENUM(BlueprintType)
+enum class EAshlineAmmoType : uint8
+{
+	FMJ,
+	AP,
+	HP,
+	Tracer,
+	Slug,
+	Buckshot,
+	HE,
+	Subsonic
+};
+
+UENUM(BlueprintType)
+enum class EAshlineEquipmentSlot : uint8
+{
+	Lethal,
+	Tactical,
+	Field
 };
 
 USTRUCT(BlueprintType)
@@ -291,19 +325,73 @@ struct FAshlineWeaponStats
 	bool bAutomatic = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
-	int32 PelletCount = 1;
-};
+	EAshlineFireMode FireMode = EAshlineFireMode::Auto;
 
-UENUM(BlueprintType)
-enum class EAshlineAmmoType : uint8
-{
-	Standard = 0,
-	FMJ,
-	HollowPoint,
-	ArmorPiercing,
-	Tracer,
-	Subsonic,
-	Slug
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	int32 BurstCount = 3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	EAshlineAmmoType AmmoType = EAshlineAmmoType::FMJ;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	int32 PelletCount = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float ADSTimeSeconds = 0.22f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float ADSFov = 62.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float HipFov = 90.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float HeadshotMultiplier = 1.8f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float ArmorPenetration = 0.35f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float MovementSpreadMul = 1.35f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float CrouchSpreadMul = 0.78f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float EmptyReloadMul = 1.18f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float TacticalReloadMul = 0.88f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float FalloffStartMeters = 40.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float FalloffEndMeters = 220.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float MinDamageMul = 0.55f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float SwayHipDegrees = 0.55f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float SwayAdsDegrees = 0.12f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float SwaySpeed = 1.35f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float RecoilRecoveryPerSecond = 9.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float RecoilFirstShotMul = 1.15f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	float RecoilAdsMul = 0.55f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	TArray<FVector2D> RecoilPattern;
 };
 
 USTRUCT(BlueprintType)
@@ -330,7 +418,28 @@ struct FAshlineWeaponDefinition
 	int32 UnlockLevel = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
-	EAshlineAmmoType DefaultAmmo = EAshlineAmmoType::Standard;
+	FText Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	int32 CreditCost = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	int32 RequiredPrestige = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	FName CollectionId = TEXT("SET_SERVICE");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	FLinearColor PreviewTint = FLinearColor(0.08f, 0.08f, 0.09f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	TArray<EAshlineFireMode> SupportedFireModes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	FString PreviewIconPath;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	EAshlineAmmoType DefaultAmmo = EAshlineAmmoType::FMJ;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	int32 MaxUpgradeTier = 5;
@@ -355,6 +464,12 @@ struct FAshlineAttachmentDefinition
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	int32 UnlockLevel = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	int32 CreditCost = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	FText Description;
 };
 
 USTRUCT(BlueprintType)
@@ -370,6 +485,108 @@ struct FAshlineLoadoutSlot
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Armory")
 	FName SkinId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Armory")
+	EAshlineFireMode FireMode = EAshlineFireMode::Auto;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Armory")
+	EAshlineAmmoType AmmoType = EAshlineAmmoType::FMJ;
+};
+
+USTRUCT(BlueprintType)
+struct FAshlineEquipmentDefinition
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	FName EquipmentId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	FText DisplayName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	EAshlineEquipmentSlot Slot = EAshlineEquipmentSlot::Lethal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	EAshlineLootRarity Rarity = EAshlineLootRarity::Common;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	int32 UnlockRank = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	int32 CreditCost = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	int32 RequiredPrestige = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	bool bStarter = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	float Damage = 120.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	float RadiusMeters = 6.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	float FuseSeconds = 1.8f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	int32 CarryCount = 2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	FText Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	FName CollectionId = TEXT("SET_FIELD");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	FString PreviewIconPath;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	FLinearColor PreviewTint = FLinearColor(0.45f, 0.32f, 0.12f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	TSoftObjectPtr<UStaticMesh> MeshOverride;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Equipment")
+	TSoftObjectPtr<UMaterialInterface> MaterialOverride;
+};
+
+USTRUCT(BlueprintType)
+struct FAshlineMaterialParams
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	FLinearColor Tint = FLinearColor(0.18f, 0.18f, 0.16f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	float Roughness = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	float Metallic = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	float Specular = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	float Emissive = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	FLinearColor EmissiveColor = FLinearColor::Black;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	float NormalStrength = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	float AmbientOcclusion = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	float ClearCoat = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Materials")
+	float UVTiling = 1.f;
 };
 
 USTRUCT(BlueprintType)
@@ -407,6 +624,15 @@ struct FAshlineOperatorProfile
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Operator")
 	FName EquippedCharm;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Operator")
+	FName LethalId = TEXT("EQ_FRAG");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Operator")
+	FName TacticalId = TEXT("EQ_FLASH");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Operator")
+	FName FieldId = TEXT("EQ_AMMO");
 };
 
 USTRUCT(BlueprintType)
@@ -470,6 +696,18 @@ struct FAshlineCosmeticDefinition
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
 	TSoftObjectPtr<UMaterialInterface> MaterialOverride;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FText Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FName CollectionId = TEXT("SET_FIELD");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FString PreviewIconPath;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FLinearColor PreviewAccent = FLinearColor(0.7f, 0.72f, 0.55f);
 };
 
 USTRUCT(BlueprintType)
@@ -507,6 +745,24 @@ struct FAshlineWeaponSkinDefinition
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
 	TSoftObjectPtr<UMaterialInterface> MaterialOverride;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	TSoftObjectPtr<UStaticMesh> MeshOverride;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FText Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FName CollectionId = TEXT("SET_FACTORY");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FString PreviewIconPath;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	FLinearColor PreviewAccent = FLinearColor(0.55f, 0.58f, 0.5f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Meta")
+	bool bAnimatedPreview = false;
 };
 
 USTRUCT(BlueprintType)

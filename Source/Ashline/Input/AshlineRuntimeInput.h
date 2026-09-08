@@ -47,6 +47,9 @@ public:
 	TObjectPtr<UInputAction> Crouch;
 
 	UPROPERTY()
+	TObjectPtr<UInputAction> FireMode;
+
+	UPROPERTY()
 	TObjectPtr<UInputMappingContext> KeyboardMouseContext;
 
 	UPROPERTY()
