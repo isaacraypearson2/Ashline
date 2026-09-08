@@ -126,6 +126,7 @@ private:
 	void ProbeCapabilities();
 	void ApplyCVars();
 	void ApplyNamedMachinePreset(EAshlineGraphicsPreset Preset);
+	void ApplyTextureStreamingCVars(EAshlineGraphicsPreset Preset);
 	void ApplyUpscalerCVars();
 	void ApplyRayTracingCVars();
 	void ApplyFrameTargetCVars();
@@ -145,6 +146,8 @@ private:
 	void ApplyPerformancePreset();
 	void ApplySteamDeckPreset();
 	void ApplyLaptopPreset();
+	void ToggleFSR3();
+	void ToggleTSR();
 	void RegisterConsoleCommands();
 	void UnregisterConsoleCommands();
 

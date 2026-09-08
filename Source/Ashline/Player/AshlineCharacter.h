@@ -49,6 +49,23 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Combat")
 	void SwapWeapon();
 
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Combat")
+	void Interact();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Combat")
+	void NotifyWeaponFired();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Combat")
+	void CycleFireMode();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Combat")
+	bool IsDowned() const { return bDowned; }
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Combat")
+	bool IsAiming() const { return bIsAiming; }
+
+	void RestoreAfterRespawn();
+
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Camera")
@@ -96,8 +113,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
 	TObjectPtr<UInputAction> CrouchAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
+	TObjectPtr<UInputAction> InteractAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
+	TObjectPtr<UInputAction> SprintAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
+	TObjectPtr<UInputAction> FireModeAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Movement")
 	float AimWalkMul = 0.55f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Camera")
+	float HipFOV = 90.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Camera")
+	float ADSFOV = 62.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Movement")
+	float SprintMul = 1.45f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Combat")
 	float MaxHealth = 100.f;
@@ -105,11 +140,22 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Combat")
 	float Health = 100.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Combat")
+	float MaxArmor = 50.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Combat")
+	float Armor = 50.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Camera")
+	float DeathCamSeconds = 2.4f;
+
 protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void StartAim();
 	void StopAim();
+	void StartSprint();
+	void StopSprint();
 	void StartCrouch();
 	void StopCrouch();
 	void ApplyRuntimeInputActions();
@@ -125,15 +171,33 @@ protected:
 	void ApplyPresentationMesh();
 	void ApplyOperatorLook();
 	void TickFootsteps(float DeltaSeconds);
+	void TickCombatCamera(float DeltaSeconds);
+	void TickCameraFeel(float DeltaSeconds);
+	void TickDeathCam(float DeltaSeconds);
+	void ScanInteract();
+	EAshlineSurface TraceGroundSurface() const;
+	FAshlineFeelSettings GetFeel() const;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Mesh")
 	TSoftObjectPtr<USkeletalMesh> HeroMeshOverride;
 
 	float FootstepAccumulator = 0.f;
+	float CurrentFOV = 90.f;
+	FVector CameraKick = FVector::ZeroVector;
+	FVector BaseFPSCamLoc = FVector(12.f, 0.f, 64.f);
+	float DeathCamRemaining = 0.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Camera")
 	EAshlineCameraMode CameraMode = EAshlineCameraMode::FirstPerson;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Combat")
 	bool bIsAiming = false;
+
+	float HitFlinch = 0.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Combat")
+	bool bIsSprinting = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Combat")
+	bool bDowned = false;
 };

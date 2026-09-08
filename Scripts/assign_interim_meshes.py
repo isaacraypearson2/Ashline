@@ -44,6 +44,11 @@ AI_ARCHETYPES = (
     "Scout",
     "Heavy",
     "Irregular",
+    "Grenadier",
+    "Elite",
+    "Spotter",
+    "RadioOp",
+    "CQB",
 )
 
 STARTER_MATERIALS = {

@@ -27,8 +27,12 @@ REQUIRED_SKINS = {
     "SKIN_GOLD",
     "SKIN_ASH16_NIGHT",
     "SKIN_M17_SIDE",
+    "SKIN_FDE",
+    "SKIN_CHROME",
+    "SKIN_VOID",
+    "SKIN_DIAMOND",
 }
-SLOTS = {"Helmet", "Vest", "Pants", "Gloves", "Boots", "Camo", "Face", "Voice", "Charm"}
+SLOTS = {"Helmet", "Vest", "Pants", "Gloves", "Boots", "Camo", "Face", "Voice", "Charm", "Headset", "Backpack"}
 
 
 def fail(msg: str) -> None:
@@ -78,12 +82,26 @@ def main() -> None:
         fail("need at least one universal skin")
     for expected in (
         "WPN_AR_ASH16",
+        "WPN_AR_M4K",
         "WPN_SMG_C9",
+        "WPN_SMG_VEC",
         "WPN_SNP_G28L",
+        "WPN_SNP_AWM",
         "WPN_SHG_M870K",
+        "WPN_SHG_AA12",
         "WPN_PIS_M17A",
+        "WPN_PIS_DEAG",
         "WPN_DMR_SASS",
+        "WPN_DMR_MK14",
         "WPN_LMG_M250",
+        "WPN_LMG_PKM",
+        "WPN_AR_AUG",
+        "WPN_LCH_RPG",
+        "WPN_MEL_KNIFE",
+        "WPN_BR_FAL",
+        "WPN_PDW_P90C",
+        "WPN_AR_M4C",
+        "WPN_SNP_M82",
     ):
         if expected not in weapons:
             fail(f"missing per-weapon skin for {expected}")
@@ -93,11 +111,21 @@ def main() -> None:
     if not {"CAMO_PRESTIGE", "SKIN_GOLD", "CHARM_SPINE"} <= grants:
         fail("prestige must grant camo, gold skin, spine charm")
 
-    extra_clothing = {"HELM_BOONIE", "VEST_RECON", "PANT_CRYE", "GLOVE_WINTER", "BOOT_DESERT"}
+    extra_clothing = {"HELM_BOONIE", "VEST_RECON", "PANT_CRYE", "GLOVE_WINTER", "BOOT_DESERT", "HELM_NVG", "VEST_RAID", "CAMO_URBAN", "CAMO_DIAMOND", "CHARM_DIAMOND", "HEAD_COMTAC", "PACK_ASSAULT"}
     if not extra_clothing <= set(cosmetic_ids):
         fail(f"missing Phase 2 clothing {sorted(extra_clothing - set(cosmetic_ids))}")
 
     print(f"OK: {len(cosmetics)} cosmetics, {len(skins)} skins, rank 1–{data['maxRank']}")
+    if len(cosmetics) < 110:
+        fail(f"expected a deep operator locker, got {len(cosmetics)} cosmetics")
+    if len(skins) < 90:
+        fail(f"expected a large skin catalog, got {len(skins)} skins")
+    equipment = data.get("equipment") or []
+    if len(equipment) < 12:
+        fail(f"expected lethals/tacticals/field gear, got {len(equipment)} equipment")
+    eq_ids = {e["id"] for e in equipment}
+    if not {"EQ_FRAG", "EQ_FLASH"} <= eq_ids:
+        fail("starters must include EQ_FRAG and EQ_FLASH")
 
 
 if __name__ == "__main__":

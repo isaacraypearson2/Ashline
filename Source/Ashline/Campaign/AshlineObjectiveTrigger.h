@@ -27,6 +27,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Campaign")
 	int32 StarsIfMissionComplete = 2;
 
+	UFUNCTION(BlueprintPure, Category = "Ashline|Campaign")
+	bool IsConsumed() const { return bConsumed; }
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Campaign")
+	void CompleteFromInteract(AActor* InstigatorActor);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Campaign")
+	FString GetPromptText() const;
+
 protected:
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

@@ -1,0 +1,1 @@
+Drop Fab / Quixel material libraries here (camo atlases, weapon PBR sets). Runtime does not require this folder. Stamp textures onto `MI_Ashline*` / `M_AshlineWeapon` instead, or assign `DA_WPN_*.TextureSet`.

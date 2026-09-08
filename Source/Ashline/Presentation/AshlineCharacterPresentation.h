@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "AshlineTypes.h"
+#include "Presentation/AshlineMaterialTypes.h"
 #include "AshlineCharacterPresentation.generated.h"
 
 class USkeletalMesh;
@@ -39,6 +40,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Character")
 	TSoftObjectPtr<UMaterialInterface> BodyMaterialOverride;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Character")
+	TSoftObjectPtr<UMaterialInterface> SkinMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Character")
+	FAshlineTextureSet TextureSet;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Character")
 	FVector MeshRelativeLocation = FVector(0.f, 0.f, -96.f);

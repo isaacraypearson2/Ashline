@@ -13,7 +13,10 @@
 #include "Player/AshlinePlayerController.h"
 #include "Progression/AshlineProgressionSubsystem.h"
 #include "UI/AshlineHUD.h"
+#include "UI/AshlineCombatFeedback.h"
 #include "Presentation/AshlineAudioDirector.h"
+#include "Settings/AshlineGameUserSettings.h"
+#include "Settings/AshlineGraphicsSettings.h"
 #include "World/AshlineGrayboxBuilder.h"
 
 AAshlineGameMode::AAshlineGameMode()
@@ -118,7 +121,24 @@ void AAshlineGameMode::DeployMission(EAshlineMissionId MissionId)
 
 	StartMission(MissionId);
 	PlayPhase = EAshlinePlayPhase::InMission;
+	MenuLayer = EAshlineMenuLayer::None;
 	bStartPlayersAsSpectators = false;
+	MissionKills = 0;
+
+	if (UWorld* World = GetWorld())
+	{
+		if (UAshlineCombatFeedback* Feedback = World->GetSubsystem<UAshlineCombatFeedback>())
+		{
+			Feedback->ResetMission();
+			if (UAshlineGameUserSettings* User = UAshlineGameUserSettings::GetAshlineSettings())
+			{
+				if (User->Feel.bSubtitles)
+				{
+					Feedback->SetSubtitle(ActiveDefinition.Briefing.ToString(), 8.f);
+				}
+			}
+		}
+	}
 
 	ForEachLocalController([this](APlayerController* PC)
 	{
@@ -138,6 +158,7 @@ void AAshlineGameMode::DeployMission(EAshlineMissionId MissionId)
 void AAshlineGameMode::ReturnToFrontend()
 {
 	PlayPhase = EAshlinePlayPhase::Frontend;
+	MenuLayer = EAshlineMenuLayer::None;
 	bStartPlayersAsSpectators = true;
 	SelectDefaultMission();
 
@@ -179,6 +200,13 @@ void AAshlineGameMode::CompleteActiveMission(int32 Stars, bool bOptionalComplete
 	LastAwardedXP = 0;
 	LastAwardedCrates = 0;
 	LastAwardedCredits = 0;
+	if (UWorld* World = GetWorld())
+	{
+		if (UAshlineCombatFeedback* Feedback = World->GetSubsystem<UAshlineCombatFeedback>())
+		{
+			MissionKills = Feedback->MissionKills;
+		}
+	}
 
 	if (UGameInstance* GI = GetGameInstance())
 	{
@@ -216,6 +244,15 @@ void AAshlineGameMode::SetObjectiveComplete(FName ObjectiveId, bool bComplete)
 		{
 			Objective.bCompleted = bComplete;
 			UE_LOG(LogAshline, Log, TEXT("Objective %s = %s"), *ObjectiveId.ToString(), bComplete ? TEXT("done") : TEXT("open"));
+			if (UWorld* World = GetWorld())
+			{
+				if (UAshlineCombatFeedback* Feedback = World->GetSubsystem<UAshlineCombatFeedback>())
+				{
+					Feedback->NotifyObjective(FString::Printf(TEXT("%s  %s"),
+						bComplete ? TEXT("OBJ COMPLETE") : TEXT("OBJ"),
+						*Objective.DisplayName.ToString()));
+				}
+			}
 			break;
 		}
 	}
@@ -235,6 +272,18 @@ bool AAshlineGameMode::AreRequiredObjectivesComplete() const
 
 void AAshlineGameMode::MenuMove(int32 Delta)
 {
+	if (MenuLayer == EAshlineMenuLayer::Settings)
+	{
+		SettingsCursor = (SettingsCursor + Delta + 12) % 12;
+		return;
+	}
+
+	if (PlayPhase == EAshlinePlayPhase::Paused && MenuLayer == EAshlineMenuLayer::PauseRoot)
+	{
+		MenuCursor = (MenuCursor + Delta + 3) % 3;
+		return;
+	}
+
 	if (PlayPhase != EAshlinePlayPhase::Frontend)
 	{
 		return;
@@ -250,23 +299,63 @@ void AAshlineGameMode::MenuMove(int32 Delta)
 
 void AAshlineGameMode::MenuConfirm()
 {
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineAudioDirector* Audio = GI->GetSubsystem<UAshlineAudioDirector>())
+		{
+			Audio->PlayUI(this, true);
+		}
+	}
+
+	if (MenuLayer == EAshlineMenuLayer::Settings)
+	{
+		if (SettingsCursor == 11)
+		{
+			MenuLayer = (PlayPhase == EAshlinePlayPhase::Paused) ? EAshlineMenuLayer::PauseRoot : EAshlineMenuLayer::None;
+		}
+		return;
+	}
+
 	if (PlayPhase == EAshlinePlayPhase::Frontend)
 	{
 		const TArray<FAshlineMissionDefinition> Campaign = UAshlineMissionCatalog::BuildCampaign();
 		if (Campaign.IsValidIndex(SelectedMissionIndex))
 		{
-			DeployMission(Campaign[SelectedMissionIndex].MissionId);
+			EnterBriefing(Campaign[SelectedMissionIndex].MissionId);
 		}
+		return;
+	}
+
+	if (PlayPhase == EAshlinePlayPhase::Briefing)
+	{
+		DeployMission(ActiveMission);
 		return;
 	}
 
 	if (PlayPhase == EAshlinePlayPhase::Paused)
 	{
-		PlayPhase = EAshlinePlayPhase::InMission;
-		ForEachLocalController([](APlayerController* PC)
+		if (MenuCursor == 0)
 		{
-			PC->SetPause(false);
-		});
+			PlayPhase = EAshlinePlayPhase::InMission;
+			MenuLayer = EAshlineMenuLayer::None;
+			ForEachLocalController([](APlayerController* PC)
+			{
+				PC->SetPause(false);
+			});
+		}
+		else if (MenuCursor == 1)
+		{
+			MenuLayer = EAshlineMenuLayer::Settings;
+			SettingsCursor = 0;
+		}
+		else
+		{
+			ForEachLocalController([](APlayerController* PC)
+			{
+				PC->SetPause(false);
+			});
+			ReturnToFrontend();
+		}
 		return;
 	}
 
@@ -278,9 +367,38 @@ void AAshlineGameMode::MenuConfirm()
 
 void AAshlineGameMode::MenuBack()
 {
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineAudioDirector* Audio = GI->GetSubsystem<UAshlineAudioDirector>())
+		{
+			Audio->PlayUI(this, false);
+		}
+	}
+
+	if (MenuLayer == EAshlineMenuLayer::Settings)
+	{
+		MenuLayer = (PlayPhase == EAshlinePlayPhase::Paused) ? EAshlineMenuLayer::PauseRoot : EAshlineMenuLayer::None;
+		return;
+	}
+
+	if (PlayPhase == EAshlinePlayPhase::Frontend)
+	{
+		MenuLayer = EAshlineMenuLayer::Settings;
+		SettingsCursor = 0;
+		return;
+	}
+
+	if (PlayPhase == EAshlinePlayPhase::Briefing)
+	{
+		ReturnToFrontend();
+		return;
+	}
+
 	if (PlayPhase == EAshlinePlayPhase::InMission)
 	{
 		PlayPhase = EAshlinePlayPhase::Paused;
+		MenuLayer = EAshlineMenuLayer::PauseRoot;
+		MenuCursor = 0;
 		ForEachLocalController([](APlayerController* PC)
 		{
 			PC->SetPause(true);
@@ -306,6 +424,12 @@ void AAshlineGameMode::MenuBack()
 
 void AAshlineGameMode::MenuCycleDifficulty(int32 Delta)
 {
+	if (MenuLayer == EAshlineMenuLayer::Settings)
+	{
+		AdjustSetting(Delta);
+		return;
+	}
+
 	if (PlayPhase != EAshlinePlayPhase::Frontend)
 	{
 		return;
@@ -350,6 +474,7 @@ void AAshlineGameMode::RespawnPlayer(AAshlineCharacter* Character)
 	{
 		Controller->SetControlRotation(Rot);
 	}
+	Character->RestoreAfterRespawn();
 }
 
 void AAshlineGameMode::UnlockAllMissions()
@@ -484,4 +609,119 @@ void AAshlineGameMode::ForEachLocalController(TFunctionRef<void(APlayerControlle
 			}
 		}
 	}
+}
+
+void AAshlineGameMode::EnterBriefing(EAshlineMissionId MissionId)
+{
+	if (MissionId == EAshlineMissionId::None || !IsMissionDeployable(MissionId))
+	{
+		UE_LOG(LogAshline, Warning, TEXT("Mission is locked."));
+		return;
+	}
+
+	ActiveMission = MissionId;
+	if (!UAshlineMissionCatalog::FindMission(MissionId, ActiveDefinition))
+	{
+		return;
+	}
+	PlayPhase = EAshlinePlayPhase::Briefing;
+	MenuLayer = EAshlineMenuLayer::None;
+}
+
+void AAshlineGameMode::CycleGraphicsPreset(int32 Delta)
+{
+	static const EAshlineGraphicsPreset Order[] = {
+		EAshlineGraphicsPreset::SteamDeck,
+		EAshlineGraphicsPreset::Low,
+		EAshlineGraphicsPreset::Medium,
+		EAshlineGraphicsPreset::High,
+		EAshlineGraphicsPreset::Epic,
+		EAshlineGraphicsPreset::PC_Balanced,
+		EAshlineGraphicsPreset::PC_Ultra
+	};
+	constexpr int32 Count = 7;
+	int32 Index = 6;
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			const EAshlineGraphicsPreset Current = Graphics->GetState().Preset;
+			for (int32 i = 0; i < Count; ++i)
+			{
+				if (Order[i] == Current)
+				{
+					Index = i;
+					break;
+				}
+			}
+			Index = (Index + Delta + Count) % Count;
+			Graphics->ApplyPreset(Order[Index]);
+			if (UAshlineGameUserSettings* User = UAshlineGameUserSettings::GetAshlineSettings())
+			{
+				User->NamedPreset = Order[Index];
+				if (Order[Index] == EAshlineGraphicsPreset::SteamDeck)
+				{
+					User->Feel.bForceHandheldHUD = true;
+					User->Feel.HUDScale = FMath::Max(User->Feel.HUDScale, 1.2f);
+					User->Feel.SafeZone = FMath::Max(User->Feel.SafeZone, 0.08f);
+				}
+				User->ApplySettings(false);
+			}
+		}
+	}
+}
+
+void AAshlineGameMode::AdjustSetting(int32 Delta)
+{
+	UAshlineGameUserSettings* User = UAshlineGameUserSettings::GetAshlineSettings();
+	if (!User)
+	{
+		return;
+	}
+
+	FAshlineFeelSettings& Feel = User->Feel;
+	switch (SettingsCursor)
+	{
+	case 0:
+		CycleGraphicsPreset(Delta);
+		break;
+	case 1:
+		Feel.HUDScale = FMath::Clamp(Feel.HUDScale + Delta * 0.1f, 0.85f, 1.5f);
+		break;
+	case 2:
+		Feel.SafeZone = FMath::Clamp(Feel.SafeZone + Delta * 0.01f, 0.03f, 0.14f);
+		break;
+	case 3:
+		{
+			const int32 Next = (static_cast<int32>(Feel.ColorBlind) + Delta + 5) % 5;
+			Feel.ColorBlind = static_cast<EAshlineColorBlindMode>(Next);
+		}
+		break;
+	case 4:
+		Feel.bCameraShake = !Feel.bCameraShake;
+		break;
+	case 5:
+		Feel.bHitMarkers = !Feel.bHitMarkers;
+		break;
+	case 6:
+		Feel.bDamageVignette = !Feel.bDamageVignette;
+		break;
+	case 7:
+		Feel.HipFOV = FMath::Clamp(Feel.HipFOV + Delta * 2.f, 75.f, 110.f);
+		break;
+	case 8:
+		Feel.MasterVolume = FMath::Clamp(Feel.MasterVolume + Delta * 0.1f, 0.f, 1.f);
+		User->ApplyFeelToAudio();
+		break;
+	case 9:
+		Feel.MusicVolume = FMath::Clamp(Feel.MusicVolume + Delta * 0.1f, 0.f, 1.f);
+		User->ApplyFeelToAudio();
+		break;
+	case 10:
+		Feel.bForceHandheldHUD = !Feel.bForceHandheldHUD;
+		break;
+	default:
+		break;
+	}
+	User->ApplySettings(false);
 }

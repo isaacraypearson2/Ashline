@@ -1,7 +1,9 @@
 #include "World/AshlineGrayboxBuilder.h"
+#include "Presentation/AshlineLoad.h"
 
 #include "AI/AshlineAICatalog.h"
 #include "AI/AshlineAICharacter.h"
+#include "AI/AshlineCoverPoint.h"
 #include "Campaign/AshlineObjectiveTrigger.h"
 #include "Engine/CollisionProfile.h"
 #include "Camera/CameraActor.h"
@@ -27,6 +29,7 @@
 #include "Engine/SkyLight.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
+#include "Engine/World.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/WorldSettings.h"
 #include "Kismet/GameplayStatics.h"
@@ -36,6 +39,7 @@
 #include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlineEnvironmentKit.h"
 #include "Presentation/AshlineLoad.h"
+#include "Presentation/AshlineMaterialFactory.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Progression/AshlineProgressionSubsystem.h"
 
@@ -322,6 +326,15 @@ void AAshlineGrayboxBuilder::Wall(const FVector& Location, const FVector& Scale,
 void AAshlineGrayboxBuilder::Cover(const FVector& Location)
 {
 	Box(Location + FVector(0.f, 0.f, 50.f), FVector(1.4f, 2.2f, 1.1f), FLinearColor(0.28f, 0.26f, 0.22f), true, EAshlineSurface::Concrete);
+	if (UWorld* World = GetWorld())
+	{
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		if (AAshlineCoverPoint* Point = World->SpawnActor<AAshlineCoverPoint>(Location + FVector(0.f, 0.f, 20.f), FRotator::ZeroRotator, Params))
+		{
+			BuiltActors.Add(Point);
+		}
+	}
 }
 
 void AAshlineGrayboxBuilder::PlayerStartAt(const FVector& Location, const FRotator& Rotation)
@@ -841,6 +854,10 @@ void AAshlineGrayboxBuilder::ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AA
 		{
 			KitMat = AshlineLoad::Soft(ActiveKit->TrimMaterial);
 		}
+		else if (Surface == EAshlineSurface::Glass || Surface == EAshlineSurface::Water)
+		{
+			KitMat = AshlineLoad::Soft(ActiveKit->GlassMaterial);
+		}
 		else
 		{
 			KitMat = AshlineLoad::Soft(ActiveKit->WallMaterial);
@@ -872,12 +889,19 @@ void AAshlineGrayboxBuilder::ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AA
 	{
 		if (UMaterialInstanceDynamic* KitMID = UMaterialInstanceDynamic::Create(KitMat, MaterialOuter))
 		{
-			KitMID->SetVectorParameterValue(TEXT("Color"), Color);
-			KitMID->SetVectorParameterValue(TEXT("BaseColor"), Color);
+			FAshlineTextureSet Stamp = UAshlineMaterialFactory::DefaultsForSurface(Surface, Color);
+			Stamp.Tint = Color;
+			UAshlineMaterialFactory::StampTextureSet(KitMID, Stamp);
 			Mesh->SetMaterial(0, KitMID);
 			return;
 		}
 		Mesh->SetMaterial(0, KitMat);
+		return;
+	}
+
+	FAshlineTextureSet Empty;
+	if (UAshlineMaterialFactory::ApplyToMesh(Mesh, MaterialOuter, Surface, Color, Empty))
+	{
 		return;
 	}
 

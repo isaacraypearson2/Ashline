@@ -53,6 +53,11 @@ namespace AshlineLoad
 		{
 			return true;
 		}
+		// Starter Content is optional; try it quietly even before DoesPackageExist warms.
+		if (PackageName.StartsWith(TEXT("/Game/StarterContent/")))
+		{
+			return true;
+		}
 		return PackageExistsCached(PackageName);
 	}
 

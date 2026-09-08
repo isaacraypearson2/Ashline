@@ -43,4 +43,13 @@ public:
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category = "Ashline|Graphics")
 	bool bHandheldLayout = false;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	FAshlineFeelSettings Feel;
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Feel")
+	void ApplyFeelToAudio();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Feel")
+	static bool IsSteamDeckHardware();
 };

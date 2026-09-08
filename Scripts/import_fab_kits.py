@@ -8,7 +8,17 @@ tree and empty DataAsset stubs so you can drop in licensed packs.
   py "Scripts/import_fab_kits.py"
 """
 
+import json
 import unreal
+import sys
+from pathlib import Path
+
+try:
+    _SCRIPTS = Path(__file__).resolve().parent
+except NameError:
+    _SCRIPTS = Path(".")
+if str(_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS))
 
 
 KIT_ROOT = "/Game/Ashline/Data/Kits"
@@ -23,16 +33,20 @@ FOLDERS = [
     "/Game/Ashline/Characters/Hero/Parts/Boots",
     "/Game/Ashline/Characters/Hero/Parts/Face",
     "/Game/Ashline/Characters/Hero/Parts/Charm",
+    "/Game/Ashline/Characters/Hero/Parts/Headset",
+    "/Game/Ashline/Characters/Hero/Parts/Backpack",
     "/Game/Ashline/Characters/AI",
     "/Game/Ashline/Characters/MetaHuman",
     "/Game/Ashline/Weapons/Meshes",
     "/Game/Ashline/Weapons/Attachments",
     "/Game/Ashline/Weapons/Materials",
     "/Game/Ashline/Weapons/Charms",
+    "/Game/Ashline/Weapons/Equipment",
     "/Game/Ashline/Environments/Shared",
     "/Game/Ashline/Materials/PBR",
     "/Game/Ashline/Materials/Decals",
     "/Game/Ashline/Materials/Cosmetics",
+    "/Game/Ashline/Materials/Libraries",
     "/Game/Ashline/Audio/Weapons",
     "/Game/Ashline/Audio/Footsteps",
     "/Game/Ashline/Audio/Music",
@@ -60,12 +74,50 @@ MISSIONS = [
 
 WEAPONS = [
     "WPN_AR_ASH16",
+    "WPN_AR_M4K",
+    "WPN_AR_AK74",
+    "WPN_AR_SCARH",
+    "WPN_AR_416C",
     "WPN_SMG_C9",
-    "WPN_SNP_G28L",
+    "WPN_SMG_MPX",
+    "WPN_SMG_VEC",
+    "WPN_SMG_P90",
     "WPN_SHG_M870K",
-    "WPN_PIS_M17A",
+    "WPN_SHG_M1014",
+    "WPN_SHG_AA12",
+    "WPN_SNP_G28L",
+    "WPN_SNP_M2010",
+    "WPN_SNP_AWM",
     "WPN_DMR_SASS",
+    "WPN_DMR_MK14",
+    "WPN_DMR_SVD",
     "WPN_LMG_M250",
+    "WPN_LMG_M240",
+    "WPN_LMG_PKM",
+    "WPN_PIS_M17A",
+    "WPN_PIS_G19",
+    "WPN_PIS_DEAG",
+    "WPN_PIS_MP443",
+    "WPN_AR_AUG",
+    "WPN_AR_FAMAS",
+    "WPN_SMG_UMP",
+    "WPN_SMG_UZI",
+    "WPN_SHG_SPAS",
+    "WPN_PIS_1911",
+    "WPN_PIS_REV",
+    "WPN_LCH_RPG",
+    "WPN_LCH_AT4",
+    "WPN_MEL_KNIFE",
+    "WPN_MEL_TOMA",
+    "WPN_AR_M4C",
+    "WPN_AR_G36",
+    "WPN_AR_M16",
+    "WPN_BR_FAL",
+    "WPN_BR_G3",
+    "WPN_PDW_P90C",
+    "WPN_SMG_MP7",
+    "WPN_SNP_M82",
+    "WPN_PIS_M9",
 ]
 
 AI_ARCHETYPES = (
@@ -77,6 +129,11 @@ AI_ARCHETYPES = (
     "Scout",
     "Heavy",
     "Irregular",
+    "Grenadier",
+    "Elite",
+    "Spotter",
+    "RadioOp",
+    "CQB",
 )
 
 COSMETICS = [
@@ -102,6 +159,8 @@ COSMETICS = [
     "FACE_01",
     "CHARM_WIRE",
     "CHARM_SPINE",
+    "HEAD_COMTAC",
+    "PACK_ASSAULT",
 ]
 
 SKINS = [
@@ -137,6 +196,7 @@ ASH-10     : urban concrete, glass, signage
 ASH-11     : rail, gravel, train car
 ASH-12     : brutalist concrete, emissive trim
 Starter    : Add Content Pack → Starter Content (immediate PBR upgrade)
+Masters    : Scripts/create_master_materials.py → MI_AshlineConcrete / M_AshlineMetal / MI_AshlineGlass / MI_AshlineSkin
 FSR3       : AMD FidelityFX Super Resolution 3 plugin (optional; TSR works without it)
 """
 
@@ -177,7 +237,24 @@ def create_data_asset(name, directory, class_path):
         return None
 
 
+def catalog_from_bindings():
+    try:
+        path = unreal.Paths.project_dir() + "Content/Ashline/Data/ContentBindings.json"
+        with open(path, encoding="utf-8") as handle:
+            data = json.load(handle)
+        return list(data["cosmetics"].keys()), list(data["skins"].keys()), list(data["weapons"]), list((data.get("equipment") or {}).keys())
+    except Exception:
+        return None
+
+
 def main():
+    cosmetics = COSMETICS
+    skins = SKINS
+    weapons = WEAPONS
+    equipment = []
+    loaded = catalog_from_bindings()
+    if loaded:
+        cosmetics, skins, weapons, equipment = loaded
     for folder in FOLDERS:
         ensure_dir(folder)
     for index, slug, _notes in MISSIONS:
@@ -194,6 +271,26 @@ def main():
             try:
                 asset.set_editor_property("kit_id", f"ASH{index:02d}")
                 asset.set_editor_property("fab_notes", notes)
+                asset.set_editor_property(
+                    "ground_material",
+                    unreal.SoftObjectPath("/Game/Ashline/Materials/PBR/MI_AshlineDirt.MI_AshlineDirt"),
+                )
+                asset.set_editor_property(
+                    "wall_material",
+                    unreal.SoftObjectPath("/Game/Ashline/Materials/PBR/MI_AshlineConcrete.MI_AshlineConcrete"),
+                )
+                asset.set_editor_property(
+                    "trim_material",
+                    unreal.SoftObjectPath("/Game/Ashline/Materials/PBR/MI_AshlineMetal.MI_AshlineMetal"),
+                )
+                asset.set_editor_property(
+                    "foliage_material",
+                    unreal.SoftObjectPath("/Game/Ashline/Materials/PBR/MI_AshlineFoliage.MI_AshlineFoliage"),
+                )
+                asset.set_editor_property(
+                    "glass_material",
+                    unreal.SoftObjectPath("/Game/Ashline/Materials/PBR/MI_AshlineGlass.MI_AshlineGlass"),
+                )
             except Exception:
                 pass
 
@@ -206,7 +303,7 @@ def main():
                 asset.set_editor_property("b_hero", False)
             except Exception:
                 pass
-    for weapon in WEAPONS:
+    for weapon in weapons:
         asset = create_data_asset(f"DA_WPN_{weapon}", KIT_ROOT, "/Script/Ashline.AshlineWeaponVisual")
         if asset:
             try:
@@ -217,7 +314,7 @@ def main():
                 )
             except Exception:
                 pass
-    for cosmetic in COSMETICS:
+    for cosmetic in cosmetics:
         asset = create_data_asset(f"DA_COS_{cosmetic}", KIT_ROOT, "/Script/Ashline.AshlineCosmeticVisual")
         if asset:
             try:
@@ -236,7 +333,7 @@ def main():
                 )
             except Exception:
                 pass
-    for skin in SKINS:
+    for skin in skins:
         asset = create_data_asset(f"DA_SKIN_{skin}", KIT_ROOT, "/Script/Ashline.AshlineCosmeticVisual")
         if asset:
             try:
@@ -247,16 +344,32 @@ def main():
                 )
             except Exception:
                 pass
+    for eq in equipment:
+        asset = create_data_asset(f"DA_EQ_{eq}", KIT_ROOT, "/Script/Ashline.AshlineCosmeticVisual")
+        if asset:
+            try:
+                asset.set_editor_property("cosmetic_id", eq)
+                asset.set_editor_property(
+                    "part_mesh",
+                    unreal.SoftObjectPath(f"/Game/Ashline/Weapons/Equipment/SM_{eq}.SM_{eq}"),
+                )
+            except Exception:
+                pass
 
     unreal.log(FAB_LIST)
     unreal.log("Ashline: kit / weapon / cosmetic / AI DataAsset stubs ready.")
-    unreal.log("Next: Scripts/assign_interim_meshes.py then Docs/PHASE2_FAB.md install order.")
+    try:
+        import create_master_materials as masters
+        masters.main()
+    except Exception as exc:
+        unreal.log_warning(f"Ashline: create_master_materials skipped ({exc}). Run it next.")
+    unreal.log("Next: Scripts/assign_interim_meshes.py then Docs/PHASE2_FAB.md evening clock.")
     unreal.log(UAshline_fallback())
 
 
 def UAshline_fallback():
     return (
-        "Fallback chain: DataAssets → /Game/StarterContent → Engine materials. "
+        "Fallback chain: MI_Ashline{Slug} → M_Ashline{Slug} → M_{Slug} → Engine. "
         "No Quixel binaries were downloaded."
     )
 

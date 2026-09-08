@@ -1,9 +1,13 @@
 # Materials
 
 ```
-PBR/     drop MI_Ashline* / M_Ashline* masters when authored (not in git)
-Decals/M_Impact_Bullet
-Cosmetics/M_{CosmeticId}   ← locker MaterialOverride
+PBR/       MI_Ashline{Slug} / M_Ashline{Slug} / M_{Slug}  (create_master_materials.py)
+PBR/       M_AshlineMaster / M_AshlineWeapon / M_AshlineCharacter / M_AshlineGlass / M_AshlineSkin
+Libraries/ optional Fab material packs
+Decals/    M_Impact_Bullet
+Cosmetics/ M_{CosmeticId}   ← locker MaterialOverride
 ```
 
-Until those `.uasset` files exist, the builder tints Engine `DefaultMaterial` / `WorldGridMaterial` / `BasicShapeMaterial`. Starter Content (`M_Ground_Grass`, `M_Concrete_Tiles`, `M_Metal_Steel`, `M_Water_Ocean`, `M_Glass`, `M_Rock_Marble`) is used **only if the pack is installed** — missing paths fail quiet.
+Until those `.uasset` files exist, the builder tints Engine `DefaultMaterial` / `WorldGridMaterial` / `BasicShapeMaterial` and stamps Engine fallback textures. Starter Content is used **only if the pack is installed** — missing paths fail quiet.
+
+Contract: `Docs/MATERIALS.md`. JSON: `Content/Ashline/Data/MaterialBindings.json`.

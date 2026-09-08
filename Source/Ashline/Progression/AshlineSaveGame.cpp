@@ -1,5 +1,6 @@
 #include "Progression/AshlineSaveGame.h"
 #include "Campaign/AshlineMissionCatalog.h"
+#include "Meta/AshlineEquipmentCatalog.h"
 #include "Meta/AshlineMetaCatalog.h"
 
 void UAshlineSaveGame::SeedNewCampaign()
@@ -15,6 +16,7 @@ void UAshlineSaveGame::SeedNewCampaign()
 	CollectedCosmetics.Reset();
 	OwnedCosmeticIds = UAshlineMetaCatalog::StarterCosmeticIds();
 	OwnedSkinIds = UAshlineMetaCatalog::StarterSkinIds();
+	OwnedEquipmentIds = UAshlineEquipmentCatalog::StarterIds();
 	Missions.Reset();
 	Armory.Reset();
 	SlotVersion = TEXT("2.0.0");
@@ -29,6 +31,8 @@ void UAshlineSaveGame::SeedNewCampaign()
 	Operator.EquippedCosmetics.Add(EAshlineCosmeticSlot::Voice, TEXT("VOICE_NEUTRAL"));
 	Operator.CamoId = TEXT("CAMO_FIELD");
 	Operator.VoicePack = TEXT("VOICE_NEUTRAL");
+	Operator.LethalId = TEXT("EQ_FRAG");
+	Operator.TacticalId = TEXT("EQ_FLASH");
 
 	const TArray<FAshlineMissionDefinition> Campaign = UAshlineMissionCatalog::BuildCampaign();
 	for (const FAshlineMissionDefinition& Mission : Campaign)
@@ -61,6 +65,19 @@ void UAshlineSaveGame::SeedNewCampaign()
 
 void UAshlineSaveGame::MigrateIfNeeded()
 {
+	if (OwnedEquipmentIds.Num() == 0)
+	{
+		OwnedEquipmentIds = UAshlineEquipmentCatalog::StarterIds();
+	}
+	if (Operator.LethalId.IsNone())
+	{
+		Operator.LethalId = TEXT("EQ_FRAG");
+	}
+	if (Operator.TacticalId.IsNone())
+	{
+		Operator.TacticalId = TEXT("EQ_FLASH");
+	}
+
 	if (SlotVersion.StartsWith(TEXT("2.")))
 	{
 		return;
@@ -77,6 +94,10 @@ void UAshlineSaveGame::MigrateIfNeeded()
 	for (const FName& Id : UAshlineMetaCatalog::StarterSkinIds())
 	{
 		OwnedSkinIds.AddUnique(Id);
+	}
+	for (const FName& Id : UAshlineEquipmentCatalog::StarterIds())
+	{
+		OwnedEquipmentIds.AddUnique(Id);
 	}
 	for (FAshlineOwnedWeapon& Weapon : Armory)
 	{
@@ -183,7 +204,14 @@ void UAshlineSaveGame::GrantXP(int32 Amount)
 		CrateTokens += Tier.CrateGrant;
 		if (!Tier.UnlockId.IsNone())
 		{
-			OwnedCosmeticIds.AddUnique(Tier.UnlockId);
+			if (Tier.UnlockId.ToString().StartsWith(TEXT("SKIN_")))
+			{
+				OwnedSkinIds.AddUnique(Tier.UnlockId);
+			}
+			else
+			{
+				OwnedCosmeticIds.AddUnique(Tier.UnlockId);
+			}
 		}
 	}
 }
@@ -196,4 +224,9 @@ bool UAshlineSaveGame::OwnsCosmetic(FName CosmeticId) const
 bool UAshlineSaveGame::OwnsSkin(FName SkinId) const
 {
 	return OwnedSkinIds.Contains(SkinId);
+}
+
+bool UAshlineSaveGame::OwnsEquipment(FName EquipmentId) const
+{
+	return OwnedEquipmentIds.Contains(EquipmentId);
 }

@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "AshlineTypes.h"
+#include "Presentation/AshlineMaterialTypes.h"
 #include "AshlineWeaponVisual.generated.h"
 
 class UStaticMesh;
@@ -41,7 +42,25 @@ public:
 	TSoftObjectPtr<UParticleSystem> MuzzleCascadeFX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	TSoftObjectPtr<UNiagaraSystem> ImpactFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	TSoftObjectPtr<UNiagaraSystem> BloodFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	TSoftObjectPtr<UParticleSystem> SparksCascade;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	TSoftObjectPtr<UParticleSystem> ExplosionCascade;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
 	TSoftObjectPtr<UMaterialInterface> ImpactDecal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	TSoftObjectPtr<UMaterialInterface> SkinMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	FAshlineTextureSet TextureSet;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
 	TSoftObjectPtr<USoundBase> FireCue;

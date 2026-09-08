@@ -34,6 +34,8 @@ namespace AshlineManifest
 		case EAshlineAIArchetype::Heavy: return TEXT("Heavy");
 		case EAshlineAIArchetype::CivilianIrregular: return TEXT("Irregular");
 		case EAshlineAIArchetype::Grenadier: return TEXT("Grenadier");
+		case EAshlineAIArchetype::Elite: return TEXT("Elite");
+		case EAshlineAIArchetype::Spotter: return TEXT("Spotter");
 		case EAshlineAIArchetype::RadioOp: return TEXT("RadioOp");
 		case EAshlineAIArchetype::CQBSpecialist: return TEXT("CQB");
 		default: return TEXT("Rifleman");
@@ -86,6 +88,87 @@ FString UAshlineContentManifest::MusicBedPath(EAshlineMissionId MissionId)
 {
 	const int32 Index = static_cast<int32>(MissionId);
 	return FString::Printf(TEXT("/Game/Ashline/Audio/Music/SC_Bed_ASH%02d.SC_Bed_ASH%02d"), Index, Index);
+}
+
+FString UAshlineContentManifest::AmbiencePath(EAshlineMissionId MissionId)
+{
+	const int32 Index = static_cast<int32>(MissionId);
+	return FString::Printf(TEXT("/Game/Ashline/Audio/Ambience/SC_Amb_ASH%02d.SC_Amb_ASH%02d"), Index, Index);
+}
+
+FString UAshlineContentManifest::CombatStingerPath()
+{
+	return TEXT("/Game/Ashline/Audio/Stingers/SC_Combat_Stinger.SC_Combat_Stinger");
+}
+
+FString UAshlineContentManifest::FootstepCuePath(EAshlineSurface Surface)
+{
+	const TCHAR* Tag = TEXT("Default");
+	switch (Surface)
+	{
+	case EAshlineSurface::Concrete: Tag = TEXT("Concrete"); break;
+	case EAshlineSurface::Metal: Tag = TEXT("Metal"); break;
+	case EAshlineSurface::Wood: Tag = TEXT("Wood"); break;
+	case EAshlineSurface::Sand: Tag = TEXT("Sand"); break;
+	case EAshlineSurface::Snow: Tag = TEXT("Snow"); break;
+	case EAshlineSurface::Water: Tag = TEXT("Water"); break;
+	case EAshlineSurface::Foliage: Tag = TEXT("Dirt"); break;
+	case EAshlineSurface::Ground: Tag = TEXT("Dirt"); break;
+	default: break;
+	}
+	return FString::Printf(TEXT("/Game/Ashline/Audio/Footsteps/SC_Footstep_%s.SC_Footstep_%s"), Tag, Tag);
+}
+
+FString UAshlineContentManifest::ReloadCuePath()
+{
+	return TEXT("/Game/Ashline/Audio/Weapons/SC_Reload_Default.SC_Reload_Default");
+}
+
+TArray<FString> UAshlineContentManifest::EngineFireSoundCandidates()
+{
+	return {
+		TEXT("/Game/StarterContent/Audio/Explosion01.Explosion01"),
+		TEXT("/Game/StarterContent/Audio/Explosion_01.Explosion_01"),
+		TEXT("/Game/StarterContent/Audio/Fire01.Fire01")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::EngineHitSoundCandidates()
+{
+	return {
+		TEXT("/Game/StarterContent/Audio/Explosion01.Explosion01"),
+		TEXT("/Game/StarterContent/Audio/Explosion_01.Explosion_01")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::EngineReloadSoundCandidates()
+{
+	return {
+		TEXT("/Game/StarterContent/Audio/Starter_Music_Cue.Starter_Music_Cue")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::EngineFootstepSoundCandidates()
+{
+	return {
+		TEXT("/Game/StarterContent/Audio/Fire01.Fire01")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::EngineExplosionSoundCandidates()
+{
+	return {
+		TEXT("/Game/StarterContent/Audio/Explosion01.Explosion01"),
+		TEXT("/Game/StarterContent/Audio/Explosion_01.Explosion_01")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::EngineUISoundCandidates()
+{
+	return {
+		TEXT("/Game/StarterContent/Audio/Starter_Music_Cue.Starter_Music_Cue"),
+		TEXT("/Game/StarterContent/Audio/Fire01.Fire01")
+	};
 }
 
 TArray<FString> UAshlineContentManifest::HumanoidMeshCandidates()
@@ -146,6 +229,32 @@ FString UAshlineContentManifest::SkinMaterialPath(FName SkinId)
 {
 	return FString::Printf(TEXT("/Game/Ashline/Weapons/Materials/M_%s.M_%s"),
 		*SkinId.ToString(), *SkinId.ToString());
+}
+
+FString UAshlineContentManifest::SkinMeshPath(FName SkinId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Weapons/Meshes/SM_%s.SM_%s"),
+		*SkinId.ToString(), *SkinId.ToString());
+}
+
+FString UAshlineContentManifest::MasterWeaponMaterialPath()
+{
+	return TEXT("/Game/Ashline/Materials/PBR/M_WeaponMaster.M_WeaponMaster");
+}
+
+FString UAshlineContentManifest::MasterSkinMaterialPath()
+{
+	return TEXT("/Game/Ashline/Materials/PBR/M_SkinMaster.M_SkinMaster");
+}
+
+FString UAshlineContentManifest::MasterCharacterMaterialPath()
+{
+	return TEXT("/Game/Ashline/Materials/PBR/M_CharacterMaster.M_CharacterMaster");
+}
+
+FString UAshlineContentManifest::MasterEnvironmentMaterialPath()
+{
+	return TEXT("/Game/Ashline/Materials/PBR/M_EnvironmentMaster.M_EnvironmentMaster");
 }
 
 FString UAshlineContentManifest::SkinDataAssetPath(FName SkinId)
@@ -222,6 +331,24 @@ FString UAshlineContentManifest::SlotFolderName(EAshlineCosmeticSlot Slot)
 	}
 }
 
+FString UAshlineContentManifest::EquipmentMeshPath(FName EquipmentId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Weapons/Equipment/SM_%s.SM_%s"),
+		*EquipmentId.ToString(), *EquipmentId.ToString());
+}
+
+FString UAshlineContentManifest::EquipmentMaterialPath(FName EquipmentId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Weapons/Materials/M_%s.M_%s"),
+		*EquipmentId.ToString(), *EquipmentId.ToString());
+}
+
+FString UAshlineContentManifest::EquipmentDataAssetPath(FName EquipmentId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Data/Kits/DA_EQ_%s.DA_EQ_%s"),
+		*EquipmentId.ToString(), *EquipmentId.ToString());
+}
+
 FString UAshlineContentManifest::SurfaceSlug(EAshlineSurface Surface)
 {
 	switch (Surface)
@@ -251,5 +378,66 @@ TArray<FString> UAshlineContentManifest::MasterMaterialCandidates(EAshlineSurfac
 		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/MI_Ashline%s.MI_Ashline%s"), *Slug, *Slug),
 		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/M_Ashline%s.M_Ashline%s"), *Slug, *Slug),
 		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/M_%s.M_%s"), *Slug, *Slug)
+	};
+}
+
+FString UAshlineContentManifest::SurfaceInstancePath(EAshlineSurface Surface)
+{
+	const TArray<FString> Candidates = MasterMaterialCandidates(Surface);
+	return Candidates.Num() > 0 ? Candidates[0] : FString();
+}
+
+FString UAshlineContentManifest::WeaponClassSlug(EAshlineWeaponClass Class)
+{
+	switch (Class)
+	{
+	case EAshlineWeaponClass::AssaultRifle: return TEXT("AR");
+	case EAshlineWeaponClass::SMG: return TEXT("SMG");
+	case EAshlineWeaponClass::Sniper: return TEXT("SR");
+	case EAshlineWeaponClass::Shotgun: return TEXT("SG");
+	case EAshlineWeaponClass::Sidearm: return TEXT("Pistol");
+	case EAshlineWeaponClass::DMR: return TEXT("DMR");
+	case EAshlineWeaponClass::LMG: return TEXT("LMG");
+	case EAshlineWeaponClass::Launcher: return TEXT("GL");
+	case EAshlineWeaponClass::Melee: return TEXT("Melee");
+	case EAshlineWeaponClass::BattleRifle: return TEXT("BR");
+	case EAshlineWeaponClass::PDW: return TEXT("PDW");
+	default: return TEXT("AR");
+	}
+}
+
+TArray<FString> UAshlineContentManifest::WeaponClassMasterCandidates(EAshlineWeaponClass Class)
+{
+	const FString Slug = WeaponClassSlug(Class);
+	return {
+		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/MI_WPN_%s.MI_WPN_%s"), *Slug, *Slug),
+		FString::Printf(TEXT("/Game/Ashline/Materials/PBR/M_WPN_%s.M_WPN_%s"), *Slug, *Slug),
+		MasterWeaponMaterialPath(),
+		TEXT("/Game/StarterContent/Materials/M_Metal_Steel.M_Metal_Steel"),
+		TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
+		TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::SkinMasterCandidates()
+{
+	return {
+		TEXT("/Game/Ashline/Materials/PBR/MI_SkinMaster.MI_SkinMaster"),
+		MasterSkinMaterialPath(),
+		MasterWeaponMaterialPath(),
+		TEXT("/Game/StarterContent/Materials/M_Metal_Brushed.M_Metal_Brushed"),
+		TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
+		TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
+	};
+}
+
+TArray<FString> UAshlineContentManifest::CharacterMasterCandidates()
+{
+	return {
+		TEXT("/Game/Ashline/Materials/PBR/MI_CharacterMaster.MI_CharacterMaster"),
+		MasterCharacterMaterialPath(),
+		TEXT("/Game/StarterContent/Materials/M_Ground_Grass.M_Ground_Grass"),
+		TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"),
+		TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")
 	};
 }

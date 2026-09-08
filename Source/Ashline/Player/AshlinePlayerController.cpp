@@ -11,9 +11,12 @@
 #include "InputCoreTypes.h"
 #include "InputMappingContext.h"
 #include "Kismet/GameplayStatics.h"
+#include "Core/AshlineShipping.h"
 #include "Settings/AshlineGraphicsSettings.h"
 #include "Meta/AshlineMetaCatalog.h"
+#include "Meta/AshlineEquipmentCatalog.h"
 #include "Progression/AshlineProgressionSubsystem.h"
+#include "Weapons/AshlineWeaponCatalog.h"
 #include "UI/AshlineTouchHUD.h"
 
 AAshlinePlayerController::AAshlinePlayerController()
@@ -86,7 +89,7 @@ void AAshlinePlayerController::ApplyPlatformMappings()
 			{
 				Subsystem->AddMappingContext(KeyboardMouseContext, 0);
 			}
-#if PLATFORM_WINDOWS || PLATFORM_MAC || PLATFORM_IOS
+#if PLATFORM_WINDOWS || PLATFORM_MAC || PLATFORM_IOS || PLATFORM_LINUX
 			if (GamepadContext)
 			{
 				Subsystem->AddMappingContext(GamepadContext, 1);
@@ -126,6 +129,7 @@ void AAshlinePlayerController::BindMenuKeys()
 	BindPaused(EKeys::Gamepad_DPad_Left, &AAshlinePlayerController::MenuLeft);
 	BindPaused(EKeys::Gamepad_DPad_Right, &AAshlinePlayerController::MenuRight);
 	BindPaused(EKeys::Gamepad_Special_Right, &AAshlinePlayerController::MenuBack);
+	BindPaused(EKeys::Gamepad_FaceButton_Bottom, &AAshlinePlayerController::MenuConfirm);
 	BindPaused(EKeys::F8, &AAshlinePlayerController::AshGfxCycle);
 	BindPaused(EKeys::Gamepad_Special_Left, &AAshlinePlayerController::AshGfxCycle);
 }
@@ -180,6 +184,10 @@ void AAshlinePlayerController::MenuRight()
 
 void AAshlinePlayerController::AshUnlockAll()
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	if (AAshlineGameMode* GameMode = Cast<AAshlineGameMode>(UGameplayStatics::GetGameMode(this)))
 	{
 		GameMode->UnlockAllMissions();
@@ -189,6 +197,10 @@ void AAshlinePlayerController::AshUnlockAll()
 
 void AAshlinePlayerController::AshDeploy(int32 MissionNumber)
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	const int32 Index = FMath::Clamp(MissionNumber, 1, 12) - 1;
 	const EAshlineMissionId Id = static_cast<EAshlineMissionId>(
 		static_cast<uint8>(EAshlineMissionId::ASH_01_WireCut) + Index);
@@ -201,6 +213,10 @@ void AAshlinePlayerController::AshDeploy(int32 MissionNumber)
 
 void AAshlinePlayerController::AshComplete()
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	if (AAshlineGameMode* GameMode = Cast<AAshlineGameMode>(UGameplayStatics::GetGameMode(this)))
 	{
 		GameMode->CompleteActiveMission(GameMode->EvaluateCompletionStars(), true);
@@ -270,6 +286,33 @@ void AAshlinePlayerController::AshSteamDeck()
 	}
 }
 
+void AAshlinePlayerController::AshDeck()
+{
+	AshSteamDeck();
+}
+
+void AAshlinePlayerController::AshPCLow()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->ApplyPreset(EAshlineGraphicsPreset::Low);
+		}
+	}
+}
+
+void AAshlinePlayerController::AshPCMed()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->ApplyPreset(EAshlineGraphicsPreset::Medium);
+		}
+	}
+}
+
 void AAshlinePlayerController::AshLaptop()
 {
 	if (UGameInstance* GI = GetGameInstance())
@@ -327,6 +370,29 @@ void AAshlinePlayerController::AshFPS(int32 Target)
 	}
 }
 
+void AAshlinePlayerController::AshFSR()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->SetUpscaler(EAshlineUpscaler::FSR3);
+		}
+	}
+}
+
+void AAshlinePlayerController::AshTSR()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->SetUpscaler(EAshlineUpscaler::TSR);
+		}
+	}
+}
+
+
 namespace
 {
 	UAshlineProgressionSubsystem* AshProgression(const AAshlinePlayerController* PC)
@@ -345,6 +411,10 @@ namespace
 
 void AAshlinePlayerController::AshGrantCredits(int32 Amount)
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
 	{
 		const int32 Grant = Amount > 0 ? Amount : 1000;
@@ -355,6 +425,10 @@ void AAshlinePlayerController::AshGrantCredits(int32 Amount)
 
 void AAshlinePlayerController::AshSetRank(int32 Rank)
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
 	{
 		Progression->SetRank(Rank);
@@ -367,6 +441,10 @@ void AAshlinePlayerController::AshSetRank(int32 Rank)
 
 void AAshlinePlayerController::AshPrestige()
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
 	{
 		if (Progression->PrestigeReset())
@@ -383,6 +461,10 @@ void AAshlinePlayerController::AshPrestige()
 
 void AAshlinePlayerController::AshOpenCrate()
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
 	{
 		const FAshlineCrateGrant Grant = Progression->OpenPlayEarnedCrate();
@@ -392,6 +474,10 @@ void AAshlinePlayerController::AshOpenCrate()
 
 void AAshlinePlayerController::AshBuySkin(const FString& SkinId)
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
 	{
 		const bool bOk = Progression->PurchaseSkin(FName(*SkinId));
@@ -401,6 +487,10 @@ void AAshlinePlayerController::AshBuySkin(const FString& SkinId)
 
 void AAshlinePlayerController::AshEquipSkin(const FString& WeaponId, const FString& SkinId)
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
 	{
 		const bool bOk = Progression->EquipSkin(FName(*WeaponId), FName(*SkinId));
@@ -410,6 +500,10 @@ void AAshlinePlayerController::AshEquipSkin(const FString& WeaponId, const FStri
 
 void AAshlinePlayerController::AshBuyCosmetic(const FString& CosmeticId)
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
 	{
 		const bool bOk = Progression->PurchaseCosmetic(FName(*CosmeticId));
@@ -419,6 +513,10 @@ void AAshlinePlayerController::AshBuyCosmetic(const FString& CosmeticId)
 
 void AAshlinePlayerController::AshEquipCosmetic(const FString& SlotName, const FString& CosmeticId)
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	EAshlineCosmeticSlot Slot = EAshlineCosmeticSlot::Camo;
 	if (!UAshlineMetaCatalog::SlotFromName(FName(*SlotName), Slot))
 	{
@@ -434,6 +532,10 @@ void AAshlinePlayerController::AshEquipCosmetic(const FString& SlotName, const F
 
 void AAshlinePlayerController::AshUnlockMeta()
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
 	{
 		Progression->UnlockAllMeta();
@@ -443,6 +545,10 @@ void AAshlinePlayerController::AshUnlockMeta()
 
 void AAshlinePlayerController::AshListMeta()
 {
+	if (!AshlineShipping::CheatsAllowed())
+	{
+		return;
+	}
 	UE_LOG(LogAshline, Log, TEXT("=== Ashline cosmetics ==="));
 	for (const FAshlineCosmeticDefinition& Item : UAshlineMetaCatalog::BuildCosmetics())
 	{
@@ -455,5 +561,67 @@ void AAshlinePlayerController::AshListMeta()
 		UE_LOG(LogAshline, Log, TEXT("  %s  %s  weapon=%s  %dcr"),
 			*Item.SkinId.ToString(), *Item.DisplayName.ToString(),
 			Item.WeaponId.IsNone() ? TEXT("*") : *Item.WeaponId.ToString(), Item.CreditCost);
+	}
+}
+
+void AAshlinePlayerController::AshBuyWeapon(const FString& WeaponId)
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const bool bOk = Progression->PurchaseWeapon(FName(*WeaponId));
+		UE_LOG(LogAshline, Log, TEXT("AshBuyWeapon %s -> %s (credits %d)"), *WeaponId, bOk ? TEXT("ok") : TEXT("fail"), Progression->GetCredits());
+	}
+}
+
+void AAshlinePlayerController::AshBuyAttachment(const FString& WeaponId, const FString& AttachmentId)
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const bool bOk = Progression->PurchaseAttachment(FName(*WeaponId), FName(*AttachmentId));
+		UE_LOG(LogAshline, Log, TEXT("AshBuyAttachment %s on %s -> %s"), *AttachmentId, *WeaponId, bOk ? TEXT("ok") : TEXT("fail"));
+	}
+}
+
+void AAshlinePlayerController::AshBuyEquipment(const FString& EquipmentId)
+{
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const bool bOk = Progression->PurchaseEquipment(FName(*EquipmentId));
+		UE_LOG(LogAshline, Log, TEXT("AshBuyEquipment %s -> %s (credits %d)"), *EquipmentId, bOk ? TEXT("ok") : TEXT("fail"), Progression->GetCredits());
+	}
+}
+
+void AAshlinePlayerController::AshEquipEquipment(const FString& SlotName, const FString& EquipmentId)
+{
+	EAshlineEquipmentSlot Slot = EAshlineEquipmentSlot::Lethal;
+	if (SlotName.Equals(TEXT("Tactical"), ESearchCase::IgnoreCase))
+	{
+		Slot = EAshlineEquipmentSlot::Tactical;
+	}
+	else if (SlotName.Equals(TEXT("Field"), ESearchCase::IgnoreCase))
+	{
+		Slot = EAshlineEquipmentSlot::Field;
+	}
+	if (UAshlineProgressionSubsystem* Progression = AshProgression(this))
+	{
+		const bool bOk = Progression->EquipEquipment(Slot, FName(*EquipmentId));
+		UE_LOG(LogAshline, Log, TEXT("AshEquipEquipment %s in %s -> %s"), *EquipmentId, *SlotName, bOk ? TEXT("ok") : TEXT("fail"));
+	}
+}
+
+void AAshlinePlayerController::AshListArmory()
+{
+	UE_LOG(LogAshline, Log, TEXT("=== Ashline weapons ==="));
+	for (const FAshlineWeaponDefinition& Item : UAshlineWeaponCatalog::BuildRoster())
+	{
+		UE_LOG(LogAshline, Log, TEXT("  %s  %s  rank%d  %dcr  P%d"),
+			*Item.WeaponId.ToString(), *Item.DisplayName.ToString(), Item.UnlockLevel, Item.CreditCost, Item.RequiredPrestige);
+	}
+	UE_LOG(LogAshline, Log, TEXT("=== Ashline equipment ==="));
+	for (const FAshlineEquipmentDefinition& Item : UAshlineEquipmentCatalog::BuildRoster())
+	{
+		UE_LOG(LogAshline, Log, TEXT("  %s  %s  %s  rank%d  %dcr"),
+			*Item.EquipmentId.ToString(), *Item.DisplayName.ToString(),
+			*UAshlineEquipmentCatalog::SlotName(Item.Slot), Item.UnlockRank, Item.CreditCost);
 	}
 }

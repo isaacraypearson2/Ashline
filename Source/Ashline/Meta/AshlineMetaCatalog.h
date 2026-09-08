@@ -42,6 +42,24 @@ public:
 	static int32 WeaponUpgradeCost(int32 CurrentTier);
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Meta")
+	static int32 WeaponUpgradeCostForClass(EAshlineWeaponClass Class, int32 CurrentTier);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Meta")
+	static int32 MaxUpgradeTier();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	static TArray<FAshlineCosmeticDefinition> CosmeticsForSlot(EAshlineCosmeticSlot Slot);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	static TArray<FAshlineWeaponSkinDefinition> SkinsForWeapon(FName WeaponId);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	static TArray<FName> CollectionIds();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Meta")
+	static TArray<FName> CratePoolIds(EAshlineLootRarity Rarity);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Meta")
 	static bool SkinFitsWeapon(const FAshlineWeaponSkinDefinition& Skin, FName WeaponId);
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Meta")

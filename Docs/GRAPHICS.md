@@ -14,7 +14,7 @@ On **Apple** it still asks `IAshlineMetalFX` for MetalFX + RT and refuses to for
 | `Ashline_PC_High` | Mid discrete (8 GB class) | 1440p/1080p | 67 / 77 | On if supported | Uncapped | Pool 4200, cheaper VSM/Lumen. |
 | `Ashline_PC_Balanced` | Same PC, extra headroom | 1440p | 59 / 70 | On if supported | Uncapped | Cheaper Lumen gather, pool 3800. |
 | `Ashline_PC_Performance` | 6 GB / last-gen | 1080p-class | 50 / 59 | Off | 60 | Software Lumen, pool 2200. |
-| `Ashline_SteamDeck` | Deck LCD/OLED, Proton later | **1280×800** | 59 / 67 | Off | **40** | Aggressive Nanite/VSM/Lumen, HUD safe zone 7%. `AshFPS 30/40/60`. |
+| `Ashline_SteamDeck` | Deck LCD/OLED, Proton later | **1280×800** | 59 / 67 | Off | **40** | Aggressive Nanite/VSM/Lumen, HUD safe zone 7%. `AshFPS 30/40/60`. `AshDeck` alias. |
 | `Ashline_Laptop` | iGPU / Intel / AMD APU | panel | 59 / 67 | Off | 60 | Pool 1400. |
 | Epic / Cinematic | Generic | 100 | TSR | Off unless asked | — | Scalability 3 |
 | High / Medium / Low | Mac / leftover | 100–67 | MetalFX or TSR | Off | — | Mac default is High |
@@ -38,13 +38,18 @@ AshPCHigh
 AshPCBalanced
 AshPCPerf
 AshSteamDeck
+AshDeck
 AshLaptop
 AshGfxAuto
 AshGfxCycle          ; also F8 / gamepad Select
 AshFPS 30|40|60|0
+AshFSR
+AshTSR
 ```
 
 DeviceProfiles live in `Config/DefaultDeviceProfiles.ini` (named profiles parent to **Windows** or **Linux**, never to themselves). Runtime CVars from `UAshlineGraphicsSettings` win after boot. Do **not** edit `BaseProfileName` on the Windows/Mac/IOS platform profiles.
+
+Named DeviceProfile INI rows (`Ashline_PC_*`, `Ashline_SteamDeck`) are in **PR #8** — this branch applies the same presets via `UAshlineGraphicsSettings` CVars.
 
 ## 9070 GRE CVar sheet (`Ashline_PC_Ultra`)
 
@@ -108,6 +113,20 @@ r.ViewDistanceScale=0.65
 foliage.DensityScale=0.35
 HUD SafeZoneScale=0.07
 ```
+
+## Texture streaming / VT (Ultra vs Steam Deck)
+
+Named-preset **pools stay** (Ultra 5600, High 4200, Balanced 3800, Deck **1800**, Laptop 1400). `ApplyTextureStreamingCVars` adds VT and amortize on top — it does not rewrite pool size.
+
+| Preset | Pool (MB) | `r.VT.PoolSizeScale` | Mip bias | Uploads/frame | Aniso |
+| --- | --- | --- | --- | --- | --- |
+| Ultra | 5600 | 1.15 | 0 | 24 | 16 / VT 8 |
+| High | 4200 | 1.0 | 0 | 18 | 8 / VT 4 |
+| Balanced | 3800 | 0.8 | 0 | 12 | 8 / VT 4 |
+| Steam Deck | **1800** | 0.45 | 0.5 | 8 | 4 / VT 4 |
+| Laptop | 1400 | 0.55 | 0.25 | 10 | 4 |
+
+Also: `r.TextureStreaming=1`, `r.Streaming.LimitPoolSizeToVRAM=1`, `r.Streaming.AmortizeCPUToGPUCopy=1`, `r.VT.Enable=1`. After Megascans land, `stat streaming` then drop foliage density before touching pools.
 
 `UAshlineGraphicsSettings::SetFrameGeneration(true)` sets `r.FidelityFX.FI.Enabled=1` when that CVar exists.
 
