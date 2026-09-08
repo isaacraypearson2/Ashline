@@ -1,4 +1,5 @@
 #include "Meta/AshlineMetaCatalog.h"
+#include "Presentation/AshlineLoad.h"
 
 #include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlineCosmeticVisual.h"

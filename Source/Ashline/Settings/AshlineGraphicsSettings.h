@@ -146,6 +146,8 @@ private:
 	void ApplyPerformancePreset();
 	void ApplySteamDeckPreset();
 	void ApplyLaptopPreset();
+	void ToggleFSR3();
+	void ToggleTSR();
 	void RegisterConsoleCommands();
 	void UnregisterConsoleCommands();
 

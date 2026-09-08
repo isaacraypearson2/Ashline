@@ -1,4 +1,5 @@
 #include "World/AshlineGrayboxBuilder.h"
+#include "Presentation/AshlineLoad.h"
 
 #include "AI/AshlineAICatalog.h"
 #include "AI/AshlineAICharacter.h"

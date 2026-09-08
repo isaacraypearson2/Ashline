@@ -1,4 +1,5 @@
 #include "Presentation/AshlineAudioDirector.h"
+#include "Presentation/AshlineLoad.h"
 
 #include "Ashline.h"
 #include "Components/AudioComponent.h"
@@ -166,11 +167,11 @@ void UAshlineAudioDirector::StartAmbience(UObject* WorldContext, EAshlineMission
 	USoundBase* Bed = nullptr;
 	if (UAshlineEnvironmentKit* Kit = UAshlinePresentationLibrary::FindEnvironmentKit(MissionId))
 	{
-		Bed = Kit->AmbienceBed.LoadSynchronous();
+		Bed = AshlineLoad::Soft(Kit->AmbienceBed);
 	}
 	if (!Bed)
 	{
-		Bed = LoadObject<USoundBase>(nullptr, *UAshlineContentManifest::AmbiencePath(MissionId));
+		Bed = AshlineLoad::Object<USoundBase>(UAshlineContentManifest::AmbiencePath(MissionId));
 	}
 	if (!Bed)
 	{

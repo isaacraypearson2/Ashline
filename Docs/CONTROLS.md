@@ -10,11 +10,12 @@ assets are optional.
 - **Left / Right** — difficulty (Recruit / Regular / Veteran / Extreme)
 - **Esc** — Settings (graphics, HUD, colorblind, volumes)
 
-Console cheats (Output Log or `~` if enabled):
+Console cheats (Output Log or `~` if enabled). **No-ops in Shipping** except graphics:
 
 - `AshUnlockAll` — every mission becomes playable
 - `AshDeploy 3` — jump to ASH-03 (also unlocks all, skips briefing)
 - `AshPCUltra` / `AshPCBalanced` / `AshDeck` — 1440p Ultra / Balanced / Steam Deck HUD+CVars
+- `AshFSR` / `AshTSR` — FSR3 (TSR fallback) / Unreal TSR. Stay live in Shipping.
 - `AshComplete` — finish the active mission and grant XP + credits
 - `AshFrontend` — abort back to campaign select
 - `AshGrantCredits 5000` / `AshSetRank 50` / `AshPrestige` / `AshOpenCrate`
@@ -33,6 +34,7 @@ Console cheats (Output Log or `~` if enabled):
 - **C** or **Left Ctrl** — crouch
 - **V** — FPS / TPS (saved)
 - **Q** or **1 / 2** — swap weapon
+- **Left Shift** — sprint (cancels on aim)
 - **F** or **E** — interact (prompt when near an objective)
 - **Esc** — pause (Resume / Settings / Abort). Esc on pause root aborts to campaign
 
@@ -42,6 +44,7 @@ Console cheats (Output Log or `~` if enabled):
 - **R2** fire, **L2** aim
 - **Square** reload, **Cross** jump, **Circle** crouch, **Triangle** swap
 - **LB / D-pad down** — interact
+- **LS click** — sprint
 - Share / D-pad up — camera toggle
 - Start — pause / back
 - Adaptive triggers and haptics: `UAshlineDualSense` → `AshlineGameController.mm`

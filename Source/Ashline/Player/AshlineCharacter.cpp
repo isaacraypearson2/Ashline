@@ -1,4 +1,5 @@
 #include "Player/AshlineCharacter.h"
+#include "Presentation/AshlineLoad.h"
 
 #include "Animation/AnimInstance.h"
 #include "AI/AshlineAICatalog.h"
@@ -148,7 +149,12 @@ void AAshlineCharacter::Tick(float DeltaSeconds)
 		TickDeathCam(DeltaSeconds);
 		return;
 	}
-	const float Target = bIsAiming ? 430.f * AimWalkMul : (bIsCrouched ? 220.f : 430.f);
+	float Walk = bIsCrouched ? 220.f : 430.f;
+	if (bIsSprinting && !bIsAiming && !bIsCrouched)
+	{
+		Walk *= SprintMul;
+	}
+	const float Target = bIsAiming ? 430.f * AimWalkMul : Walk;
 	GetCharacterMovement()->MaxWalkSpeed = Target;
 	TickFootsteps(DeltaSeconds);
 	TickCameraFeel(DeltaSeconds);
@@ -205,6 +211,11 @@ void AAshlineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		if (InteractAction)
 		{
 			EIC->BindAction(InteractAction, ETriggerEvent::Started, this, &AAshlineCharacter::Interact);
+		}
+		if (SprintAction)
+		{
+			EIC->BindAction(SprintAction, ETriggerEvent::Started, this, &AAshlineCharacter::StartSprint);
+			EIC->BindAction(SprintAction, ETriggerEvent::Completed, this, &AAshlineCharacter::StopSprint);
 		}
 	}
 	else
@@ -303,6 +314,10 @@ void AAshlineCharacter::Reload()
 void AAshlineCharacter::SetAiming(bool bNewAiming)
 {
 	bIsAiming = bNewAiming;
+	if (bIsAiming)
+	{
+		bIsSprinting = false;
+	}
 	if (WeaponComponent)
 	{
 		WeaponComponent->SetAiming(bNewAiming);
@@ -311,6 +326,20 @@ void AAshlineCharacter::SetAiming(bool bNewAiming)
 	{
 		ThirdPersonArm->TargetArmLength = bIsAiming ? 140.f : 220.f;
 	}
+}
+
+void AAshlineCharacter::StartSprint()
+{
+	if (bDowned || bIsAiming)
+	{
+		return;
+	}
+	bIsSprinting = true;
+}
+
+void AAshlineCharacter::StopSprint()
+{
+	bIsSprinting = false;
 }
 
 void AAshlineCharacter::SwapWeapon()
@@ -544,6 +573,10 @@ void AAshlineCharacter::ApplyRuntimeInputActions()
 		{
 			InteractAction = Input->Interact;
 		}
+		if (!SprintAction)
+		{
+			SprintAction = Input->Sprint;
+		}
 	}
 }
 
@@ -577,6 +610,8 @@ void AAshlineCharacter::BindLegacyKeys(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::LeftControl, IE_Released, this, &AAshlineCharacter::StopCrouch);
 	PlayerInputComponent->BindKey(EKeys::E, IE_Pressed, this, &AAshlineCharacter::Interact);
 	PlayerInputComponent->BindKey(EKeys::F, IE_Pressed, this, &AAshlineCharacter::Interact);
+	PlayerInputComponent->BindKey(EKeys::LeftShift, IE_Pressed, this, &AAshlineCharacter::StartSprint);
+	PlayerInputComponent->BindKey(EKeys::LeftShift, IE_Released, this, &AAshlineCharacter::StopSprint);
 }
 
 void AAshlineCharacter::LegacyMoveForward(float Value)

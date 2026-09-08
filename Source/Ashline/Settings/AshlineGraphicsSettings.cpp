@@ -737,6 +737,16 @@ void UAshlineGraphicsSettings::ApplyLaptopPreset()
 	ApplyPreset(EAshlineGraphicsPreset::Laptop);
 }
 
+void UAshlineGraphicsSettings::ToggleFSR3()
+{
+	SetUpscaler(EAshlineUpscaler::FSR3);
+}
+
+void UAshlineGraphicsSettings::ToggleTSR()
+{
+	SetUpscaler(EAshlineUpscaler::TSR);
+}
+
 void UAshlineGraphicsSettings::RegisterConsoleCommands()
 {
 	IConsoleManager& CM = IConsoleManager::Get();
@@ -767,6 +777,12 @@ void UAshlineGraphicsSettings::RegisterConsoleCommands()
 	ConsoleObjects.Add(CM.RegisterConsoleCommand(
 		TEXT("AshGfxCycle"), TEXT("Cycle Ultra / High / Balanced / Perf / Deck / Laptop."),
 		FConsoleCommandDelegate::CreateLambda([this]() { CycleNamedPreset(1); }), ECVF_Default));
+	ConsoleObjects.Add(CM.RegisterConsoleCommand(
+		TEXT("AshFSR"), TEXT("Switch upscaler to FSR3 (TSR if plugin CVars are missing)."),
+		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ToggleFSR3), ECVF_Default));
+	ConsoleObjects.Add(CM.RegisterConsoleCommand(
+		TEXT("AshTSR"), TEXT("Switch upscaler to Unreal TSR."),
+		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ToggleTSR), ECVF_Default));
 }
 
 void UAshlineGraphicsSettings::UnregisterConsoleCommands()

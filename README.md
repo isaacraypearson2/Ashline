@@ -51,7 +51,7 @@ set PROJ=%CD%\Ashline.uproject
 2. **Up/Down** highlight ASH-01 Wire Cut (READY). **Left/Right** set difficulty. **Enter** opens the **mission brief**; **Enter** again deploys. **Esc** opens Settings (graphics incl. Steam Deck, HUD scale, colorblind).
 3. In mission:
    - **WASD** move, **mouse** look, **Space** jump, **C** crouch
-   - **LMB** fire, **RMB** aim, **R** reload, **Q** swap, **V** FPS/TPS, **F / E** interact
+   - **LMB** fire, **RMB** aim, **R** reload, **Q** swap, **Left Shift** sprint, **V** FPS/TPS, **F / E** interact
    - COD-style HUD: ammo / firemode / skin, HP+armor, objective diamond, hit markers
    - Walk into **glowing objective markers** (or press F when prompted). The extract / last required volume finishes the mission.
    - Hostiles use a **humanoid mesh when one can be resolved** (mannequin / MetaHuman / assigned DataAsset); otherwise a tinted blockout body.
@@ -83,7 +83,7 @@ Ads stay off (`UAshlineMonetizationHooks`).
 **This repo does not contain Quixel, Fab, or MetaHuman binary packs.** If those folders are empty, that is expected.
 
 Install next: `Docs/PHASE2_FAB.md` (evening clock) · `Docs/MATERIALS.md` (MI_Ashline parameter contract)  
-Also: `Docs/FAB_PACKS.md`, `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Docs/TEST_PLAN.md`.
+Also: `Docs/FAB_PACKS.md`, `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Docs/TEST_PLAN.md`, `Docs/RELEASE_CHECKLIST.md`, `Docs/STEAM_DECK.md`, `Docs/PACKAGING.md`.
 
 ## Campaign
 
@@ -124,8 +124,8 @@ Source/Ashline/                 Game module (campaign, graphics, presentation)
 Source/AshlineApple/            MetalFX + DualSense (compiles as stubs on Windows)
 Config/                         Default + Windows/ + Mac/ + IOS/
 Content/Ashline/                Pipeline folders + JSON (no Fab binaries)
-Docs/                           Windows, graphics, content, characters, test plan
-Scripts/                        Editor Python (play map + Fab kit stubs)
+Docs/                           Windows, graphics, release checklist, Deck, packaging
+Scripts/                        Editor Python + `validate_release_config.py`
 ```
 
 ## Mac / iOS (secondary)

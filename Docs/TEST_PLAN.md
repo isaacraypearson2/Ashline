@@ -20,6 +20,7 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 - [ ] `AshPCHigh` / `AshPCBalanced` / `AshPCPerf` drop cost; `AshPCUltra` restores
 - [ ] `AshSteamDeck` snaps 1280×800, 40 fps, safe-zone HUD; `AshPCUltra` returns to 1440p
 - [ ] `AshGfxAuto` re-detects; **F8** cycles named presets
+- [ ] `AshDeck` / `AshFSR` / `AshTSR` apply without a crash
 - [ ] Nanite/Lumen/VSM do not spam fatal logs
 - [ ] After `create_master_materials.py`, Content Browser shows `MI_AshlineConcrete` (or PIE still quiet-falls back to Engine)
 - [ ] `stat streaming` on Ultra: pool ~5600; `AshSteamDeck`: pool 1800, `r.VT.PoolSizeScale` ~0.45
@@ -28,7 +29,7 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 
 - [ ] PIE opens campaign select (not an empty void)
 - [ ] Enter on a READY mission opens **MISSION BRIEF**; Enter again deploys. Esc from brief returns to select
-- [ ] WASD / mouse / jump / crouch / fire / aim / reload / swap / V toggle / F interact
+- [ ] WASD / mouse / jump / crouch / **Left Shift sprint** / fire / aim / reload / swap / V toggle / F interact
 - [ ] Combat HUD: weapon name + **AUTO/SEMI** + **skin display name** + mag/reserve; HP + armor bars; objective marker
 - [ ] Hit markers / kill confirm on AI; muzzle light + tracer streak; ADS FOV eases in
 - [ ] ASH-01 INFIL → CUT → EXFIL awards XP **and credits** and unlocks ASH-02
@@ -38,6 +39,7 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 - [ ] Difficulty Left/Right changes AI pressure (Veteran/Extreme extra bots)
 - [ ] Esc pause → Enter resume; Esc twice aborts to select
 - [ ] `AshUnlockAll` then `AshDeploy 12` reaches the finale (skips briefing)
+- [ ] Shipping package: `AshUnlockAll` and `AshGrantCredits` do nothing; `AshDeck` still works
 - [ ] After ASH-12, **ASHLINE CUT** and save slot `AshlineCampaign` persists
 - [ ] Ads stay off
 
@@ -74,6 +76,8 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 
 - [ ] Enhanced Input (runtime IMC still works with no `.uasset` IA files)
 - [ ] Keyboard/mouse first-class; DualSense/XInput gamepad mapping is active on Windows
+- [ ] Left Shift / LS click sprint; aim cancels sprint; LB stays interact
+- [ ] Steam Deck / Proton: `SteamDeck=1` or `-steamdeck` selects `Ashline_SteamDeck` (`AshDeck`)
 
 ## Honest failures
 

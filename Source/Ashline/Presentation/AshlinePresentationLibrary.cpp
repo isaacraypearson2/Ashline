@@ -1,4 +1,5 @@
 #include "Presentation/AshlinePresentationLibrary.h"
+#include "Presentation/AshlineLoad.h"
 
 #include "Presentation/AshlineCharacterPresentation.h"
 #include "Presentation/AshlineContentManifest.h"
@@ -29,6 +30,10 @@ namespace AshlinePres
 	{
 		for (const FString& Path : Paths)
 		{
+			if (Path.IsEmpty())
+			{
+				continue;
+			}
 			if (T* Obj = AshlineLoad::Object<T>(Path))
 			{
 				return Obj;

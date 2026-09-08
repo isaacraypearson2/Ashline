@@ -1,4 +1,5 @@
 #include "Weapons/AshlineWeaponComponent.h"
+#include "Presentation/AshlineLoad.h"
 
 #include "AI/AshlineAICharacter.h"
 #include "AI/AshlineAICatalog.h"

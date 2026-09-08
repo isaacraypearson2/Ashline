@@ -1,4 +1,5 @@
 #include "Presentation/AshlineCombatFX.h"
+#include "Presentation/AshlineLoad.h"
 
 #include "Components/StaticMeshComponent.h"
 #include "Engine/Engine.h"
@@ -44,7 +45,7 @@ void AAshlineTracerStreak::Configure(const FVector& Start, const FVector& End, c
 		return;
 	}
 
-	UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+	UStaticMesh* Cube = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	if (Cube)
 	{
 		Mesh->SetStaticMesh(Cube);
@@ -53,10 +54,10 @@ void AAshlineTracerStreak::Configure(const FVector& Start, const FVector& End, c
 	SetActorRotation(Delta.Rotation());
 	SetActorScale3D(FVector(Length / 100.f, 0.012f, 0.012f));
 
-	UMaterialInterface* Emissive = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/EngineMaterials/EmissiveMeshMaterial.EmissiveMeshMaterial"));
+	UMaterialInterface* Emissive = AshlineLoad::Object<UMaterialInterface>(TEXT("/Engine/EngineMaterials/EmissiveMeshMaterial.EmissiveMeshMaterial"));
 	if (!Emissive)
 	{
-		Emissive = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/EngineMaterials/DefaultUnlitMaterial.DefaultUnlitMaterial"));
+		Emissive = AshlineLoad::Object<UMaterialInterface>(TEXT("/Engine/EngineMaterials/DefaultUnlitMaterial.DefaultUnlitMaterial"));
 	}
 	if (Emissive)
 	{
@@ -81,7 +82,7 @@ namespace AshlineFX
 	{
 		for (const FString& Path : Paths)
 		{
-			if (T* Obj = LoadObject<T>(nullptr, *Path))
+			if (T* Obj = AshlineLoad::Object<T>(Path))
 			{
 				return Obj;
 			}
@@ -94,7 +95,7 @@ UNiagaraSystem* UAshlineCombatFX::ResolveMuzzleNiagara(FName WeaponId)
 {
 	if (UAshlineWeaponVisual* Visual = UAshlinePresentationLibrary::FindWeaponVisual(WeaponId))
 	{
-		if (UNiagaraSystem* FX = Visual->MuzzleFX.LoadSynchronous())
+		if (UNiagaraSystem* FX = AshlineLoad::Soft(Visual->MuzzleFX))
 		{
 			return FX;
 		}
@@ -161,7 +162,7 @@ void UAshlineCombatFX::SpawnMuzzle(UObject* WorldContext, FName WeaponId, const 
 	}
 	if (UAshlineWeaponVisual* Visual = UAshlinePresentationLibrary::FindWeaponVisual(WeaponId))
 	{
-		if (UParticleSystem* Cascade = Visual->MuzzleCascadeFX.LoadSynchronous())
+		if (UParticleSystem* Cascade = AshlineLoad::Soft(Visual->MuzzleCascadeFX))
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(WorldContext, Cascade, Location, Rotation, FVector(0.18f), true);
 			return;
@@ -177,7 +178,7 @@ void UAshlineCombatFX::SpawnTracer(UObject* WorldContext, FName WeaponId, const 
 {
 	if (UAshlineWeaponVisual* Visual = UAshlinePresentationLibrary::FindWeaponVisual(WeaponId))
 	{
-		if (UNiagaraSystem* Tracer = Visual->TracerFX.LoadSynchronous())
+		if (UNiagaraSystem* Tracer = AshlineLoad::Soft(Visual->TracerFX))
 		{
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(WorldContext, Tracer, Start, (End - Start).Rotation());
 			return;
@@ -210,18 +211,18 @@ void UAshlineCombatFX::SpawnImpact(UObject* WorldContext, FName WeaponId, const 
 	{
 		if (bFlesh)
 		{
-			if (UNiagaraSystem* Blood = Visual->BloodFX.LoadSynchronous())
+			if (UNiagaraSystem* Blood = AshlineLoad::Soft(Visual->BloodFX))
 			{
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(WorldContext, Blood, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 			}
 		}
-		else if (UNiagaraSystem* Impact = Visual->ImpactFX.LoadSynchronous())
+		else if (UNiagaraSystem* Impact = AshlineLoad::Soft(Visual->ImpactFX))
 		{
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(WorldContext, Impact, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 		}
 		if (!bFlesh)
 		{
-			if (UParticleSystem* Sparks = Visual->SparksCascade.LoadSynchronous())
+			if (UParticleSystem* Sparks = AshlineLoad::Soft(Visual->SparksCascade))
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(WorldContext, Sparks, Hit.ImpactPoint, Hit.ImpactNormal.Rotation(), FVector(0.35f), true);
 			}
@@ -247,7 +248,7 @@ void UAshlineCombatFX::SpawnImpact(UObject* WorldContext, FName WeaponId, const 
 	UMaterialInterface* DecalMat = nullptr;
 	if (UAshlineWeaponVisual* Visual = UAshlinePresentationLibrary::FindWeaponVisual(WeaponId))
 	{
-		DecalMat = Visual->ImpactDecal.LoadSynchronous();
+		DecalMat = AshlineLoad::Soft(Visual->ImpactDecal);
 	}
 	if (!DecalMat)
 	{

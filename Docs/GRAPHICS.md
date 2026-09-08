@@ -43,9 +43,13 @@ AshLaptop
 AshGfxAuto
 AshGfxCycle          ; also F8 / gamepad Select
 AshFPS 30|40|60|0
+AshFSR
+AshTSR
 ```
 
 DeviceProfiles live in `Config/DefaultDeviceProfiles.ini` (named profiles parent to **Windows** or **Linux**, never to themselves). Runtime CVars from `UAshlineGraphicsSettings` win after boot. Do **not** edit `BaseProfileName` on the Windows/Mac/IOS platform profiles.
+
+Named DeviceProfile INI rows (`Ashline_PC_*`, `Ashline_SteamDeck`) are in **PR #8** — this branch applies the same presets via `UAshlineGraphicsSettings` CVars.
 
 ## 9070 GRE CVar sheet (`Ashline_PC_Ultra`)
 

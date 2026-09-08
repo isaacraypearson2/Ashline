@@ -65,6 +65,12 @@ public:
 	void AshFPS(int32 Target);
 
 	UFUNCTION(Exec)
+	void AshFSR();
+
+	UFUNCTION(Exec)
+	void AshTSR();
+
+	UFUNCTION(Exec)
 	void AshGrantCredits(int32 Amount);
 
 	UFUNCTION(Exec)
