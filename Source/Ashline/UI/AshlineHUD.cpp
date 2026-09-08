@@ -133,8 +133,8 @@ void AAshlineHUD::DrawFrontend(AAshlineGameMode* GameMode, UAshlineSaveGame* Sav
 		*CamoId.ToString(),
 		*SkinId.ToString()),
 		48.f, Canvas->SizeY - 92.f, FLinearColor(0.65f, 0.7f, 0.58f));
-	DrawTextLine(TEXT("Up/Down select   Enter deploy   Left/Right difficulty   Esc unused here"), 48.f, Canvas->SizeY - 68.f, FLinearColor(0.65f, 0.65f, 0.6f));
-	FString PresetLine = TEXT("Graphics: Ashline_PC_Ultra (console: AshPCUltra / AshPCBalanced)");
+	DrawTextLine(TEXT("Up/Down or D-pad select   Enter/A deploy   Left/Right difficulty   Start back"), 48.f, Canvas->SizeY - 68.f, FLinearColor(0.65f, 0.65f, 0.6f));
+	FString PresetLine = TEXT("Graphics: Ashline_PC_Ultra (AshPCUltra / AshDeck / AshFSR / AshTSR)");
 	if (UGameInstance* GI = GetGameInstance())
 	{
 		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
@@ -148,7 +148,9 @@ void AAshlineHUD::DrawFrontend(AAshlineGameMode* GameMode, UAshlineSaveGame* Sav
 		}
 	}
 	DrawTextLine(PresetLine, 48.f, Canvas->SizeY - 44.f, FLinearColor(0.5f, 0.62f, 0.55f));
-	DrawTextLine(TEXT("Console: AshUnlockAll  AshUnlockMeta  AshGrantCredits  AshPrestige  AshBuySkin  AshPCUltra"), 48.f, Canvas->SizeY - 24.f, FLinearColor(0.45f, 0.5f, 0.45f));
+#if !UE_BUILD_SHIPPING
+	DrawTextLine(TEXT("Dev: AshUnlockAll  AshUnlockMeta  AshGrantCredits  AshPrestige  AshBuySkin  AshPCUltra"), 48.f, Canvas->SizeY - 24.f, FLinearColor(0.45f, 0.5f, 0.45f));
+#endif
 }
 
 void AAshlineHUD::DrawCombat(AAshlineGameMode* GameMode)
@@ -184,7 +186,7 @@ void AAshlineHUD::DrawCombat(AAshlineGameMode* GameMode)
 		Y += 20.f;
 	}
 
-	DrawTextLine(TEXT("WASD move  Mouse look  LMB fire  RMB aim  R reload  Space jump  C crouch  V FPS/TPS  Q swap  Esc pause"),
+	DrawTextLine(TEXT("WASD move  Mouse look  LMB fire  RMB aim  Shift sprint  R reload  Q swap  V FPS/TPS  LS sprint  RT fire  Esc/Start pause"),
 		48.f, Canvas->SizeY - 36.f, FLinearColor(0.5f, 0.5f, 0.48f));
 
 	const float CX = Canvas->SizeX * 0.5f;

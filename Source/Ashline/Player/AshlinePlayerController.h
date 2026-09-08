@@ -38,7 +38,22 @@ public:
 	void AshPCUltra();
 
 	UFUNCTION(Exec)
+	void AshPCHigh();
+
+	UFUNCTION(Exec)
 	void AshPCBalanced();
+
+	UFUNCTION(Exec)
+	void AshPCPerf();
+
+	UFUNCTION(Exec)
+	void AshDeck();
+
+	UFUNCTION(Exec)
+	void AshFSR();
+
+	UFUNCTION(Exec)
+	void AshTSR();
 
 	UFUNCTION(Exec)
 	void AshGrantCredits(int32 Amount);

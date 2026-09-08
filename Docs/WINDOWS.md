@@ -20,9 +20,13 @@ If a dialog says `ASH_Playable` is missing, dismiss it. Play still hosts on `/En
 | File | Role |
 | --- | --- |
 | `Config/Windows/WindowsEngine.ini` | DX12, SM6, Nanite, Lumen, VSM, HW RT, FSR3 CVars, 1440p streaming pool |
-| `Config/DefaultGameUserSettings.ini` | 2560×1440 fullscreen, VSync off, `Ashline_PC_Ultra` |
+| `Config/Windows/WindowsGame.ini` | Shipping-safe Game.ini (no debug HUD, SP only) |
+| `Config/DefaultGameUserSettings.ini` | 2560×1440 fullscreen, VSync off, `Ashline_PC_Ultra` (Deck overrides at runtime) |
 | `Config/DefaultEngine.ini` | GameDefaultMap, `UAshlineGameUserSettings`, Nanite project flag |
+| `Config/DefaultDeviceProfiles.ini` | `Ashline_Ultra/High/Balanced/Perf/Deck` — never self-parent |
 | `Ashline.uproject` | `TargetPlatforms` starts with **Win64** |
+| `Docs/PACKAGING.md` | Win64 Shipping cook / archive |
+| `Docs/RELEASE_CHECKLIST.md` | Store page + content gaps + QA |
 
 RHI: **DirectX 12**. Do not switch the project to Vulkan unless you are debugging.
 

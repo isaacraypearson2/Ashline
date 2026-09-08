@@ -39,6 +39,12 @@ public:
 	bool EquipAttachment(bool bPrimary, EAshlineAttachmentSlot Slot, FName AttachmentId);
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Armory")
+	bool PurchaseAttachment(FName WeaponId, FName AttachmentId);
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Armory")
+	void UnlockRankAttachments();
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Armory")
 	bool UpgradeWeapon(FName WeaponId);
 
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Prestige")

@@ -1,6 +1,7 @@
 #include "Player/AshlineCharacter.h"
 
 #include "AI/AshlineAICatalog.h"
+#include "Core/AshlineSoftLoad.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -122,7 +123,20 @@ void AAshlineCharacter::BeginPlay()
 void AAshlineCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	const float Target = bIsAiming ? 430.f * AimWalkMul : 430.f;
+	float WeaponMove = 1.f;
+	if (WeaponComponent)
+	{
+		WeaponMove = FMath::Clamp(WeaponComponent->GetActiveWeapon().Stats.MoveSpeedMul, 0.7f, 1.25f);
+	}
+	float Target = 430.f * WeaponMove;
+	if (bIsAiming)
+	{
+		Target *= AimWalkMul;
+	}
+	else if (bIsSprinting)
+	{
+		Target *= SprintMul;
+	}
 	GetCharacterMovement()->MaxWalkSpeed = Target;
 	TickFootsteps(DeltaSeconds);
 }
@@ -173,6 +187,11 @@ void AAshlineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		{
 			EIC->BindAction(CrouchAction, ETriggerEvent::Started, this, &AAshlineCharacter::StartCrouch);
 			EIC->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AAshlineCharacter::StopCrouch);
+		}
+		if (SprintAction)
+		{
+			EIC->BindAction(SprintAction, ETriggerEvent::Started, this, &AAshlineCharacter::StartSprint);
+			EIC->BindAction(SprintAction, ETriggerEvent::Completed, this, &AAshlineCharacter::StopSprint);
 		}
 	}
 	else
@@ -303,6 +322,7 @@ void AAshlineCharacter::Look(const FInputActionValue& Value)
 
 void AAshlineCharacter::StartAim()
 {
+	bIsSprinting = false;
 	SetAiming(true);
 }
 
@@ -319,6 +339,20 @@ void AAshlineCharacter::StartCrouch()
 void AAshlineCharacter::StopCrouch()
 {
 	UnCrouch();
+}
+
+void AAshlineCharacter::StartSprint()
+{
+	if (bIsAiming)
+	{
+		return;
+	}
+	bIsSprinting = true;
+}
+
+void AAshlineCharacter::StopSprint()
+{
+	bIsSprinting = false;
 }
 
 float AAshlineCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -399,6 +433,10 @@ void AAshlineCharacter::ApplyRuntimeInputActions()
 		{
 			CrouchAction = Input->Crouch;
 		}
+		if (!SprintAction)
+		{
+			SprintAction = Input->Sprint;
+		}
 	}
 }
 
@@ -428,6 +466,8 @@ void AAshlineCharacter::BindLegacyKeys(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::Two, IE_Pressed, this, &AAshlineCharacter::SwapWeapon);
 	PlayerInputComponent->BindKey(EKeys::C, IE_Pressed, this, &AAshlineCharacter::StartCrouch);
 	PlayerInputComponent->BindKey(EKeys::C, IE_Released, this, &AAshlineCharacter::StopCrouch);
+	PlayerInputComponent->BindKey(EKeys::LeftShift, IE_Pressed, this, &AAshlineCharacter::StartSprint);
+	PlayerInputComponent->BindKey(EKeys::LeftShift, IE_Released, this, &AAshlineCharacter::StopSprint);
 	PlayerInputComponent->BindKey(EKeys::LeftControl, IE_Pressed, this, &AAshlineCharacter::StartCrouch);
 	PlayerInputComponent->BindKey(EKeys::LeftControl, IE_Released, this, &AAshlineCharacter::StopCrouch);
 }
@@ -499,18 +539,18 @@ void AAshlineCharacter::ApplyPresentationMesh()
 
 	if (!HeroMeshOverride.IsNull())
 	{
-		Hero = HeroMeshOverride.LoadSynchronous();
+		Hero = AshlineSoftLoad::TryLoadSoft(HeroMeshOverride);
 	}
 	if (!Hero)
 	{
 		if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
 		{
-			Hero = Settings->DefaultHeroMesh.LoadSynchronous();
-			if (!Hero && Settings->HeroPresentation.IsValid())
+			Hero = AshlineSoftLoad::TryLoadSoft(Settings->DefaultHeroMesh);
+			if (!Hero && !Settings->HeroPresentation.IsNull())
 			{
-				if (UAshlineCharacterPresentation* Pres = Settings->HeroPresentation.LoadSynchronous())
+				if (UAshlineCharacterPresentation* Pres = AshlineSoftLoad::TryLoadSoft(Settings->HeroPresentation))
 				{
-					Hero = Pres->BodyMesh.LoadSynchronous();
+					Hero = AshlineSoftLoad::TryLoadSoft(Pres->BodyMesh);
 					RelLoc = Pres->MeshRelativeLocation;
 					RelRot = Pres->MeshRelativeRotation;
 					RelScale = Pres->MeshScale;
@@ -522,7 +562,7 @@ void AAshlineCharacter::ApplyPresentationMesh()
 	{
 		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(true, EAshlineAIArchetype::Rifleman))
 		{
-			Hero = Pres->BodyMesh.LoadSynchronous();
+			Hero = AshlineSoftLoad::TryLoadSoft(Pres->BodyMesh);
 			RelLoc = Pres->MeshRelativeLocation;
 			RelRot = Pres->MeshRelativeRotation;
 			RelScale = Pres->MeshScale;
@@ -543,7 +583,7 @@ void AAshlineCharacter::ApplyPresentationMesh()
 				FAshlineCosmeticDefinition CamoDef;
 				if (UAshlineMetaCatalog::FindCosmetic(CamoId, CamoDef))
 				{
-					if (USkeletalMesh* OverrideMesh = CamoDef.MeshOverride.LoadSynchronous())
+					if (USkeletalMesh* OverrideMesh = AshlineSoftLoad::TryLoadSoft(CamoDef.MeshOverride))
 					{
 						Hero = OverrideMesh;
 					}

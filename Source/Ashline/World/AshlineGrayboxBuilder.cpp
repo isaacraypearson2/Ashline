@@ -1,6 +1,7 @@
 #include "World/AshlineGrayboxBuilder.h"
 
 #include "AI/AshlineAICatalog.h"
+#include "Core/AshlineSoftLoad.h"
 #include "AI/AshlineAICharacter.h"
 #include "Campaign/AshlineObjectiveTrigger.h"
 #include "Engine/CollisionProfile.h"
@@ -49,22 +50,22 @@ void AAshlineGrayboxBuilder::LoadPrimitives()
 {
 	if (!CubeMesh)
 	{
-		CubeMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+		CubeMesh = AshlineSoftLoad::TryLoadPath<UStaticMesh>(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	}
 	if (!CylinderMesh)
 	{
-		CylinderMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+		CylinderMesh = AshlineSoftLoad::TryLoadPath<UStaticMesh>(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
 	}
 	if (!SphereMesh)
 	{
-		SphereMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Sphere.Sphere"));
+		SphereMesh = AshlineSoftLoad::TryLoadPath<UStaticMesh>(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
 	}
 	if (!ShapeMaterial)
 	{
 		ShapeMaterial = UAshlinePresentationLibrary::GetSurfaceMaterial(EAshlineSurface::Concrete);
 		if (!ShapeMaterial)
 		{
-			ShapeMaterial = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+			ShapeMaterial = AshlineSoftLoad::TryLoadPath<UMaterialInterface>(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
 		}
 	}
 }
@@ -578,7 +579,7 @@ void AAshlineGrayboxBuilder::DecalMark(const FVector& Location, const FRotator& 
 	UMaterialInterface* DecalMat = nullptr;
 	if (ActiveKit)
 	{
-		DecalMat = ActiveKit->DecalMaterial.LoadSynchronous();
+		DecalMat = AshlineSoftLoad::TryLoadSoft(ActiveKit->DecalMaterial);
 	}
 	if (!DecalMat)
 	{
@@ -607,7 +608,7 @@ void AAshlineGrayboxBuilder::Tree(const FVector& Location, float Height)
 		{
 			if (Slot.SlotId == TEXT("Tree"))
 			{
-				if (UStaticMesh* KitTree = Slot.Mesh.LoadSynchronous())
+				if (UStaticMesh* KitTree = AshlineSoftLoad::TryLoadSoft(Slot.Mesh))
 				{
 					if (AActor* Actor = Sphere(Location + FVector(0.f, 0.f, Height * 0.4f), FVector::OneVector, ActiveMood.GroundTint, EAshlineSurface::Foliage))
 					{
@@ -653,7 +654,7 @@ void AAshlineGrayboxBuilder::Bush(const FVector& Location)
 		{
 			if (Slot.SlotId == TEXT("Bush"))
 			{
-				if (UStaticMesh* KitBush = Slot.Mesh.LoadSynchronous())
+				if (UStaticMesh* KitBush = AshlineSoftLoad::TryLoadSoft(Slot.Mesh))
 				{
 					if (AActor* Actor = Sphere(Location + FVector(0.f, 0.f, 30.f), FVector(0.7f, 0.85f, 0.45f), FLinearColor(0.1f, 0.2f, 0.08f), EAshlineSurface::Foliage))
 					{
@@ -712,19 +713,19 @@ void AAshlineGrayboxBuilder::ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AA
 	{
 		if (Surface == EAshlineSurface::Ground || Surface == EAshlineSurface::Sand || Surface == EAshlineSurface::Snow)
 		{
-			KitMat = ActiveKit->GroundMaterial.LoadSynchronous();
+			KitMat = AshlineSoftLoad::TryLoadSoft(ActiveKit->GroundMaterial);
 		}
 		else if (Surface == EAshlineSurface::Foliage)
 		{
-			KitMat = ActiveKit->FoliageMaterial.LoadSynchronous();
+			KitMat = AshlineSoftLoad::TryLoadSoft(ActiveKit->FoliageMaterial);
 		}
 		else if (Surface == EAshlineSurface::Metal)
 		{
-			KitMat = ActiveKit->TrimMaterial.LoadSynchronous();
+			KitMat = AshlineSoftLoad::TryLoadSoft(ActiveKit->TrimMaterial);
 		}
 		else
 		{
-			KitMat = ActiveKit->WallMaterial.LoadSynchronous();
+			KitMat = AshlineSoftLoad::TryLoadSoft(ActiveKit->WallMaterial);
 		}
 	}
 

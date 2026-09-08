@@ -18,6 +18,8 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 - [ ] `stat fps` at 1440p — high-refresh capable (VSync off)
 - [ ] `r.RayTracing` / `r.Lumen.HardwareRayTracing` are 1 if the driver reports HW RT
 - [ ] `AshPCBalanced` drops screen percentage / Lumen cost; `AshPCUltra` restores
+- [ ] `AshPCHigh` / `AshPCPerf` / `AshDeck` / `AshFSR` / `AshTSR` apply without a crash
+- [ ] Shipping package: `AshUnlockAll` and `AshGrantCredits` do nothing
 - [ ] Nanite/Lumen/VSM do not spam fatal logs
 - [ ] DLSS is **not** required; game looks correct with FSR3 or TSR only
 
@@ -59,6 +61,8 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 
 - [ ] Enhanced Input (runtime IMC still works with no `.uasset` IA files)
 - [ ] Keyboard/mouse first-class; DualSense/XInput gamepad mapping is active on Windows
+- [ ] Left Shift / LS click sprint; A confirms campaign; Start pauses
+- [ ] Steam Deck / Proton: `SteamDeck=1` or `-steamdeck` selects `Ashline_SteamDeck`
 
 ## Honest failures
 

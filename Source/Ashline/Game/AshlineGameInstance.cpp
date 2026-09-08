@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Misc/PackageName.h"
 #include "Progression/AshlineProgressionSubsystem.h"
+#include "Core/AshlineShipping.h"
 #include "Settings/AshlineGraphicsSettings.h"
 
 void UAshlineGameInstance::Init()
@@ -22,7 +23,15 @@ void UAshlineGameInstance::Init()
 		Graphics->ApplySavedOrDetect();
 	}
 
-	UE_LOG(LogAshline, Log, TEXT("Ashline game instance ready (Windows-first AAA presentation, UE 5.8.2)."));
+	UE_LOG(LogAshline, Log, TEXT("Ashline game instance ready (UE 5.8.2). Shipping=%d Deck=%d Proton=%d Cheats=%d"),
+#if UE_BUILD_SHIPPING
+		1,
+#else
+		0,
+#endif
+		AshlineShipping::IsSteamDeckHardware() ? 1 : 0,
+		AshlineShipping::IsProton() ? 1 : 0,
+		AshlineShipping::CheatsAllowed() ? 1 : 0);
 }
 
 void UAshlineGameInstance::OpenFrontend()

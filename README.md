@@ -19,7 +19,7 @@ This repository is a full C++ Unreal project: campaign loop, weapons, AI, progre
 | RT | Hardware ray tracing **ON when the RHI reports it** |
 | Upscaling | **FSR 3** (Temporal Upscale). TSR is the built-in fallback. DLSS is optional and never required. |
 
-Named presets: **`Ashline_PC_Ultra`** (default on Windows) and **`Ashline_PC_Balanced`**. Console: `AshPCUltra` / `AshPCBalanced`. CVars: `Docs/GRAPHICS.md`.
+Named presets: **`Ashline_PC_Ultra`** (default on Windows desktop), **`High` / `Balanced` / `Perf`**, and **`Ashline_SteamDeck`** (auto if `SteamDeck=1`). Console: `AshPCUltra` / `AshPCHigh` / `AshPCBalanced` / `AshPCPerf` / `AshDeck` / `AshFSR` / `AshTSR`. CVars: `Docs/GRAPHICS.md`. Public-release gate: **`Docs/RELEASE_CHECKLIST.md`**.
 
 ## Open on Windows (UE 5.8.2)
 
@@ -51,7 +51,7 @@ set PROJ=%CD%\Ashline.uproject
 2. **Up/Down** highlight ASH-01 Wire Cut (READY). **Left/Right** set difficulty. **Enter** deploys.
 3. In mission:
    - **WASD** move, **mouse** look, **Space** jump, **C** crouch
-   - **LMB** fire, **RMB** aim, **R** reload, **Q** swap, **V** FPS/TPS
+   - **LMB** fire, **RMB** aim, **R** reload, **Q** swap, **Left Shift** sprint, **V** FPS/TPS
    - Walk into **glowing objective markers** to complete. The extract / last required volume finishes the mission.
    - Hostiles use a **humanoid mesh when one can be resolved** (mannequin / MetaHuman / assigned DataAsset); otherwise a tinted blockout body.
 4. On **MISSION COMPLETE**, note XP / **credits** / crate tokens, press **Enter** to return to campaign select. ASH-02 is now READY. Frontend shows Rank / Prestige / Credits and the equipped camo + primary skin.
@@ -74,12 +74,12 @@ Ads stay off (`UAshlineMonetizationHooks`).
 | Hero/AI skeletal hooks (MetaHuman / mannequin) | MetaHuman Creator characters + AnimBPs |
 | Audio **slots** (fire / reload / hit / footsteps / music) | Authored MetaSounds / Sound Cues |
 | SP meta: credits, rank 1–50, cosmetics, weapon skins, prestige | MetaHuman wardrobe + Fab skin materials |
-| `Ashline_PC_Ultra` / `Balanced` + DX12 config | Profile on the 9070 GRE and tune |
+| `Ashline_PC_Ultra` / High / Balanced / Perf / Deck + DX12 config | Profile on the 9070 GRE and Steam Deck |
 
 **This repo does not contain Quixel, Fab, or MetaHuman binary packs.** If those folders are empty, that is expected.
 
 **Install next (exact names / URLs / 1440p notes):** `Docs/PHASE2_FAB.md`  
-Also: `Docs/FAB_PACKS.md`, `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Docs/TEST_PLAN.md`.
+Also: `Docs/RELEASE_CHECKLIST.md`, `Docs/PACKAGING.md`, `Docs/STEAM_DECK.md`, `Docs/PERFORMANCE.md`, `Docs/FAB_PACKS.md`, `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Docs/TEST_PLAN.md`.
 
 ## Campaign
 

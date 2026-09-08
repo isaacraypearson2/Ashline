@@ -81,9 +81,11 @@ void UAshlineProgressionSubsystem::CompleteMission(EAshlineMissionId MissionId, 
 		{
 			FAshlineOwnedWeapon Owned;
 			Owned.WeaponId = Weapon.WeaponId;
+			Owned.UnlockedAttachments = UAshlineWeaponCatalog::AttachmentsUnlockedByRank(Weapon.WeaponId, Save->Operator.Rank);
 			Save->Armory.Add(Owned);
 		}
 	}
+	UnlockRankAttachments();
 
 	SaveCampaign();
 }
@@ -129,26 +131,76 @@ bool UAshlineProgressionSubsystem::EquipAttachment(bool bPrimary, EAshlineAttach
 	}
 
 	FAshlineLoadoutSlot& Loadout = bPrimary ? Save->Primary : Save->Secondary;
-	FAshlineWeaponDefinition Weapon;
-	if (!UAshlineWeaponCatalog::FindWeapon(Loadout.WeaponId, Weapon))
+	if (!UAshlineWeaponCatalog::IsAttachmentCompatible(Loadout.WeaponId, AttachmentId))
 	{
 		return false;
 	}
-	if (!Weapon.CompatibleAttachments.Contains(AttachmentId))
+	FAshlineAttachmentDefinition Attachment;
+	if (!UAshlineWeaponCatalog::FindAttachment(AttachmentId, Attachment) || Attachment.Slot != Slot)
 	{
 		return false;
 	}
-	if (FAshlineOwnedWeapon* Owned = FindOwned(Loadout.WeaponId))
+	FAshlineOwnedWeapon* Owned = FindOwned(Loadout.WeaponId);
+	if (!Owned)
 	{
-		if (!Owned->UnlockedAttachments.Contains(AttachmentId))
+		return false;
+	}
+	if (!Owned->UnlockedAttachments.Contains(AttachmentId))
+	{
+		if (!UAshlineWeaponCatalog::IsAttachmentUnlockedAtRank(AttachmentId, Save->Operator.Rank))
 		{
-			Owned->UnlockedAttachments.Add(AttachmentId);
+			return false;
 		}
-		Owned->EquippedAttachments.Add(Slot, AttachmentId);
+		Owned->UnlockedAttachments.Add(AttachmentId);
 	}
+	Owned->EquippedAttachments.Add(Slot, AttachmentId);
 	Loadout.Attachments.Add(Slot, AttachmentId);
 	SaveCampaign();
 	return true;
+}
+
+bool UAshlineProgressionSubsystem::PurchaseAttachment(FName WeaponId, FName AttachmentId)
+{
+	FAshlineOwnedWeapon* Owned = FindOwned(WeaponId);
+	FAshlineAttachmentDefinition Attachment;
+	if (!Save || !Owned || !UAshlineWeaponCatalog::FindAttachment(AttachmentId, Attachment))
+	{
+		return false;
+	}
+	if (!UAshlineWeaponCatalog::IsAttachmentCompatible(WeaponId, AttachmentId))
+	{
+		return false;
+	}
+	if (Owned->UnlockedAttachments.Contains(AttachmentId))
+	{
+		return true;
+	}
+	if (Save->Operator.Rank < Attachment.UnlockLevel)
+	{
+		return false;
+	}
+	if (!SpendCredits(Attachment.CreditCost))
+	{
+		return false;
+	}
+	Owned->UnlockedAttachments.AddUnique(AttachmentId);
+	SaveCampaign();
+	return true;
+}
+
+void UAshlineProgressionSubsystem::UnlockRankAttachments()
+{
+	if (!Save)
+	{
+		return;
+	}
+	for (FAshlineOwnedWeapon& Owned : Save->Armory)
+	{
+		for (const FName& AttachmentId : UAshlineWeaponCatalog::AttachmentsUnlockedByRank(Owned.WeaponId, Save->Operator.Rank))
+		{
+			Owned.UnlockedAttachments.AddUnique(AttachmentId);
+		}
+	}
 }
 
 bool UAshlineProgressionSubsystem::UpgradeWeapon(FName WeaponId)
@@ -418,6 +470,7 @@ bool UAshlineProgressionSubsystem::SetRank(int32 Rank)
 		return false;
 	}
 	Save->Operator.Rank = FMath::Clamp(Rank, 1, UAshlineMetaCatalog::MaxRank);
+	UnlockRankAttachments();
 	SaveCampaign();
 	return true;
 }
@@ -431,6 +484,16 @@ void UAshlineProgressionSubsystem::UnlockAllMeta()
 	Save->Credits = FMath::Max(Save->Credits, 50000);
 	Save->CrateTokens = FMath::Max(Save->CrateTokens, 8);
 	Save->Operator.Rank = UAshlineMetaCatalog::MaxRank;
+	for (const FAshlineWeaponDefinition& Weapon : UAshlineWeaponCatalog::BuildRoster())
+	{
+		if (!FindOwned(Weapon.WeaponId))
+		{
+			FAshlineOwnedWeapon Owned;
+			Owned.WeaponId = Weapon.WeaponId;
+			Save->Armory.Add(Owned);
+		}
+	}
+	UnlockRankAttachments();
 	for (const FAshlineCosmeticDefinition& Item : UAshlineMetaCatalog::BuildCosmetics())
 	{
 		if (Item.RequiredPrestige <= Save->PrestigeLevel)
