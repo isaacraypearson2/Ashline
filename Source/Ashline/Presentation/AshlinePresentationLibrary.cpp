@@ -1,4 +1,5 @@
 #include "Presentation/AshlinePresentationLibrary.h"
+#include "Presentation/AshlineLoad.h"
 
 #include "Presentation/AshlineCharacterPresentation.h"
 #include "Presentation/AshlineContentManifest.h"
@@ -29,7 +30,7 @@ namespace AshlinePres
 			{
 				continue;
 			}
-			if (T* Obj = LoadObject<T>(nullptr, *Path))
+			if (T* Obj = AshlineLoad::Object<T>(Path))
 			{
 				return Obj;
 			}
@@ -462,13 +463,13 @@ UAshlineEnvironmentKit* UAshlinePresentationLibrary::FindEnvironmentKit(EAshline
 	{
 		if (const TSoftObjectPtr<UAshlineEnvironmentKit>* Found = Settings->MissionKits.Find(MissionId))
 		{
-			if (UAshlineEnvironmentKit* Kit = Found->LoadSynchronous())
+			if (UAshlineEnvironmentKit* Kit = AshlineLoad::Soft(Found))
 			{
 				return Kit;
 			}
 		}
 	}
-	return LoadObject<UAshlineEnvironmentKit>(nullptr, *UAshlineContentManifest::KitDataAssetPath(MissionId));
+	return AshlineLoad::Object<UAshlineEnvironmentKit>(UAshlineContentManifest::KitDataAssetPath(MissionId));
 }
 
 UAshlineCharacterPresentation* UAshlinePresentationLibrary::FindCharacterPresentation(bool bHero, EAshlineAIArchetype Archetype)
@@ -477,20 +478,19 @@ UAshlineCharacterPresentation* UAshlinePresentationLibrary::FindCharacterPresent
 	{
 		if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
 		{
-			if (UAshlineCharacterPresentation* Hero = Settings->HeroPresentation.LoadSynchronous())
+			if (UAshlineCharacterPresentation* Hero = AshlineLoad::Soft(Settings->HeroPresentation))
 			{
 				return Hero;
 			}
 		}
-		return LoadObject<UAshlineCharacterPresentation>(nullptr, TEXT("/Game/Ashline/Data/Kits/DA_Hero_Operator.DA_Hero_Operator"));
+		return AshlineLoad::Object<UAshlineCharacterPresentation>(TEXT("/Game/Ashline/Data/Kits/DA_Hero_Operator.DA_Hero_Operator"));
 	}
 
-	if (UAshlineCharacterPresentation* Named = LoadObject<UAshlineCharacterPresentation>(
-		nullptr, *UAshlineContentManifest::AIPresentationPath(Archetype)))
+	if (UAshlineCharacterPresentation* Named = AshlineLoad::Object<UAshlineCharacterPresentation>(UAshlineContentManifest::AIPresentationPath(Archetype)))
 	{
 		return Named;
 	}
-	return LoadObject<UAshlineCharacterPresentation>(nullptr, TEXT("/Game/Ashline/Data/Kits/DA_AI_Rifleman.DA_AI_Rifleman"));
+	return AshlineLoad::Object<UAshlineCharacterPresentation>(TEXT("/Game/Ashline/Data/Kits/DA_AI_Rifleman.DA_AI_Rifleman"));
 }
 
 UAshlineWeaponVisual* UAshlinePresentationLibrary::FindWeaponVisual(FName WeaponId)
@@ -499,21 +499,21 @@ UAshlineWeaponVisual* UAshlinePresentationLibrary::FindWeaponVisual(FName Weapon
 	{
 		if (const TSoftObjectPtr<UAshlineWeaponVisual>* Found = Settings->WeaponVisuals.Find(WeaponId))
 		{
-			if (UAshlineWeaponVisual* Visual = Found->LoadSynchronous())
+			if (UAshlineWeaponVisual* Visual = AshlineLoad::Soft(Found))
 			{
 				return Visual;
 			}
 		}
 	}
 	const FString Path = FString::Printf(TEXT("/Game/Ashline/Data/Kits/DA_WPN_%s.DA_WPN_%s"), *WeaponId.ToString(), *WeaponId.ToString());
-	return LoadObject<UAshlineWeaponVisual>(nullptr, *Path);
+	return AshlineLoad::Object<UAshlineWeaponVisual>(Path);
 }
 
 USkeletalMesh* UAshlinePresentationLibrary::ResolveHumanoidMesh()
 {
 	if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
 	{
-		if (USkeletalMesh* Configured = Settings->DefaultHeroMesh.LoadSynchronous())
+		if (USkeletalMesh* Configured = AshlineLoad::Soft(Settings->DefaultHeroMesh))
 		{
 			return Configured;
 		}
@@ -525,7 +525,7 @@ UStaticMesh* UAshlinePresentationLibrary::ResolveWeaponPlaceholderMesh()
 {
 	if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
 	{
-		if (UStaticMesh* Configured = Settings->PlaceholderWeaponMesh.LoadSynchronous())
+		if (UStaticMesh* Configured = AshlineLoad::Soft(Settings->PlaceholderWeaponMesh))
 		{
 			return Configured;
 		}
@@ -559,9 +559,9 @@ void UAshlinePresentationLibrary::ApplyHumanoidBlockout(ACharacter* Character, c
 		return;
 	}
 
-	UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
-	UStaticMesh* Sphere = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Sphere.Sphere"));
-	UStaticMesh* Cyl = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+	UStaticMesh* Cube = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cube.Cube"));
+	UStaticMesh* Sphere = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
+	UStaticMesh* Cyl = AshlineLoad::Object<UStaticMesh>(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
 	if (!Cube)
 	{
 		return;
@@ -638,7 +638,7 @@ void UAshlinePresentationLibrary::TintNamedStaticMesh(AActor* Actor, FName Compo
 
 USkeletalMesh* UAshlinePresentationLibrary::ResolveCosmeticMesh(const FAshlineCosmeticDefinition& Cosmetic)
 {
-	if (USkeletalMesh* Mesh = Cosmetic.MeshOverride.LoadSynchronous())
+	if (USkeletalMesh* Mesh = AshlineLoad::Soft(Cosmetic.MeshOverride))
 	{
 		return Mesh;
 	}
@@ -649,10 +649,9 @@ USkeletalMesh* UAshlinePresentationLibrary::ResolveCosmeticMesh(const FAshlineCo
 
 UStaticMesh* UAshlinePresentationLibrary::ResolveCosmeticPartMesh(const FAshlineCosmeticDefinition& Cosmetic)
 {
-	if (UAshlineCosmeticVisual* Visual = LoadObject<UAshlineCosmeticVisual>(
-		nullptr, *UAshlineContentManifest::CosmeticDataAssetPath(Cosmetic.CosmeticId)))
+	if (UAshlineCosmeticVisual* Visual = AshlineLoad::Object<UAshlineCosmeticVisual>(UAshlineContentManifest::CosmeticDataAssetPath(Cosmetic.CosmeticId)))
 	{
-		if (UStaticMesh* Part = Visual->PartMesh.LoadSynchronous())
+		if (UStaticMesh* Part = AshlineLoad::Soft(Visual->PartMesh))
 		{
 			return Part;
 		}
@@ -665,7 +664,7 @@ UStaticMesh* UAshlinePresentationLibrary::ResolveCosmeticPartMesh(const FAshline
 
 UMaterialInterface* UAshlinePresentationLibrary::ResolveCosmeticMaterial(const FAshlineCosmeticDefinition& Cosmetic)
 {
-	if (UMaterialInterface* Mat = Cosmetic.MaterialOverride.LoadSynchronous())
+	if (UMaterialInterface* Mat = AshlineLoad::Soft(Cosmetic.MaterialOverride))
 	{
 		return Mat;
 	}
@@ -676,7 +675,7 @@ UMaterialInterface* UAshlinePresentationLibrary::ResolveCosmeticMaterial(const F
 
 UMaterialInterface* UAshlinePresentationLibrary::ResolveSkinMaterial(const FAshlineWeaponSkinDefinition& Skin)
 {
-	if (UMaterialInterface* Mat = Skin.MaterialOverride.LoadSynchronous())
+	if (UMaterialInterface* Mat = AshlineLoad::Soft(Skin.MaterialOverride))
 	{
 		return Mat;
 	}
@@ -806,8 +805,7 @@ void UAshlinePresentationLibrary::ApplyClothingPart(ACharacter* Character, EAshl
 		break;
 	}
 
-	if (UAshlineCosmeticVisual* Visual = LoadObject<UAshlineCosmeticVisual>(
-		nullptr, *UAshlineContentManifest::CosmeticDataAssetPath(CosmeticId)))
+	if (UAshlineCosmeticVisual* Visual = AshlineLoad::Object<UAshlineCosmeticVisual>(UAshlineContentManifest::CosmeticDataAssetPath(CosmeticId)))
 	{
 		if (!Visual->RelativeLocation.IsNearlyZero())
 		{

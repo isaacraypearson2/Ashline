@@ -1,4 +1,5 @@
 #include "Player/AshlineCharacter.h"
+#include "Presentation/AshlineLoad.h"
 
 #include "AI/AshlineAICatalog.h"
 #include "Camera/CameraComponent.h"
@@ -145,7 +146,7 @@ void AAshlineCharacter::Tick(float DeltaSeconds)
 		TickDeathCam(DeltaSeconds);
 		return;
 	}
-	const float Target = bIsAiming ? 430.f * AimWalkMul : 430.f;
+	const float Target = bIsAiming ? 430.f * AimWalkMul : (bIsSprinting ? 430.f * SprintMul : 430.f);
 	GetCharacterMovement()->MaxWalkSpeed = Target;
 	TickFootsteps(DeltaSeconds);
 	TickCameraFeel(DeltaSeconds);
@@ -202,6 +203,11 @@ void AAshlineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		if (InteractAction)
 		{
 			EIC->BindAction(InteractAction, ETriggerEvent::Started, this, &AAshlineCharacter::Interact);
+		}
+		if (SprintAction)
+		{
+			EIC->BindAction(SprintAction, ETriggerEvent::Started, this, &AAshlineCharacter::StartSprint);
+			EIC->BindAction(SprintAction, ETriggerEvent::Completed, this, &AAshlineCharacter::StopSprint);
 		}
 	}
 	else
@@ -300,6 +306,10 @@ void AAshlineCharacter::Reload()
 void AAshlineCharacter::SetAiming(bool bNewAiming)
 {
 	bIsAiming = bNewAiming;
+	if (bIsAiming)
+	{
+		bIsSprinting = false;
+	}
 	if (WeaponComponent)
 	{
 		WeaponComponent->SetAiming(bNewAiming);
@@ -308,6 +318,20 @@ void AAshlineCharacter::SetAiming(bool bNewAiming)
 	{
 		ThirdPersonArm->TargetArmLength = bIsAiming ? 140.f : 220.f;
 	}
+}
+
+void AAshlineCharacter::StartSprint()
+{
+	if (bDowned || bIsAiming)
+	{
+		return;
+	}
+	bIsSprinting = true;
+}
+
+void AAshlineCharacter::StopSprint()
+{
+	bIsSprinting = false;
 }
 
 void AAshlineCharacter::SwapWeapon()
@@ -540,6 +564,10 @@ void AAshlineCharacter::ApplyRuntimeInputActions()
 		{
 			InteractAction = Input->Interact;
 		}
+		if (!SprintAction)
+		{
+			SprintAction = Input->Sprint;
+		}
 	}
 }
 
@@ -573,6 +601,8 @@ void AAshlineCharacter::BindLegacyKeys(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::LeftControl, IE_Released, this, &AAshlineCharacter::StopCrouch);
 	PlayerInputComponent->BindKey(EKeys::E, IE_Pressed, this, &AAshlineCharacter::Interact);
 	PlayerInputComponent->BindKey(EKeys::F, IE_Pressed, this, &AAshlineCharacter::Interact);
+	PlayerInputComponent->BindKey(EKeys::LeftShift, IE_Pressed, this, &AAshlineCharacter::StartSprint);
+	PlayerInputComponent->BindKey(EKeys::LeftShift, IE_Released, this, &AAshlineCharacter::StopSprint);
 }
 
 void AAshlineCharacter::LegacyMoveForward(float Value)
@@ -642,18 +672,18 @@ void AAshlineCharacter::ApplyPresentationMesh()
 
 	if (!HeroMeshOverride.IsNull())
 	{
-		Hero = HeroMeshOverride.LoadSynchronous();
+		Hero = AshlineLoad::Soft(HeroMeshOverride);
 	}
 	if (!Hero)
 	{
 		if (const UAshlinePresentationSettings* Settings = GetDefault<UAshlinePresentationSettings>())
 		{
-			Hero = Settings->DefaultHeroMesh.LoadSynchronous();
+			Hero = AshlineLoad::Soft(Settings->DefaultHeroMesh);
 			if (!Hero && Settings->HeroPresentation.IsValid())
 			{
-				if (UAshlineCharacterPresentation* Pres = Settings->HeroPresentation.LoadSynchronous())
+				if (UAshlineCharacterPresentation* Pres = AshlineLoad::Soft(Settings->HeroPresentation))
 				{
-					Hero = Pres->BodyMesh.LoadSynchronous();
+					Hero = AshlineLoad::Soft(Pres->BodyMesh);
 					RelLoc = Pres->MeshRelativeLocation;
 					RelRot = Pres->MeshRelativeRotation;
 					RelScale = Pres->MeshScale;
@@ -665,7 +695,7 @@ void AAshlineCharacter::ApplyPresentationMesh()
 	{
 		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(true, EAshlineAIArchetype::Rifleman))
 		{
-			Hero = Pres->BodyMesh.LoadSynchronous();
+			Hero = AshlineLoad::Soft(Pres->BodyMesh);
 			RelLoc = Pres->MeshRelativeLocation;
 			RelRot = Pres->MeshRelativeRotation;
 			RelScale = Pres->MeshScale;
@@ -686,7 +716,7 @@ void AAshlineCharacter::ApplyPresentationMesh()
 				FAshlineCosmeticDefinition CamoDef;
 				if (UAshlineMetaCatalog::FindCosmetic(CamoId, CamoDef))
 				{
-					if (USkeletalMesh* OverrideMesh = CamoDef.MeshOverride.LoadSynchronous())
+					if (USkeletalMesh* OverrideMesh = AshlineLoad::Soft(CamoDef.MeshOverride))
 					{
 						Hero = OverrideMesh;
 					}

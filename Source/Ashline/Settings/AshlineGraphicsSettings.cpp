@@ -461,6 +461,16 @@ bool UAshlineGraphicsSettings::DetectSteamDeck()
 	return UAshlineGameUserSettings::IsSteamDeckHardware();
 }
 
+void UAshlineGraphicsSettings::ToggleFSR3()
+{
+	SetUpscaler(EAshlineUpscaler::FSR3);
+}
+
+void UAshlineGraphicsSettings::ToggleTSR()
+{
+	SetUpscaler(EAshlineUpscaler::TSR);
+}
+
 void UAshlineGraphicsSettings::RegisterConsoleCommands()
 {
 	IConsoleManager& CM = IConsoleManager::Get();
@@ -478,6 +488,16 @@ void UAshlineGraphicsSettings::RegisterConsoleCommands()
 		TEXT("AshDeck"),
 		TEXT("Apply Ashline_SteamDeck (1280x800 handheld HUD + 60 fps path)."),
 		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplySteamDeckPreset),
+		ECVF_Default));
+	ConsoleObjects.Add(CM.RegisterConsoleCommand(
+		TEXT("AshFSR"),
+		TEXT("Switch upscaler to FSR3 (TSR if plugin CVars are missing)."),
+		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ToggleFSR3),
+		ECVF_Default));
+	ConsoleObjects.Add(CM.RegisterConsoleCommand(
+		TEXT("AshTSR"),
+		TEXT("Switch upscaler to Unreal TSR."),
+		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ToggleTSR),
 		ECVF_Default));
 }
 
