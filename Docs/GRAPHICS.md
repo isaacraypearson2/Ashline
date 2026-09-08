@@ -10,8 +10,9 @@ On **Apple** it still asks `IAshlineMetalFX` for MetalFX + RT and refuses to for
 
 | Preset | Who it's for | Screen % | Upscaler | RT | Notes |
 | --- | --- | --- | --- | --- | --- |
-| `Ashline_PC_Ultra` | 9070 GRE @ 1440p high-refresh | 77 (FSR3) / 85 (TSR) | FSR3 → TSR | On if supported | Default on Windows. Streaming pool 5600. VSync off. `t.MaxFPS=0`. |
+| `Ashline_PC_Ultra` | 9070 GRE @ 1440p high-refresh | 77 (FSR3) / 85 (TSR) | FSR3 → TSR | On if supported | Default on Windows. Streaming pool 5600. VT 1.15. VSync off. `t.MaxFPS=0`. |
 | `Ashline_PC_Balanced` | Same PC, extra headroom | 59 / 70 | FSR3 Balanced → TSR | On if supported | Cheaper Lumen gather, pool 3800. |
+| `Ashline_SteamDeck` | Steam Deck / handheld | 70 TSR | TSR | Off | Pool 1600, VT 0.45, 60 fps cap, VSync on. |
 | Epic / Cinematic | Generic | 100 | TSR | Off unless asked | Scalability 3 |
 | High / Medium / Low | Laptops / Mac | 100–67 | MetalFX or TSR | Off | Mac default is High |
 
@@ -20,6 +21,7 @@ Console:
 ```
 AshPCUltra
 AshPCBalanced
+AshSteamDeck
 ```
 
 (or execs on the player controller with the same names)
@@ -68,7 +70,21 @@ r.NGX.DLSS.Enable=0
 
 `UAshlineGraphicsSettings::SetFrameGeneration(true)` sets `r.FidelityFX.FI.Enabled=1` when that CVar exists.
 
-Phase 2 import + 1440p Ultra notes after Megascans/MetaHuman land: **`Docs/PHASE2_FAB.md`** (Nanite/Lumen/FSR3, pool size, foliage cap).
+Phase 2 import + 1440p Ultra notes after Megascans/MetaHuman land: **`Docs/PHASE2_FAB.md`** (Nanite/Lumen/FSR3, pool size, foliage cap, VT). Master materials: **`Docs/MATERIALS.md`**.
+
+## Texture streaming / Virtual Texturing
+
+Runtime (`ApplyTextureStreamingCVars`) and ini:
+
+| Preset | Pool | VT scale | Aniso | Notes |
+| --- | --- | --- | --- | --- |
+| `Ashline_PC_Ultra` | **5600 MB** | 1.15 | 16 / VT 8 | Default Windows. `r.Streaming.LimitPoolSizeToVRAM=1`. |
+| `Ashline_PC_Balanced` | **3800 MB** | 0.80 | 16 | Headroom after all 12 kits. |
+| `Ashline_SteamDeck` | **1600 MB** | 0.45 | 4 | Shared LPDDR5. MipBias 0.5. `AshSteamDeck`. |
+
+Do **not** set `r.VirtualTextures=True` in `RendererSettings` until Megascans masters are recompiled for VT. Runtime `r.VT.Enable=1` is a safe no-op on non-VT materials.
+
+Device profile: `[SteamDeck DeviceProfile]` in `Config/DefaultDeviceProfiles.ini`. Auto-applies when `SteamDeck=1` or the device model contains Jupiter / SteamDeck.
 
 ## Upscaler order (Windows)
 

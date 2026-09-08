@@ -79,6 +79,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
 	void ApplyCharm(FName CharmId);
 
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	float GetSpreadBloom() const { return SpreadBloom; }
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	float TraceDistance = 20000.f;
 
@@ -125,6 +128,8 @@ private:
 	void ApplyTintToWeaponMeshes(const FLinearColor& Tint, UMaterialInterface* Override);
 	void PlayFireAudio();
 	void PlayReloadAudio();
+	void TickCombatFeel(float DeltaTime);
+	void ReportGunshotNoise();
 
 	FName EquippedCharmId;
 
@@ -141,4 +146,13 @@ private:
 	float FireCooldown = 0.f;
 	float ReloadRemaining = 0.f;
 	float MuzzleFlashRemaining = 0.f;
+
+	float RecoilPitchAccum = 0.f;
+	float RecoilYawAccum = 0.f;
+	float SpreadBloom = 0.f;
+	float SwayTime = 0.f;
+	float BobTime = 0.f;
+	FVector HipOffset = FVector(28.f, 14.f, -10.f);
+	FVector AdsOffset = FVector(22.f, 4.f, -6.f);
+	FVector KickOffset = FVector::ZeroVector;
 };

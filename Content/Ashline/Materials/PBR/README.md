@@ -1,1 +1,1 @@
-Master materials + instances after you author them. Runtime tints Engine / Starter Content until then.
+Master materials + instances live in `Masters/` and `Instances/`. Runtime tints Engine / Starter Content until `create_master_materials.py` is run. See `Docs/MATERIALS.md`.

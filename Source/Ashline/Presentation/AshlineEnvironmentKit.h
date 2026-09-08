@@ -46,6 +46,9 @@ public:
 	TSoftObjectPtr<UMaterialInterface> DecalMaterial;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Kit")
+	TSoftObjectPtr<UMaterialInterface> GlassMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Kit")
 	TArray<FAshlineSoftMeshSlot> PropMeshes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Kit")

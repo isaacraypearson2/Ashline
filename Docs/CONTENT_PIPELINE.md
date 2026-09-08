@@ -35,13 +35,14 @@ Empty directories are intentional. **Nothing in those folders is a Quixel pack u
 
 ## Runtime fallback chain
 
-`UAshlinePresentationLibrary` resolves assets in this order:
+`UAshlinePresentationLibrary` / `UAshlineMaterialFactory` resolve assets in this order:
 
 1. Authored DataAsset at `/Game/Ashline/Data/Kits/…` (soft refs you assign after import)
-2. **Starter Content** (`/Game/StarterContent/Materials/…`) if you added the pack
-3. Engine materials / meshes (`DefaultMaterial`, `WorldGridMaterial`, `BasicShapes`, editor mannequin)
+2. Authored masters / surface MIs (`M_Env_Master`, `MI_Env_*`, glass, skin, decal)
+3. **Starter Content** (`/Game/StarterContent/Materials/…`) if you added the pack
+4. Engine materials / **Engine fallback textures** (`DefaultTexture`, `DefaultNormal`, `WhiteSquareTexture`) + `DefaultMaterial`
 
-Maps never hard-crash when a Fab mesh is missing.
+Maps never hard-crash when a Fab mesh or Megascans texture is missing. Parameter contract: **`Docs/MATERIALS.md`**.
 
 ## DataAssets
 
@@ -97,6 +98,10 @@ No git LFS required.
 | Script | What it does |
 | --- | --- |
 | `Scripts/create_ashline_play_assets.py` | Optional `ASH_Playable` map + IA/IMC |
-| `Scripts/import_fab_kits.py` | Creates DataAsset stubs + folder tree; prints the Fab list |
+| `Scripts/import_fab_kits.py` | Folder tree + DataAsset stubs; runs master-material create |
+| `Scripts/create_master_materials.py` | `M_Env/Weapon/Character/Glass/Skin/Decal` + surface MIs |
+| `Scripts/fab_install_plan.py` | Evening install clock (no UE) |
+| `Scripts/validate_meta_catalog.py` | No-UE check of `Meta.json` |
+| `Scripts/validate_content_layout.py` | No-UE check of folders + bindings + material contract |
 
 Run: **Tools → Execute Python Script**.

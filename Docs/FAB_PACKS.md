@@ -1,6 +1,6 @@
 # Phase 2 shopping list — install on `X3D_AMD` (Windows 11, UE 5.8)
 
-**Prefer `Docs/PHASE2_FAB.md`** (install order, clothing/skin paths, 1440p Ultra notes). This page is the short list.
+**Prefer `Docs/PHASE2_FAB.md`** (evening install clock, clothing/skin/glass paths, 1440p Ultra + Steam Deck streaming). Master materials: `Docs/MATERIALS.md`. This page is the short list.
 
 Nothing below is in git. After install, drop or migrate assets onto the **canonical paths** in `UAshlineContentManifest` / `ContentBindings.json`. Soft refs / DataAssets pick them up with **no architecture rewrite**.
 

@@ -19,10 +19,13 @@
 #include "Particles/ParticleSystem.h"
 #include "Presentation/AshlineAudioDirector.h"
 #include "Presentation/AshlineContentManifest.h"
+#include "Presentation/AshlineMaterialFactory.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlineWeaponVisual.h"
 #include "Meta/AshlineMetaCatalog.h"
 #include "Weapons/AshlineWeaponCatalog.h"
+#include "Perception/AISense_Hearing.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UAshlineWeaponComponent::UAshlineWeaponComponent()
 {
@@ -51,6 +54,7 @@ void UAshlineWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	}
 
 	FireCooldown = FMath::Max(0.f, FireCooldown - DeltaTime);
+	TickCombatFeel(DeltaTime);
 	if (bReloading)
 	{
 		ReloadRemaining -= DeltaTime;
@@ -135,12 +139,6 @@ void UAshlineWeaponComponent::SwapWeapon()
 void UAshlineWeaponComponent::SetAiming(bool bInAiming)
 {
 	bAiming = bInAiming;
-	if (WeaponMesh)
-	{
-		const FVector Base = WeaponMesh->GetRelativeLocation();
-		WeaponMesh->SetRelativeLocation(bAiming ? FVector(22.f, 4.f, -6.f) : FVector(28.f, 14.f, -10.f));
-		(void)Base;
-	}
 }
 
 const FAshlineRuntimeWeapon& UAshlineWeaponComponent::GetActiveWeapon() const
@@ -167,10 +165,10 @@ void UAshlineWeaponComponent::FireShot()
 		return;
 	}
 
-	const float Spread = bAiming ? Active.Stats.ADSSpread : Active.Stats.HipFireSpread;
+	const float Spread = (bAiming ? Active.Stats.ADSSpread : Active.Stats.HipFireSpread) + SpreadBloom;
 	FRotator Aim = GetAimRotation();
-	Aim.Yaw += FMath::FRandRange(-Spread, Spread);
-	Aim.Pitch += FMath::FRandRange(-Spread * 0.6f, Spread * 0.6f);
+	Aim.Yaw += FMath::FRandRange(-Spread, Spread) + RecoilYawAccum * 0.15f;
+	Aim.Pitch += FMath::FRandRange(-Spread * 0.6f, Spread * 0.6f) + RecoilPitchAccum * 0.1f;
 
 	FHitResult Hit;
 	const FVector Start = GetMuzzleLocation();
@@ -190,6 +188,9 @@ void UAshlineWeaponComponent::FireShot()
 	SpawnMuzzleFX();
 	PlayFireAudio();
 	ApplyRecoil();
+	ReportGunshotNoise();
+	SpreadBloom = FMath::Min(4.5f, SpreadBloom + (bAiming ? 0.12f : 0.28f));
+	KickOffset += FVector(-2.4f, FMath::FRandRange(-0.6f, 0.6f), 0.8f);
 
 	if (UAshlineDualSense* DualSense = GEngine ? GEngine->GetEngineSubsystem<UAshlineDualSense>() : nullptr)
 	{
@@ -201,11 +202,14 @@ void UAshlineWeaponComponent::FireShot()
 
 void UAshlineWeaponComponent::ApplyRecoil()
 {
+	const FAshlineWeaponStats& Stats = GetActiveWeapon().Stats;
+	const float AimMul = bAiming ? 0.55f : 1.f;
+	RecoilPitchAccum = FMath::Min(8.f, RecoilPitchAccum + Stats.RecoilPitch * 0.22f * AimMul);
+	RecoilYawAccum = FMath::Clamp(RecoilYawAccum + FMath::FRandRange(-Stats.RecoilYaw, Stats.RecoilYaw) * 0.35f * AimMul, -4.f, 4.f);
 	if (APlayerController* PC = Cast<APlayerController>(GetOwner()->GetInstigatorController()))
 	{
-		const FAshlineWeaponStats& Stats = GetActiveWeapon().Stats;
-		PC->AddPitchInput(-Stats.RecoilPitch * 0.15f);
-		PC->AddYawInput(FMath::FRandRange(-Stats.RecoilYaw, Stats.RecoilYaw) * 0.15f);
+		PC->AddPitchInput(-Stats.RecoilPitch * 0.12f * AimMul);
+		PC->AddYawInput(FMath::FRandRange(-Stats.RecoilYaw, Stats.RecoilYaw) * 0.12f * AimMul);
 	}
 }
 
@@ -450,6 +454,8 @@ void UAshlineWeaponComponent::ApplyVisualAsset(UAshlineWeaponVisual* Visual)
 		WeaponMesh->SetRelativeLocation(Visual->FPSOffset);
 		WeaponMesh->SetRelativeRotation(Visual->FPSRotation);
 		WeaponMesh->SetRelativeScale3D(Visual->MeshScale);
+		HipOffset = Visual->FPSOffset;
+		AdsOffset = Visual->FPSOffset + FVector(-6.f, -10.f, 4.f);
 		if (BarrelMesh)
 		{
 			BarrelMesh->SetVisibility(false);
@@ -516,7 +522,7 @@ void UAshlineWeaponComponent::BuildCompoundPlaceholder()
 	WeaponMesh->SetStaticMesh(Cube);
 	WeaponMesh->SetRelativeScale3D(ReceiverScale);
 	WeaponMesh->SetVisibility(true);
-	if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, EAshlineSurface::Metal, FLinearColor(0.07f, 0.07f, 0.08f)))
+	if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeWeaponMaterial(this, FLinearColor(0.07f, 0.07f, 0.08f), FAshlineTextureSet()))
 	{
 		WeaponMesh->SetMaterial(0, MID);
 	}
@@ -528,7 +534,7 @@ void UAshlineWeaponComponent::BuildCompoundPlaceholder()
 		BarrelMesh->SetRelativeLocation(FVector(28.f, 0.f, 2.f));
 		BarrelMesh->SetRelativeRotation(FRotator(0.f, 0.f, 90.f));
 		BarrelMesh->SetRelativeScale3D(BarrelScale);
-		if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, EAshlineSurface::Metal, FLinearColor(0.12f, 0.12f, 0.13f)))
+		if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeWeaponMaterial(this, FLinearColor(0.12f, 0.12f, 0.13f), FAshlineTextureSet()))
 		{
 			BarrelMesh->SetMaterial(0, MID);
 		}
@@ -539,7 +545,7 @@ void UAshlineWeaponComponent::BuildCompoundPlaceholder()
 		StockMesh->SetVisibility(true);
 		StockMesh->SetRelativeLocation(FVector(-22.f, 0.f, -2.f));
 		StockMesh->SetRelativeScale3D(StockScale);
-		if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, EAshlineSurface::Plastic, FLinearColor(0.05f, 0.05f, 0.05f)))
+		if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeWeaponMaterial(this, FLinearColor(0.05f, 0.05f, 0.05f), FAshlineTextureSet()))
 		{
 			StockMesh->SetMaterial(0, MID);
 		}
@@ -550,7 +556,7 @@ void UAshlineWeaponComponent::BuildCompoundPlaceholder()
 		MagMesh->SetVisibility(true);
 		MagMesh->SetRelativeLocation(FVector(2.f, 0.f, -10.f));
 		MagMesh->SetRelativeScale3D(MagScale);
-		if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, EAshlineSurface::Metal, FLinearColor(0.1f, 0.1f, 0.08f)))
+		if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeWeaponMaterial(this, FLinearColor(0.1f, 0.1f, 0.08f), FAshlineTextureSet()))
 		{
 			MagMesh->SetMaterial(0, MID);
 		}
@@ -570,6 +576,21 @@ void UAshlineWeaponComponent::ApplyEquippedSkin()
 		if (!Override)
 		{
 			Override = Def.MaterialOverride.LoadSynchronous();
+		}
+	}
+	if (UAshlineWeaponVisual* Visual = UAshlinePresentationLibrary::FindWeaponVisual(GetActiveWeapon().Definition.WeaponId))
+	{
+		if (!Override)
+		{
+			Override = Visual->SkinMaterial.LoadSynchronous();
+		}
+		if (!Override && Visual->TextureSet.HasAnyAuthoredTexture())
+		{
+			if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeWeaponMaterial(this, Tint, Visual->TextureSet))
+			{
+				ApplyTintToWeaponMeshes(Tint, MID);
+				return;
+			}
 		}
 	}
 	ApplyTintToWeaponMeshes(Tint, Override);
@@ -637,7 +658,16 @@ void UAshlineWeaponComponent::ApplyTintToWeaponMeshes(const FLinearColor& Tint, 
 			Mesh->SetMaterial(0, Override);
 			return;
 		}
-		if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, Surface, Color))
+		UMaterialInstanceDynamic* MID = nullptr;
+		if (Surface == EAshlineSurface::Plastic)
+		{
+			MID = UAshlinePresentationLibrary::MakeCharacterMaterial(this, Color);
+		}
+		else
+		{
+			MID = UAshlinePresentationLibrary::MakeWeaponMaterial(this, Color, FAshlineTextureSet());
+		}
+		if (MID)
 		{
 			Mesh->SetMaterial(0, MID);
 		}
@@ -674,5 +704,48 @@ void UAshlineWeaponComponent::PlayReloadAudio()
 				Audio->PlayReload(this, GetActiveWeapon().Definition.WeaponId, GetOwner()->GetActorLocation());
 			}
 		}
+	}
+}
+
+void UAshlineWeaponComponent::TickCombatFeel(float DeltaTime)
+{
+	RecoilPitchAccum = FMath::FInterpTo(RecoilPitchAccum, 0.f, DeltaTime, 7.5f);
+	RecoilYawAccum = FMath::FInterpTo(RecoilYawAccum, 0.f, DeltaTime, 8.5f);
+	SpreadBloom = FMath::FInterpTo(SpreadBloom, 0.f, DeltaTime, bAiming ? 6.5f : 3.8f);
+	KickOffset = FMath::VInterpTo(KickOffset, FVector::ZeroVector, DeltaTime, 14.f);
+	SwayTime += DeltaTime;
+	BobTime += DeltaTime;
+
+	if (!WeaponMesh)
+	{
+		return;
+	}
+
+	const FVector TargetBase = bAiming ? AdsOffset : HipOffset;
+	FVector Bob = FVector::ZeroVector;
+	float Speed2D = 0.f;
+	if (const ACharacter* Character = Cast<ACharacter>(GetOwner()))
+	{
+		Speed2D = Character->GetVelocity().Size2D();
+		if (Speed2D > 40.f)
+		{
+			const float BobScale = bAiming ? 0.35f : 1.f;
+			Bob.Z = FMath::Sin(BobTime * 10.f) * 0.55f * BobScale;
+			Bob.Y = FMath::Cos(BobTime * 5.f) * 0.35f * BobScale;
+		}
+	}
+	const float SwayScale = bAiming ? 0.15f : 0.45f;
+	const FVector Sway(0.f, FMath::Sin(SwayTime * 1.15f) * 0.35f * SwayScale, FMath::Cos(SwayTime * 0.85f) * 0.22f * SwayScale);
+	WeaponMesh->SetRelativeLocation(TargetBase + KickOffset + Bob + Sway);
+	WeaponMesh->SetRelativeRotation(FRotator(-RecoilPitchAccum * 0.35f, RecoilYawAccum * 0.25f, 8.f));
+}
+
+void UAshlineWeaponComponent::ReportGunshotNoise()
+{
+	if (UWorld* World = GetWorld())
+	{
+		const float Loudness = 1.f;
+		const float Range = 4500.f;
+		UAISense_Hearing::ReportNoiseEvent(World, GetMuzzleLocation(), Loudness, GetOwner(), Range, TEXT("Gunshot"));
 	}
 }

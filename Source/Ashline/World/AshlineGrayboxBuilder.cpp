@@ -30,8 +30,10 @@
 #include "Presentation/AshlineAudioDirector.h"
 #include "Presentation/AshlineContentManifest.h"
 #include "Presentation/AshlineEnvironmentKit.h"
+#include "Presentation/AshlineMaterialFactory.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Progression/AshlineProgressionSubsystem.h"
+#include "AI/AshlineCoverPoint.h"
 
 AAshlineGrayboxBuilder::AAshlineGrayboxBuilder()
 {
@@ -306,6 +308,16 @@ void AAshlineGrayboxBuilder::Wall(const FVector& Location, const FVector& Scale,
 void AAshlineGrayboxBuilder::Cover(const FVector& Location)
 {
 	Box(Location + FVector(0.f, 0.f, 50.f), FVector(1.4f, 2.2f, 1.1f), FLinearColor(0.28f, 0.26f, 0.22f), true, EAshlineSurface::Concrete);
+	if (UWorld* World = GetWorld())
+	{
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		if (AAshlineCoverPoint* CoverPoint = World->SpawnActor<AAshlineCoverPoint>(Location + FVector(0.f, 0.f, 50.f), FRotator::ZeroRotator, Params))
+		{
+			CoverPoint->bCrouchCover = true;
+			BuiltActors.Add(CoverPoint);
+		}
+	}
 }
 
 void AAshlineGrayboxBuilder::PlayerStartAt(const FVector& Location, const FRotator& Rotation)
@@ -722,6 +734,10 @@ void AAshlineGrayboxBuilder::ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AA
 		{
 			KitMat = ActiveKit->TrimMaterial.LoadSynchronous();
 		}
+		else if (Surface == EAshlineSurface::Glass)
+		{
+			KitMat = ActiveKit->GlassMaterial.LoadSynchronous();
+		}
 		else
 		{
 			KitMat = ActiveKit->WallMaterial.LoadSynchronous();
@@ -730,34 +746,28 @@ void AAshlineGrayboxBuilder::ApplySurfaceMaterial(UStaticMeshComponent* Mesh, AA
 
 	if (!KitMat && ActiveMissionId != EAshlineMissionId::None)
 	{
-		if (Surface == EAshlineSurface::Ground || Surface == EAshlineSurface::Sand || Surface == EAshlineSurface::Snow)
-		{
-			KitMat = UAshlinePresentationLibrary::LoadMaterial({ UAshlineContentManifest::KitGroundPath(ActiveMissionId) });
-		}
-		else if (Surface == EAshlineSurface::Foliage)
-		{
-			KitMat = UAshlinePresentationLibrary::LoadMaterial({ UAshlineContentManifest::KitFoliagePath(ActiveMissionId) });
-		}
-		else if (Surface == EAshlineSurface::Metal)
-		{
-			KitMat = UAshlinePresentationLibrary::LoadMaterial({ UAshlineContentManifest::KitTrimPath(ActiveMissionId) });
-		}
-		else
-		{
-			KitMat = UAshlinePresentationLibrary::LoadMaterial({ UAshlineContentManifest::KitWallPath(ActiveMissionId) });
-		}
+		KitMat = UAshlinePresentationLibrary::ResolveKitSurfaceMaterial(ActiveMissionId, Surface);
 	}
 
 	if (KitMat)
 	{
 		if (UMaterialInstanceDynamic* KitMID = UMaterialInstanceDynamic::Create(KitMat, MaterialOuter))
 		{
+			FAshlineTextureSet Stamp = UAshlineMaterialFactory::DefaultsForSurface(Surface, Color);
+			Stamp.Tint = Color;
+			UAshlineMaterialFactory::StampTextureSet(KitMID, Stamp);
 			KitMID->SetVectorParameterValue(TEXT("Color"), Color);
 			KitMID->SetVectorParameterValue(TEXT("BaseColor"), Color);
 			Mesh->SetMaterial(0, KitMID);
 			return;
 		}
 		Mesh->SetMaterial(0, KitMat);
+		return;
+	}
+
+	FAshlineTextureSet Empty;
+	if (UAshlineMaterialFactory::ApplyToMesh(Mesh, MaterialOuter, Surface, Color, Empty))
+	{
 		return;
 	}
 

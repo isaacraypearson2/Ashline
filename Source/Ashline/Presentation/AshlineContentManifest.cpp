@@ -216,3 +216,84 @@ FString UAshlineContentManifest::SlotFolderName(EAshlineCosmeticSlot Slot)
 	default: return TEXT("Other");
 	}
 }
+
+FString UAshlineContentManifest::MasterMaterialPath(EAshlineMasterMaterial Master)
+{
+	switch (Master)
+	{
+	case EAshlineMasterMaterial::Weapon:
+		return TEXT("/Game/Ashline/Materials/PBR/Masters/M_Weapon_Master.M_Weapon_Master");
+	case EAshlineMasterMaterial::Character:
+		return TEXT("/Game/Ashline/Materials/PBR/Masters/M_Character_Master.M_Character_Master");
+	case EAshlineMasterMaterial::Decal:
+		return TEXT("/Game/Ashline/Materials/Decals/M_Decal_Master.M_Decal_Master");
+	case EAshlineMasterMaterial::Glass:
+		return TEXT("/Game/Ashline/Materials/Glass/M_Glass_Master.M_Glass_Master");
+	case EAshlineMasterMaterial::Skin:
+		return TEXT("/Game/Ashline/Materials/Skin/M_Skin_Master.M_Skin_Master");
+	case EAshlineMasterMaterial::Environment:
+	default:
+		return TEXT("/Game/Ashline/Materials/PBR/Masters/M_Env_Master.M_Env_Master");
+	}
+}
+
+FString UAshlineContentManifest::SurfaceInstancePath(EAshlineSurface Surface)
+{
+	const TCHAR* Name = TEXT("MI_Env_Default");
+	switch (Surface)
+	{
+	case EAshlineSurface::Ground: Name = TEXT("MI_Env_Ground"); break;
+	case EAshlineSurface::Concrete: Name = TEXT("MI_Env_Concrete"); break;
+	case EAshlineSurface::Metal: Name = TEXT("MI_Env_Metal"); break;
+	case EAshlineSurface::Wood: Name = TEXT("MI_Env_Wood"); break;
+	case EAshlineSurface::Sand: Name = TEXT("MI_Env_Sand"); break;
+	case EAshlineSurface::Snow: Name = TEXT("MI_Env_Snow"); break;
+	case EAshlineSurface::Water: Name = TEXT("MI_Env_Water"); break;
+	case EAshlineSurface::Foliage: Name = TEXT("MI_Env_Foliage"); break;
+	case EAshlineSurface::Emissive: Name = TEXT("MI_Env_Emissive"); break;
+	case EAshlineSurface::Plastic: Name = TEXT("MI_Char_Clothing"); break;
+	case EAshlineSurface::Glass: Name = TEXT("MI_Glass_Clear"); break;
+	case EAshlineSurface::Skin: Name = TEXT("MI_Skin_Operator"); break;
+	default: break;
+	}
+	if (Surface == EAshlineSurface::Glass)
+	{
+		return FString::Printf(TEXT("/Game/Ashline/Materials/Glass/%s.%s"), Name, Name);
+	}
+	if (Surface == EAshlineSurface::Skin)
+	{
+		return FString::Printf(TEXT("/Game/Ashline/Materials/Skin/%s.%s"), Name, Name);
+	}
+	return FString::Printf(TEXT("/Game/Ashline/Materials/PBR/Instances/%s.%s"), Name, Name);
+}
+
+FString UAshlineContentManifest::KitGlassPath(EAshlineMissionId MissionId)
+{
+	const TCHAR* Slug = AshlineManifest::MissionSlug(MissionId);
+	return FString::Printf(TEXT("/Game/Ashline/Environments/%s/M_Glass_%s.M_Glass_%s"), Slug, Slug, Slug);
+}
+
+TArray<FString> UAshlineContentManifest::EngineFallbackTextureCandidates(FName Slot)
+{
+	const FString SlotStr = Slot.ToString();
+	if (SlotStr.Contains(TEXT("Normal")))
+	{
+		return {
+			TEXT("/Engine/EngineResources/DefaultNormal.DefaultNormal"),
+			TEXT("/Engine/EngineResources/DefaultTexture.DefaultTexture"),
+			TEXT("/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture")
+		};
+	}
+	if (SlotStr.Contains(TEXT("Emissive")) || SlotStr.Contains(TEXT("Black")) || SlotStr.Contains(TEXT("Height")))
+	{
+		return {
+			TEXT("/Engine/EngineResources/Black.Black"),
+			TEXT("/Engine/EngineResources/DefaultTexture.DefaultTexture")
+		};
+	}
+	return {
+		TEXT("/Engine/EngineResources/DefaultTexture.DefaultTexture"),
+		TEXT("/Engine/EngineResources/DefaultDiffuse.DefaultDiffuse"),
+		TEXT("/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture")
+	};
+}

@@ -40,9 +40,11 @@ These assets are **not shipped in git**.
 
 ## Animation
 
-Phase 1 does **not** ship locomotion AnimBPs. The mannequin/MetaHuman will T-pose or use whatever default the mesh has until you assign `AnimClass`. Gameplay (move, crouch, fire) does not depend on it.
+Runtime applies `DA_Hero_Operator.AnimClass` / `DA_AI_*.AnimClass` when set (GASP Motion Matching or MetaHuman AnimBP). Until then the mesh T-poses; gameplay (move, crouch, fire, cover) does not depend on it.
 
-Suggested Phase 2: Game Animation Sample or MetaHuman locomotion, then an AimOffset for FPS arms.
+Suggested: Game Animation Sample 5.8 → migrate AnimBP onto the hero + AI DataAssets the same evening as MetaHuman (`Docs/PHASE2_FAB.md` hour 0:25).
+
+Cover: `AAshlineCoverPoint` is spawned next to every graybox `Cover()` box (layout numbers unchanged). AI seeks cover, flanks, burst-fires, and hears gunshots.
 
 ## Operator cosmetics
 

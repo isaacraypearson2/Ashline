@@ -18,6 +18,7 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 - [ ] `stat fps` at 1440p — high-refresh capable (VSync off)
 - [ ] `r.RayTracing` / `r.Lumen.HardwareRayTracing` are 1 if the driver reports HW RT
 - [ ] `AshPCBalanced` drops screen percentage / Lumen cost; `AshPCUltra` restores
+- [ ] `AshSteamDeck` sets pool 1600 / VT 0.45 / no HW RT (optional handheld check)
 - [ ] Nanite/Lumen/VSM do not spam fatal logs
 - [ ] DLSS is **not** required; game looks correct with FSR3 or TSR only
 
@@ -66,8 +67,11 @@ If Quixel/Fab/MetaHuman folders are empty, that is **not** a test failure. Phase
 
 ## Phase 2 content wiring (after scripts on the Windows box)
 
-- [ ] `import_fab_kits.py` then `assign_interim_meshes.py` — hero+AI are mannequins (or blockout), **not capsules**
+- [ ] `import_fab_kits.py` then `create_master_materials.py` then `assign_interim_meshes.py` — hero+AI are mannequins (or blockout), **not capsules**
+- [ ] Surfaces use masters / Engine fallbacks with **no** Megascans (no pink/error materials)
 - [ ] Dropping `M_SKIN_FDE` at the bindings path + `AshEquipSkin WPN_AR_ASH16 SKIN_FDE` paints the gun
 - [ ] Dropping `M_CAMO_NIGHT` + equip Camo applies the material
 - [ ] Empty `DA_Kit_ASH##` does **not** reset ASH-01 to daylight (`bOverrideMood` false)
+- [ ] AI takes cover (`AAshlineCoverPoint` next to graybox cover), burst-fires, and reacts to gunshot noise
+- [ ] ADS narrows FOV; recoil recovers; firing reports AI hearing
 - [ ] Each mission still has a distinct mood (fill/moon, fog, PP) without Megascans

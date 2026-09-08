@@ -24,6 +24,15 @@ void UAshlineGraphicsSettings::ApplySavedOrDetect()
 {
 	ProbeCapabilities();
 
+	if (DetectSteamDeck())
+	{
+		State.Preset = EAshlineGraphicsPreset::SteamDeck;
+		State.Upscaler = EAshlineUpscaler::TSR;
+		State.bRayTracingEnabled = false;
+		ApplyCVars();
+		return;
+	}
+
 #if PLATFORM_WINDOWS
 	State.Preset = EAshlineGraphicsPreset::PC_Ultra;
 	if (State.bFSR3Available)
@@ -58,7 +67,12 @@ void UAshlineGraphicsSettings::ApplySavedOrDetect()
 void UAshlineGraphicsSettings::ApplyPreset(EAshlineGraphicsPreset Preset)
 {
 	State.Preset = Preset;
-	if (Preset == EAshlineGraphicsPreset::PC_Ultra || Preset == EAshlineGraphicsPreset::PC_Balanced)
+	if (Preset == EAshlineGraphicsPreset::SteamDeck)
+	{
+		State.Upscaler = EAshlineUpscaler::TSR;
+		State.bRayTracingEnabled = false;
+	}
+	else if (Preset == EAshlineGraphicsPreset::PC_Ultra || Preset == EAshlineGraphicsPreset::PC_Balanced)
 	{
 		if (State.bHardwareRayTracingAvailable)
 		{
@@ -134,13 +148,14 @@ FString UAshlineGraphicsSettings::GetPresetDisplayName(EAshlineGraphicsPreset Pr
 	case EAshlineGraphicsPreset::Cinematic: return TEXT("Cinematic");
 	case EAshlineGraphicsPreset::PC_Balanced: return TEXT("Ashline_PC_Balanced");
 	case EAshlineGraphicsPreset::PC_Ultra: return TEXT("Ashline_PC_Ultra");
+	case EAshlineGraphicsPreset::SteamDeck: return TEXT("Ashline_SteamDeck");
 	default: return TEXT("Unknown");
 	}
 }
 
 FString UAshlineGraphicsSettings::DescribeTargetHardware()
 {
-	return TEXT("Target PC: AMD Ryzen 5 7500X3D, 32 GB DDR5-6000, Radeon RX 9070 GRE (RDNA4). 1440p Ultra / high-refresh. DX12 + SM6 + Nanite + Lumen + VSM. Upscale: FSR 3 (TSR fallback). DLSS optional.");
+	return TEXT("Target PC: AMD Ryzen 5 7500X3D, 32 GB DDR5-6000, Radeon RX 9070 GRE (RDNA4). 1440p Ultra / high-refresh. DX12 + SM6 + Nanite + Lumen + VSM. Upscale: FSR 3 (TSR fallback). DLSS optional. Handheld: Ashline_SteamDeck (pool 1600, VT 0.45, no HW RT).");
 }
 
 void UAshlineGraphicsSettings::ProbeCapabilities()
@@ -199,6 +214,7 @@ void UAshlineGraphicsSettings::ApplyCVars()
 	case EAshlineGraphicsPreset::Cinematic: Scalability = 3; break;
 	case EAshlineGraphicsPreset::PC_Balanced: Scalability = 3; break;
 	case EAshlineGraphicsPreset::PC_Ultra: Scalability = 3; break;
+	case EAshlineGraphicsPreset::SteamDeck: Scalability = 1; break;
 	}
 
 	SetCVarInt(TEXT("sg.ViewDistanceQuality"), Scalability);
@@ -227,11 +243,16 @@ void UAshlineGraphicsSettings::ApplyCVars()
 	{
 		ApplyNamedPCPreset(State.Preset);
 	}
+	else if (State.Preset == EAshlineGraphicsPreset::SteamDeck)
+	{
+		ApplyNamedPCPreset(State.Preset);
+	}
 	else
 	{
 		SetCVarInt(TEXT("r.VSync"), 1);
 		SetCVarFloat(TEXT("r.ScreenPercentage"), State.Preset == EAshlineGraphicsPreset::Low ? 67.f : 100.f);
 		SetCVarInt(TEXT("r.Streaming.PoolSize"), Scalability >= 3 ? 3000 : 1800);
+		ApplyTextureStreamingCVars(false, false);
 	}
 
 	ApplyRayTracingCVars();
@@ -254,31 +275,35 @@ void UAshlineGraphicsSettings::ApplyCVars()
 void UAshlineGraphicsSettings::ApplyNamedPCPreset(EAshlineGraphicsPreset Preset)
 {
 	const bool bUltra = Preset == EAshlineGraphicsPreset::PC_Ultra;
+	const bool bDeck = Preset == EAshlineGraphicsPreset::SteamDeck;
 
-	// 9070 GRE / 32 GB DDR5 / 1440p high-refresh.
-	SetCVarInt(TEXT("r.VSync"), 0);
-	SetCVarFloat(TEXT("t.MaxFPS"), 0.f);
-	SetCVarInt(TEXT("r.FinishCurrentFrame"), 0);
-	SetCVarInt(TEXT("r.MaxAnisotropy"), 16);
-	SetCVarInt(TEXT("r.VT.MaxAnisotropy"), 8);
-	SetCVarInt(TEXT("r.Streaming.PoolSize"), bUltra ? 5600 : 3800);
-	SetCVarInt(TEXT("r.Streaming.LimitPoolSizeToVRAM"), 1);
-	SetCVarFloat(TEXT("r.ViewDistanceScale"), bUltra ? 1.15f : 0.9f);
-	SetCVarFloat(TEXT("r.Shadow.DistanceScale"), bUltra ? 1.1f : 0.85f);
-	SetCVarInt(TEXT("r.Shadow.Virtual.MaxQuality"), bUltra ? 3 : 2);
-	SetCVarInt(TEXT("r.Shadow.Virtual.SMRT.RayCountDirectional"), bUltra ? 8 : 4);
-	SetCVarInt(TEXT("r.Lumen.ScreenProbeGather.RadianceCache.ProbeResolution"), bUltra ? 32 : 16);
-	SetCVarInt(TEXT("r.Lumen.ScreenProbeGather.DownsampleFactor"), bUltra ? 16 : 32);
-	SetCVarInt(TEXT("r.Lumen.Reflections.DownsampleFactor"), bUltra ? 1 : 2);
-	SetCVarInt(TEXT("r.Lumen.TraceMeshSDFs"), 1);
-	SetCVarInt(TEXT("r.AmbientOcclusionLevels"), bUltra ? 2 : 1);
-	SetCVarInt(TEXT("r.BloomQuality"), bUltra ? 5 : 4);
+	SetCVarInt(TEXT("r.VSync"), bDeck ? 1 : 0);
+	SetCVarFloat(TEXT("t.MaxFPS"), bDeck ? 60.f : 0.f);
+	SetCVarInt(TEXT("r.FinishCurrentFrame"), bDeck ? 1 : 0);
+	SetCVarInt(TEXT("r.MaxAnisotropy"), bDeck ? 4 : 16);
+	SetCVarInt(TEXT("r.VT.MaxAnisotropy"), bDeck ? 4 : 8);
+	ApplyTextureStreamingCVars(bUltra, bDeck);
+	SetCVarFloat(TEXT("r.ViewDistanceScale"), bDeck ? 0.7f : (bUltra ? 1.15f : 0.9f));
+	SetCVarFloat(TEXT("r.Shadow.DistanceScale"), bDeck ? 0.65f : (bUltra ? 1.1f : 0.85f));
+	SetCVarInt(TEXT("r.Shadow.Virtual.MaxQuality"), bDeck ? 1 : (bUltra ? 3 : 2));
+	SetCVarInt(TEXT("r.Shadow.Virtual.SMRT.RayCountDirectional"), bDeck ? 2 : (bUltra ? 8 : 4));
+	SetCVarInt(TEXT("r.Lumen.ScreenProbeGather.RadianceCache.ProbeResolution"), bDeck ? 8 : (bUltra ? 32 : 16));
+	SetCVarInt(TEXT("r.Lumen.ScreenProbeGather.DownsampleFactor"), bDeck ? 32 : (bUltra ? 16 : 32));
+	SetCVarInt(TEXT("r.Lumen.Reflections.DownsampleFactor"), bDeck ? 2 : (bUltra ? 1 : 2));
+	SetCVarInt(TEXT("r.Lumen.TraceMeshSDFs"), bDeck ? 0 : 1);
+	SetCVarInt(TEXT("r.AmbientOcclusionLevels"), bDeck ? 1 : (bUltra ? 2 : 1));
+	SetCVarInt(TEXT("r.BloomQuality"), bDeck ? 3 : (bUltra ? 5 : 4));
 	SetCVarInt(TEXT("r.MotionBlurQuality"), 0);
-	SetCVarInt(TEXT("r.DepthOfFieldQuality"), bUltra ? 2 : 0);
-	SetCVarFloat(TEXT("foliage.DensityScale"), bUltra ? 1.f : 0.7f);
-	SetCVarFloat(TEXT("r.Tonemapper.Sharpen"), 0.45f);
+	SetCVarInt(TEXT("r.DepthOfFieldQuality"), bDeck ? 0 : (bUltra ? 2 : 0));
+	SetCVarFloat(TEXT("foliage.DensityScale"), bDeck ? 0.45f : (bUltra ? 1.f : 0.7f));
+	SetCVarFloat(TEXT("r.Tonemapper.Sharpen"), bDeck ? 0.35f : 0.45f);
 
-	if (State.Upscaler == EAshlineUpscaler::FSR3)
+	if (bDeck)
+	{
+		SetCVarFloat(TEXT("r.ScreenPercentage"), 70.f);
+		State.bRayTracingEnabled = false;
+	}
+	else if (State.Upscaler == EAshlineUpscaler::FSR3)
 	{
 		SetCVarFloat(TEXT("r.ScreenPercentage"), bUltra ? 77.f : 59.f);
 	}
@@ -294,6 +319,24 @@ void UAshlineGraphicsSettings::ApplyNamedPCPreset(EAshlineGraphicsPreset Preset)
 	{
 		SetCVarFloat(TEXT("r.ScreenPercentage"), bUltra ? 100.f : 80.f);
 	}
+}
+
+void UAshlineGraphicsSettings::ApplyTextureStreamingCVars(bool bUltra, bool bSteamDeck)
+{
+	SetCVarInt(TEXT("r.TextureStreaming"), 1);
+	SetCVarInt(TEXT("r.Streaming.LimitPoolSizeToVRAM"), 1);
+	SetCVarInt(TEXT("r.Streaming.UseAllMips"), 0);
+	SetCVarInt(TEXT("r.Streaming.AmortizeCPUToGPUCopy"), 1);
+	SetCVarInt(TEXT("r.Streaming.MaxNumTexturesToStreamPerFrame"), bSteamDeck ? 8 : 16);
+	SetCVarInt(TEXT("r.Streaming.FramesForFullUpdate"), bSteamDeck ? 7 : 5);
+	SetCVarFloat(TEXT("r.Streaming.Boost"), bUltra ? 1.f : 0.7f);
+	SetCVarFloat(TEXT("r.Streaming.MipBias"), bSteamDeck ? 0.5f : 0.f);
+	SetCVarInt(TEXT("r.Streaming.PoolSize"), bSteamDeck ? 1600 : (bUltra ? 5600 : 3800));
+	SetCVarInt(TEXT("r.VT.Enable"), 1);
+	SetCVarFloat(TEXT("r.VT.PoolSizeScale"), bSteamDeck ? 0.45f : (bUltra ? 1.15f : 0.8f));
+	SetCVarInt(TEXT("r.VT.MaxUploadsPerFrame"), bSteamDeck ? 8 : (bUltra ? 24 : 16));
+	SetCVarInt(TEXT("r.VT.MaxTilesProducedPerFrame"), bSteamDeck ? 16 : 48);
+	SetCVarFloat(TEXT("r.Streaming.HiddenPrimitiveScale"), bSteamDeck ? 0.4f : 0.5f);
 }
 
 void UAshlineGraphicsSettings::ApplyUpscalerCVars()
@@ -388,6 +431,28 @@ void UAshlineGraphicsSettings::ApplyBalancedPreset()
 	ApplyPreset(EAshlineGraphicsPreset::PC_Balanced);
 }
 
+void UAshlineGraphicsSettings::ApplySteamDeckPreset()
+{
+	ApplyPreset(EAshlineGraphicsPreset::SteamDeck);
+}
+
+bool UAshlineGraphicsSettings::DetectSteamDeck()
+{
+#if PLATFORM_UNIX && !PLATFORM_MAC && !PLATFORM_IOS && !PLATFORM_TVOS
+	const FString DeckEnv = FPlatformMisc::GetEnvironmentVariable(TEXT("SteamDeck"));
+	if (DeckEnv == TEXT("1") || DeckEnv.Equals(TEXT("true"), ESearchCase::IgnoreCase))
+	{
+		return true;
+	}
+#endif
+	const FString Device = FPlatformMisc::GetDeviceMakeAndModel();
+	if (Device.Contains(TEXT("Jupiter")) || Device.Contains(TEXT("SteamDeck")) || Device.Contains(TEXT("Steam Deck")))
+	{
+		return true;
+	}
+	return false;
+}
+
 void UAshlineGraphicsSettings::RegisterConsoleCommands()
 {
 	IConsoleManager& CM = IConsoleManager::Get();
@@ -400,6 +465,11 @@ void UAshlineGraphicsSettings::RegisterConsoleCommands()
 		TEXT("AshPCBalanced"),
 		TEXT("Apply Ashline_PC_Balanced."),
 		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplyBalancedPreset),
+		ECVF_Default));
+	ConsoleObjects.Add(CM.RegisterConsoleCommand(
+		TEXT("AshSteamDeck"),
+		TEXT("Apply Ashline_SteamDeck (VT, 1600 MB pool, no HW RT, TSR 70)."),
+		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplySteamDeckPreset),
 		ECVF_Default));
 }
 
