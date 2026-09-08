@@ -120,7 +120,21 @@ enum class EAshlineGraphicsPreset : uint8
 	/** 1440p high-refresh on Radeon 9070-class (FSR3 Balanced + cheaper Lumen). */
 	PC_Balanced UMETA(DisplayName = "Ashline_PC_Balanced"),
 	/** Default Windows target: 1440p Ultra, Nanite/Lumen/VSM, HW RT when supported. */
-	PC_Ultra UMETA(DisplayName = "Ashline_PC_Ultra")
+	PC_Ultra UMETA(DisplayName = "Ashline_PC_Ultra"),
+	/** Steam Deck / handheld: VT on, small streaming pool, no HW RT. */
+	SteamDeck UMETA(DisplayName = "Ashline_SteamDeck")
+};
+
+UENUM(BlueprintType)
+enum class EAshlineAICombatState : uint8
+{
+	Idle,
+	Investigate,
+	Engage,
+	TakeCover,
+	Flank,
+	Suppress,
+	Dead
 };
 
 UENUM(BlueprintType)
@@ -160,7 +174,9 @@ enum class EAshlineSurface : uint8
 	Water,
 	Foliage,
 	Emissive,
-	Plastic
+	Plastic,
+	Glass,
+	Skin
 };
 
 USTRUCT(BlueprintType)

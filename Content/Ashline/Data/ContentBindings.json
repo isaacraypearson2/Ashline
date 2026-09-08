@@ -36,7 +36,14 @@
     "kitGround": "/Game/Ashline/Environments/{Slug}/M_Ground_{Slug}.M_Ground_{Slug}",
     "kitWall": "/Game/Ashline/Environments/{Slug}/M_Wall_{Slug}.M_Wall_{Slug}",
     "kitTrim": "/Game/Ashline/Environments/{Slug}/M_Trim_{Slug}.M_Trim_{Slug}",
-    "kitDataAsset": "/Game/Ashline/Data/Kits/DA_Kit_ASH{NN}.DA_Kit_ASH{NN}"
+    "kitGlass": "/Game/Ashline/Environments/{Slug}/M_Glass_{Slug}.M_Glass_{Slug}",
+    "kitDataAsset": "/Game/Ashline/Data/Kits/DA_Kit_ASH{NN}.DA_Kit_ASH{NN}",
+    "envMaster": "/Game/Ashline/Materials/PBR/Masters/M_Env_Master.M_Env_Master",
+    "weaponMaster": "/Game/Ashline/Materials/PBR/Masters/M_Weapon_Master.M_Weapon_Master",
+    "characterMaster": "/Game/Ashline/Materials/PBR/Masters/M_Character_Master.M_Character_Master",
+    "glassMaster": "/Game/Ashline/Materials/Glass/M_Glass_Master.M_Glass_Master",
+    "skinMaster": "/Game/Ashline/Materials/Skin/M_Skin_Master.M_Skin_Master",
+    "decalMaster": "/Game/Ashline/Materials/Decals/M_Decal_Master.M_Decal_Master"
   },
   "cosmetics": {
     "CAMO_FIELD": { "slot": "Camo", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_FIELD.SK_CAMO_FIELD", "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_FIELD.M_CAMO_FIELD" },

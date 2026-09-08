@@ -1,0 +1,42 @@
+{
+  "masters": {
+    "Environment": "/Game/Ashline/Materials/PBR/Masters/M_Env_Master.M_Env_Master",
+    "Weapon": "/Game/Ashline/Materials/PBR/Masters/M_Weapon_Master.M_Weapon_Master",
+    "Character": "/Game/Ashline/Materials/PBR/Masters/M_Character_Master.M_Character_Master",
+    "Decal": "/Game/Ashline/Materials/Decals/M_Decal_Master.M_Decal_Master",
+    "Glass": "/Game/Ashline/Materials/Glass/M_Glass_Master.M_Glass_Master",
+    "Skin": "/Game/Ashline/Materials/Skin/M_Skin_Master.M_Skin_Master"
+  },
+  "instances": {
+    "Ground": "/Game/Ashline/Materials/PBR/Instances/MI_Env_Ground.MI_Env_Ground",
+    "Concrete": "/Game/Ashline/Materials/PBR/Instances/MI_Env_Concrete.MI_Env_Concrete",
+    "Metal": "/Game/Ashline/Materials/PBR/Instances/MI_Env_Metal.MI_Env_Metal",
+    "Wood": "/Game/Ashline/Materials/PBR/Instances/MI_Env_Wood.MI_Env_Wood",
+    "Sand": "/Game/Ashline/Materials/PBR/Instances/MI_Env_Sand.MI_Env_Sand",
+    "Snow": "/Game/Ashline/Materials/PBR/Instances/MI_Env_Snow.MI_Env_Snow",
+    "Water": "/Game/Ashline/Materials/PBR/Instances/MI_Env_Water.MI_Env_Water",
+    "Foliage": "/Game/Ashline/Materials/PBR/Instances/MI_Env_Foliage.MI_Env_Foliage",
+    "Emissive": "/Game/Ashline/Materials/PBR/Instances/MI_Env_Emissive.MI_Env_Emissive",
+    "Plastic": "/Game/Ashline/Materials/PBR/Instances/MI_Char_Clothing.MI_Char_Clothing",
+    "Glass": "/Game/Ashline/Materials/Glass/MI_Glass_Clear.MI_Glass_Clear",
+    "Skin": "/Game/Ashline/Materials/Skin/MI_Skin_Operator.MI_Skin_Operator"
+  },
+  "engineFallbacks": {
+    "BaseColor": "/Engine/EngineResources/DefaultTexture.DefaultTexture",
+    "Normal": "/Engine/EngineResources/DefaultNormal.DefaultNormal",
+    "White": "/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture",
+    "Black": "/Engine/EngineResources/Black.Black"
+  },
+  "paramAliases": {
+    "BaseColor": ["BaseColor", "Base Color", "Albedo", "Diffuse", "Color", "BaseColorMap"],
+    "Normal": ["Normal", "NormalMap", "Normalmap"],
+    "ORM": ["ORM", "ARM", "Mask", "OcclusionRoughnessMetallic"],
+    "Roughness": ["Roughness", "RoughnessMap"],
+    "Metallic": ["Metallic", "MetallicMap"],
+    "AO": ["AmbientOcclusion", "AO", "Occlusion"],
+    "Emissive": ["Emissive", "EmissiveMap", "EmissiveColor"],
+    "Height": ["Height", "Displacement"],
+    "Opacity": ["Opacity", "OpacityMask"],
+    "Tiling": ["Tiling", "UVScale", "TextureScale"]
+  }
+}

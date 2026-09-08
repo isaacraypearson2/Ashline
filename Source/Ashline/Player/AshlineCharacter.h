@@ -125,11 +125,16 @@ protected:
 	void ApplyPresentationMesh();
 	void ApplyOperatorLook();
 	void TickFootsteps(float DeltaSeconds);
+	void TickCombatCamera(float DeltaSeconds);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Mesh")
 	TSoftObjectPtr<USkeletalMesh> HeroMeshOverride;
 
 	float FootstepAccumulator = 0.f;
+	float HipFOV = 90.f;
+	float AdsFOV = 62.f;
+	float CurrentFOV = 90.f;
+	float HitFlinch = 0.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|Camera")
 	EAshlineCameraMode CameraMode = EAshlineCameraMode::FirstPerson;

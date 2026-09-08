@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AshlineTypes.h"
+#include "Presentation/AshlineMaterialTypes.h"
 #include "AshlineContentManifest.generated.h"
 
 /**
@@ -94,4 +95,22 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
 	static FString SlotFolderName(EAshlineCosmeticSlot Slot);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString MasterMaterialPath(EAshlineMasterMaterial Master);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString SurfaceInstancePath(EAshlineSurface Surface);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString KitGlassPath(EAshlineMissionId MissionId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static TArray<FString> EngineFallbackTextureCandidates(FName Slot);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString MasterDirectory() { return TEXT("/Game/Ashline/Materials/PBR/Masters"); }
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString InstanceDirectory() { return TEXT("/Game/Ashline/Materials/PBR/Instances"); }
 };

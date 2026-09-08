@@ -26,9 +26,11 @@
 #include "Meta/AshlineMetaCatalog.h"
 #include "Presentation/AshlineAudioDirector.h"
 #include "Presentation/AshlineCharacterPresentation.h"
+#include "Presentation/AshlineMaterialFactory.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlinePresentationSettings.h"
 #include "Weapons/AshlineWeaponComponent.h"
+#include "Animation/AnimInstance.h"
 
 AAshlineCharacter::AAshlineCharacter()
 {
@@ -122,9 +124,10 @@ void AAshlineCharacter::BeginPlay()
 void AAshlineCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	const float Target = bIsAiming ? 430.f * AimWalkMul : 430.f;
+	const float Target = bIsAiming ? 430.f * AimWalkMul : (bIsCrouched ? 220.f : 430.f);
 	GetCharacterMovement()->MaxWalkSpeed = Target;
 	TickFootsteps(DeltaSeconds);
+	TickCombatCamera(DeltaSeconds);
 }
 
 void AAshlineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -338,6 +341,12 @@ float AAshlineCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 	}
 
 	Health = FMath::Max(0.f, Health - Incoming);
+	HitFlinch = FMath::Min(1.f, HitFlinch + Incoming * 0.02f);
+	if (Controller)
+	{
+		AddControllerPitchInput(FMath::FRandRange(-0.15f, 0.05f) * HitFlinch);
+		AddControllerYawInput(FMath::FRandRange(-0.12f, 0.12f) * HitFlinch);
+	}
 	if (Health <= 0.f)
 	{
 		Health = MaxHealth;
@@ -560,6 +569,25 @@ void AAshlineCharacter::ApplyPresentationMesh()
 		GetMesh()->SetRelativeScale3D(RelScale);
 		GetMesh()->SetVisibility(true);
 		GetMesh()->SetCastShadow(true);
+		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(true, EAshlineAIArchetype::Rifleman))
+		{
+			if (TSubclassOf<UAnimInstance> Anim = Pres->AnimClass.LoadSynchronous())
+			{
+				GetMesh()->SetAnimInstanceClass(Anim);
+			}
+			if (UMaterialInterface* Override = Pres->BodyMaterialOverride.LoadSynchronous())
+			{
+				GetMesh()->SetMaterial(0, Override);
+			}
+			else if (UMaterialInterface* Skin = Pres->SkinMaterial.LoadSynchronous())
+			{
+				GetMesh()->SetMaterial(0, Skin);
+			}
+			else if (UMaterialInstanceDynamic* MID = UAshlineMaterialFactory::CreateCharacterInstance(this, FLinearColor(0.18f, 0.24f, 0.16f), Pres->BodyTextures))
+			{
+				GetMesh()->SetMaterial(0, MID);
+			}
+		}
 		if (GrayboxBody)
 		{
 			GrayboxBody->SetVisibility(false);
@@ -663,7 +691,7 @@ void AAshlineCharacter::ApplyOperatorLook()
 		{
 			GetMesh()->SetMaterial(0, Override);
 		}
-		else if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, EAshlineSurface::Plastic, CamoTint))
+		else if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeCharacterMaterial(this, CamoTint))
 		{
 			GetMesh()->SetMaterial(0, MID);
 		}
@@ -673,7 +701,7 @@ void AAshlineCharacter::ApplyOperatorLook()
 		UAshlinePresentationLibrary::ApplyHumanoidBlockout(this, CamoTint);
 		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_Torso"), VestTint, EAshlineSurface::Plastic);
 		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_Helmet"), HelmetTint, EAshlineSurface::Plastic);
-		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_Head"), FaceTint, EAshlineSurface::Plastic);
+		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_Head"), FaceTint, EAshlineSurface::Skin);
 		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_ArmL"), GlovesTint, EAshlineSurface::Plastic);
 		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_ArmR"), GlovesTint, EAshlineSurface::Plastic);
 		UAshlinePresentationLibrary::TintNamedStaticMesh(this, TEXT("AshlineBlock_LegL"), PantsTint, EAshlineSurface::Plastic);
@@ -690,5 +718,20 @@ void AAshlineCharacter::ApplyOperatorLook()
 	if (WeaponComponent)
 	{
 		WeaponComponent->ApplyCharm(CharmId);
+	}
+}
+
+void AAshlineCharacter::TickCombatCamera(float DeltaSeconds)
+{
+	const float TargetFOV = bIsAiming ? AdsFOV : HipFOV;
+	CurrentFOV = FMath::FInterpTo(CurrentFOV, TargetFOV, DeltaSeconds, bIsAiming ? 12.f : 8.f);
+	HitFlinch = FMath::FInterpTo(HitFlinch, 0.f, DeltaSeconds, 6.f);
+	if (FirstPersonCamera && CameraMode == EAshlineCameraMode::FirstPerson)
+	{
+		FirstPersonCamera->SetFieldOfView(CurrentFOV);
+	}
+	if (ThirdPersonCamera && CameraMode == EAshlineCameraMode::ThirdPerson)
+	{
+		ThirdPersonCamera->SetFieldOfView(CurrentFOV + 8.f);
 	}
 }

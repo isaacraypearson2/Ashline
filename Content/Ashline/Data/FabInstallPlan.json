@@ -1,0 +1,67 @@
+{
+  "eveningHours": [
+    {
+      "block": "0:00–0:25",
+      "title": "Engine + scripts (free)",
+      "steps": [
+        "Open Ashline.uproject UE 5.8.2, compile AshlineEditor Win64 Development",
+        "Add Feature or Content Pack → Starter Content",
+        "Tools → Execute Python Script → Scripts/import_fab_kits.py",
+        "Tools → Execute Python Script → Scripts/create_master_materials.py",
+        "Tools → Execute Python Script → Scripts/assign_interim_meshes.py",
+        "PIE: mannequin or blockout, not a capsule. HUD Ashline_PC_Ultra / D3D12"
+      ]
+    },
+    {
+      "block": "0:25–1:20",
+      "title": "Characters — MetaHuman + GASP (free)",
+      "steps": [
+        "Enable MetaHuman plugin, Creator → Bridge → /Game/Ashline/Characters/MetaHuman/",
+        "Assign body to DA_Hero_Operator.BodyMesh or SK_AshlineHero",
+        "Assign face to SkinMaterial / SK_AshlineHero_Face",
+        "Fab: Game Animation Sample 5.8 — migrate SKM_UEFN_Mannequin + Motion Matching AnimBP to DA_Hero_Operator.AnimClass",
+        "Optional: MetaHuman Crowds cheaper LODs → DA_AI_*",
+        "Optional paid: US Marine GRENADIER Modular → Hero/Parts/{Helmet,Vest,Pants,Gloves,Boots}"
+      ]
+    },
+    {
+      "block": "1:20–2:10",
+      "title": "Weapons + material libraries",
+      "steps": [
+        "Lyra Starter Game: migrate 7 weapon meshes onto SM_WPN_* names",
+        "Optional paid: Modern Firearms & Explosives Pack — same 7 IDs on DA_WPN_*",
+        "Duplicate M_Weapon_Master → M_SKIN_FACTORY / FDE / OD / SNOW / GOLD + weapon uniques",
+        "Fab search Military Camo / Weapon Material Library → Materials/Libraries/"
+      ]
+    },
+    {
+      "block": "2:10–4:10",
+      "title": "Megascans — hero missions first",
+      "steps": [
+        "ASH-01 Wire Cut: Forest Floor, Dirt Ground, Concrete Wall, Chainlink, Flood Light",
+        "ASH-02 Dust Market: Desert Sand, Adobe, Market Stall, Fabric Canopy",
+        "ASH-07 Whiteout: Snow Ground, Pine Tree, Ice",
+        "ASH-12 Ashline: Brutalist Concrete, Emissive Panel, Bunker Door",
+        "ASH-04 / ASH-10: glass + urban concrete (M_Glass_Master instances)",
+        "Remaining ASH-03,05,06,08,09,11 surfaces + props",
+        "Leave bOverrideMood unchecked unless you authored a custom mood"
+      ]
+    },
+    {
+      "block": "4:10–5:00",
+      "title": "Audio / FX / FSR / PIE all 12",
+      "steps": [
+        "Lyra fire/hit/reload → SC_Fire_{WeaponId}",
+        "Niagara muzzle → NS_Muzzle_{WeaponId} or Starter P_Explosion fallback",
+        "AMD FSR for UE 5.8 (GPUOpen). Without plugin Ultra uses TSR",
+        "PIE ASH-01…12. After Megascans: stat fps / stat streaming / r.Streaming.PoolSize",
+        "If VRAM spikes: foliage.DensityScale=0.7 and keep pool ≤ 8 GB on 16 GB GRE"
+      ]
+    }
+  ],
+  "streaming": {
+    "Ultra": { "poolMB": 5600, "vtScale": 1.15, "aniso": 16 },
+    "Balanced": { "poolMB": 3800, "vtScale": 0.8, "aniso": 16 },
+    "SteamDeck": { "poolMB": 1600, "vtScale": 0.45, "aniso": 4 }
+  }
+}

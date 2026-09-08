@@ -94,8 +94,12 @@ private:
 
 	void ApplyUltraPreset();
 	void ApplyBalancedPreset();
+	void ApplySteamDeckPreset();
+	void ApplyTextureStreamingCVars(bool bUltra, bool bSteamDeck);
 	void RegisterConsoleCommands();
 	void UnregisterConsoleCommands();
+
+	static bool DetectSteamDeck();
 
 	UPROPERTY()
 	FAshlineGraphicsState State;

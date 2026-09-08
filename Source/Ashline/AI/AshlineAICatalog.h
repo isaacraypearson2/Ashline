@@ -41,6 +41,21 @@ struct FAshlineAIArchetypeDef
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
 	bool bFlanks = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	int32 BurstCount = 4;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	float BurstPauseSeconds = 0.85f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	float CoverSeekChance = 0.55f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	float HearingRange = 3800.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
+	float PreferredEngageDistance = 1400.f;
 };
 
 UCLASS()

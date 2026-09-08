@@ -19,7 +19,7 @@ This repository is a full C++ Unreal project: campaign loop, weapons, AI, progre
 | RT | Hardware ray tracing **ON when the RHI reports it** |
 | Upscaling | **FSR 3** (Temporal Upscale). TSR is the built-in fallback. DLSS is optional and never required. |
 
-Named presets: **`Ashline_PC_Ultra`** (default on Windows) and **`Ashline_PC_Balanced`**. Console: `AshPCUltra` / `AshPCBalanced`. CVars: `Docs/GRAPHICS.md`.
+Named presets: **`Ashline_PC_Ultra`** (default on Windows), **`Ashline_PC_Balanced`**, and **`Ashline_SteamDeck`**. Console: `AshPCUltra` / `AshPCBalanced` / `AshSteamDeck`. CVars: `Docs/GRAPHICS.md`. Master materials: `Docs/MATERIALS.md`.
 
 ## Open on Windows (UE 5.8.2)
 
@@ -32,7 +32,7 @@ Optional editor content (makes PIE look closer to final art — **not committed 
 
 - **Add Content Pack → Starter Content** (grass, concrete, metal, water materials).
 - Enable **AMD FidelityFX Super Resolution 3** from Fab if you want the FSR3 plugin (CVars are already wired; TSR runs without it).
-- Run `Scripts/import_fab_kits.py` then `Scripts/assign_interim_meshes.py` (mannequin hero+AI, no capsules). See `Docs/PHASE2_FAB.md`.
+- Run `Scripts/import_fab_kits.py` then `Scripts/create_master_materials.py` then `Scripts/assign_interim_meshes.py` (mannequin hero+AI, no capsules). See `Docs/PHASE2_FAB.md`.
 
 ### Rebuild from source (Windows)
 

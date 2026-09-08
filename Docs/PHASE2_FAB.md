@@ -1,10 +1,12 @@
-# Phase 2 — Fab / Quixel / MetaHuman install on `X3D_AMD`
+# Phase 2 — Fab / Quixel / MetaHuman install bible (`X3D_AMD`)
 
 Windows 11 · UE **5.8.2** · Ryzen 5 7500X3D · 32 GB · **RX 9070 GRE** · 2560×1440.
 
-This document is the install order. Soft refs are already wired in `UAshlineMetaCatalog`, `UAshlineContentManifest`, `UAshlineWeaponComponent`, and `AAshlineGrayboxBuilder`. **Nothing below is in git.** Campaign play, locker, economy, and prestige work without these binaries.
+This is the **one-evening install order** plus the full pack map. Soft refs are wired in `UAshlineMetaCatalog`, `UAshlineContentManifest`, `UAshlineWeaponComponent`, `UAshlineMaterialFactory`, and `AAshlineGrayboxBuilder`. **Nothing below is in git.** Campaign play, locker, economy, and prestige work without these binaries.
 
-Exact path map: `Content/Ashline/Data/ContentBindings.json`.
+Exact path map: `Content/Ashline/Data/ContentBindings.json`.  
+Master parameter contract: **`Docs/MATERIALS.md`**.  
+Printable schedule (no UE): `python3 Scripts/fab_install_plan.py`.
 
 ## Honesty — what cannot ship in this repo
 
@@ -18,7 +20,17 @@ Exact path map: `Content/Ashline/Data/ContentBindings.json`.
 
 If a listing 404s, search the **bold name**. Never commit Quixel/Fab/MetaHuman binaries unless the license allows **and** you intend Git LFS.
 
-## Install order (do this on the Windows PC)
+## One evening — do this in order (do not skip 0)
+
+Target: first public-looking PIE of all 12 missions before midnight. Paid packs are optional; free path is enough to look like a game.
+
+| Clock | Block | What you finish |
+| --- | --- | --- |
+| **0:00–0:25** | Engine + scripts | Starter Content, folder tree, **master materials**, mannequin interim |
+| **0:25–1:20** | Characters | MetaHuman body/face + GASP 5.8 locomotion AnimBP |
+| **1:20–2:10** | Weapons + libraries | Lyra (free) or firearms pack + `M_Weapon_Master` skins |
+| **2:10–4:10** | Megascans | ASH-01 / 02 / 07 / 12 first, then glass (04/10), then the rest |
+| **4:10–5:00** | Audio / FSR / PIE | Fire cues, FSR 5.8, `stat fps` / `stat streaming` on Ultra |
 
 ### 0 — Engine content (free, in-editor, do first)
 
@@ -26,9 +38,22 @@ If a listing 404s, search the **bold name**. Never commit Quixel/Fab/MetaHuman b
 2. **Add Feature or Content Pack → Starter Content.** Immediate PBR upgrade (grass, concrete, steel, water).
 3. Optional but recommended: create a throwaway **Third Person** template project and **Migrate** `SKM_Manny` / `SKM_Quinn` into this project under `/Game/Characters/Mannequins/`.
 4. Tools → Execute Python Script:
-   1. `Scripts/import_fab_kits.py` — folder tree + `DA_Kit_*` / `DA_WPN_*` / `DA_COS_*` / `DA_AI_*` stubs with canonical soft paths.
-   2. `Scripts/assign_interim_meshes.py` — first available mannequin → hero + all AI DataAssets. **Capsules stay hidden.** Starter materials stamp onto kits; **mood stays C++** (`bOverrideMood` remains false).
-5. PIE. You should see a mannequin (or tinted humanoid blockout), not a capsule. ASH-01 is still night.
+   1. `Scripts/import_fab_kits.py` — folder tree + `DA_Kit_*` / `DA_WPN_*` / `DA_COS_*` / `DA_AI_*` stubs with canonical soft paths. **Also runs `create_master_materials.py`.**
+   2. `Scripts/create_master_materials.py` — `M_Env_Master`, `M_Weapon_Master`, `M_Character_Master`, `M_Glass_Master`, `M_Skin_Master`, `M_Decal_Master` + surface MIs. Safe to re-run (skips existing).
+   3. `Scripts/assign_interim_meshes.py` — first available mannequin → hero + all AI DataAssets. **Capsules stay hidden.** Starter materials stamp onto kits; **mood stays C++** (`bOverrideMood` remains false).
+5. PIE. You should see a mannequin (or tinted humanoid blockout), not a capsule. ASH-01 is still night. Surfaces use masters + Engine fallback textures even with zero Megascans.
+
+### 0b — Material libraries (free-first, after masters)
+
+| # | Pack | Price | Drop / bind |
+| --- | --- | --- | --- |
+| 0b.1 | Masters created above | — | `/Game/Ashline/Materials/PBR/Masters` |
+| 0b.2 | Starter Content PBR | Free | Already in `GetSurfaceMaterial` fallbacks |
+| 0b.3 | **Megascans surface collection** (dirt/concrete/metal/snow) | Epic/Fab license | Instances of `M_Env_Master` — plug ORM + Normal + Albedo |
+| 0b.4 | Military camo / fabric library (optional) | Paid | `/Game/Ashline/Materials/Libraries/` → clothing MIs |
+| 0b.5 | Glass / window pack (optional) | Free/paid | Duplicate `M_Glass_Master` → `MI_Glass_Clear` |
+
+Parameter aliases (Quixel ORM **and** Fab ARM): `Docs/MATERIALS.md`. C++ stamps every alias onto MIDs.
 
 ### 1 — Characters (free-first)
 
@@ -41,6 +66,10 @@ If a listing 404s, search the **bold name**. Never commit Quixel/Fab/MetaHuman b
 | 1.5 | US Marine GRENADIER — Modular (optional) | Paid | Fab search **US Marine GRENADIER** | Clothing parts onto `Characters/Hero/Parts/{Helmet,Vest,Pants,Gloves,Boots}` |
 
 MetaHuman steps: `Docs/CHARACTERS.md`. Clothing part file names must match `ContentBindings.json` (`SM_HELM_FAST`, `SM_VEST_PLATE`, …).
+
+Skin / subsurface: assign `DA_Hero_Operator.SkinMaterial` → `M_Skin_Master` (or the MetaHuman body material). Face textures go on `M_Skin_Master` (`BaseColor`, `Normal`, `Subsurface`).
+
+GASP AnimBP: set `DA_Hero_Operator.AnimClass` **and** the same class on each `DA_AI_*` you want animated. Runtime applies `AnimClass` when the DataAsset is present; T-pose is the honest fallback.
 
 ### 2 — Weapons + skins (free-first)
 
@@ -64,6 +93,8 @@ Skin materials (drop or duplicate MI):
 
 `UAshlineMetaCatalog` already points `MaterialOverride` at those paths. Equipping `SKIN_FDE` after the MI exists tints/paints the gun with **no C++ change**.
 
+Create each skin as an MI of **`M_Weapon_Master`**. Plug packed ORM + normal from the weapon pack; C++ still stamps `Tint` from the catalog if the MI has that parameter. `DA_WPN_*.TextureSet` can point at the raw textures if you prefer not to author an MI.
+
 ### 3 — Environments (Megascans on Fab)
 
 Quixel lives on **Fab**. Claim what your Epic license still allows. Search the **bold** names. Destination is the mission folder; then either rename to the canonical material or assign the soft ptr on `DA_Kit_ASH##`.
@@ -85,7 +116,11 @@ Leave `bOverrideMood` **unchecked** unless you authored a custom mood. Empty kit
 | ASH-11 Last Train | **Rail Track**, **Gravel Ballast**, **Freight Car** | `ASH11_LastTrain/` | |
 | ASH-12 Ashline | **Brutalist Concrete**, **Emissive Panel**, **Bunker Door** | `ASH12_Ashline/` | |
 
-Kit DataAsset slots: Ground / Wall / Trim / Foliage / Decal / `PropMeshes` (`Tree`, `Bush`). Music bed: `/Game/Ashline/Audio/Music/SC_Bed_ASH##`.
+**Glass (ASH-04 Night Glass, ASH-06 harbor, ASH-10 campus):** duplicate `M_Glass_Master` → `M_Glass_<Slug>` in the mission folder, **or** set `DA_Kit_ASH##.GlassMaterial`. Opacity ~0.28, IOR 1.52.
+
+Kit DataAsset slots: Ground / Wall / Trim / Foliage / Glass / Decal / `PropMeshes` (`Tree`, `Bush`). Music bed: `/Game/Ashline/Audio/Music/SC_Bed_ASH##`.
+
+Do **ASH-01, ASH-02, ASH-07, ASH-12** first (night dirt, desert, snow, finale). Those four sell the campaign. Then glass missions. Then the rest.
 
 ### 4 — Audio / FX (free-first)
 
@@ -124,10 +159,18 @@ Content/Ashline/
   Weapons/Meshes/                  SM_{WeaponId}
   Weapons/Materials/               M_{SkinId}               ← MaterialOverride
   Weapons/Charms/                  SM_CHARM_*
-  Materials/Cosmetics/             M_{CosmeticId}
+  Materials/PBR/Masters/          M_Env_Master, M_Weapon_Master, M_Character_Master
+  Materials/PBR/Instances/        MI_Env_Ground … MI_Char_Clothing
+  Materials/Glass/                M_Glass_Master, MI_Glass_Clear
+  Materials/Skin/                 M_Skin_Master, MI_Skin_Operator
+  Materials/Decals/               M_Decal_Master, M_Impact_Bullet
+  Materials/Libraries/            Fab material packs (not in git)
+  Materials/Cosmetics/            M_{CosmeticId}
   Environments/ASH01_WireCut/…ASH12_Ashline/
-  Data/Kits/                       DA_* (created in-editor)
-  Data/ContentBindings.json        path contract
+  Data/Kits/                      DA_* (created in-editor)
+  Data/ContentBindings.json       path contract
+  Data/MaterialBindings.json      master / MI / Engine fallback contract
+  Data/FabInstallPlan.json        evening clock
 ```
 
 ## Performance — 1440p Ultra on RX 9070 GRE
@@ -143,10 +186,13 @@ Target: 2560×1440, VSync off, high refresh. RDNA4 + DX12.
 | Hardware RT | On if the RHI reports it | Driver/OS miss → Ultra still runs Lumen software traces |
 | VSM | Quality 3 | Balanced drops quality |
 | FSR 3 | Quality mode 1, screen 77% | Without plugin: TSR @ 85%. Do **not** enable frame gen (`r.FidelityFX.FI.Enabled=0`) until you verify latency. |
-| Streaming pool | 5600 MB, limit to VRAM | 16 GB class GRE: stay ≤ 8 GB pool if you import all 12 kits |
+| Streaming pool | **5600 MB**, limit to VRAM | 16 GB class GRE: stay ≤ 8 GB pool if you import all 12 kits |
+| Virtual texturing | `r.VT.Enable=1`, `r.VT.PoolSizeScale=1.15` | Do **not** flip project `r.VirtualTextures=True` until masters are VT-ready (material recompile). Runtime VT CVars are safe no-ops on non-VT mats. |
 | Foliage | Density 1.0 | After Megascans pines/grass, cap `foliage.DensityScale=0.7` |
 | Motion blur | Off | Leave off for FPS |
 | View distance | 1.15 | 1.0 if Nanite overdraw spikes on ASH-02 market |
+
+**Steam Deck / handheld** — console `AshSteamDeck` or auto-detect `SteamDeck=1`. Pool **1600 MB**, VT scale **0.45**, aniso 4, TSR 70%, **no HW RT**, VSync on, 60 fps cap. Device profile: `Config/DefaultDeviceProfiles.ini` `[SteamDeck DeviceProfile]`.
 
 Recommended PIE check after packs land:
 
@@ -154,8 +200,14 @@ Recommended PIE check after packs land:
 stat fps
 stat unit
 stat lumen
+stat streaming
+r.Streaming.PoolSize
+r.VT.PoolSizeScale
 r.FidelityFX.FSR3.Enabled
 r.RayTracing
+AshPCUltra
+AshPCBalanced
+AshSteamDeck
 ```
 
 HUD should still say **Ashline_PC_Ultra** and **D3D12**.
@@ -175,8 +227,10 @@ After art lands, re-run `Docs/TEST_PLAN.md`:
 
 | Script | When |
 | --- | --- |
-| `Scripts/import_fab_kits.py` | Once, after first editor open |
+| `Scripts/import_fab_kits.py` | Once, after first editor open (also tries masters) |
+| `Scripts/create_master_materials.py` | Masters + surface MIs (safe re-run) |
 | `Scripts/assign_interim_meshes.py` | After Starter / GASP / Manny exist |
+| `Scripts/fab_install_plan.py` | Print the evening clock (no UE) |
 | `Scripts/create_ashline_play_assets.py` | Optional `ASH_Playable` map |
 | `Scripts/validate_meta_catalog.py` | CI / pre-commit (no UE) |
 | `Scripts/validate_content_layout.py` | CI / pre-commit (no UE) |

@@ -14,9 +14,11 @@
 #include "Materials/MaterialInterface.h"
 #include "Presentation/AshlineCharacterPresentation.h"
 #include "Presentation/AshlineContentManifest.h"
+#include "Presentation/AshlineMaterialFactory.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlinePresentationSettings.h"
 #include "Progression/AshlineProgressionSubsystem.h"
+#include "Animation/AnimInstance.h"
 
 AAshlineAICharacter::AAshlineAICharacter()
 {
@@ -110,7 +112,26 @@ void AAshlineAICharacter::ApplyPresentationMesh()
 		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 		GetMesh()->SetVisibility(true);
 		GetMesh()->SetCastShadow(true);
-		if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeTintedMaterial(this, EAshlineSurface::Plastic, Tint))
+		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(false, Archetype))
+		{
+			if (TSubclassOf<UAnimInstance> Anim = Pres->AnimClass.LoadSynchronous())
+			{
+				GetMesh()->SetAnimInstanceClass(Anim);
+			}
+			if (UMaterialInterface* Override = Pres->BodyMaterialOverride.LoadSynchronous())
+			{
+				GetMesh()->SetMaterial(0, Override);
+			}
+			else if (UMaterialInterface* Skin = Pres->SkinMaterial.LoadSynchronous())
+			{
+				GetMesh()->SetMaterial(0, Skin);
+			}
+			else if (UMaterialInstanceDynamic* MID = UAshlineMaterialFactory::CreateCharacterInstance(this, Tint, Pres->BodyTextures))
+			{
+				GetMesh()->SetMaterial(0, MID);
+			}
+		}
+		else if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeCharacterMaterial(this, Tint))
 		{
 			GetMesh()->SetMaterial(0, MID);
 		}
@@ -149,12 +170,44 @@ float AAshlineAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 	}
 
 	Health -= Incoming;
+	LastDamageAt = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
+	if (AAshlineAIController* AICon = Cast<AAshlineAIController>(GetController()))
+	{
+		AICon->NotifyTookDamage(DamageCauser ? DamageCauser : (EventInstigator ? EventInstigator->GetPawn() : nullptr), Incoming);
+	}
 	if (Health <= 0.f)
 	{
 		bDead = true;
 		Health = 0.f;
+		if (AAshlineAIController* AICon = Cast<AAshlineAIController>(GetController()))
+		{
+			AICon->NotifyDied();
+		}
+		ApplyDeathPose();
 		DetachFromControllerPendingDestroy();
 		SetLifeSpan(8.f);
 	}
 	return Incoming;
+}
+
+void AAshlineAICharacter::ApplyDeathPose()
+{
+	if (UCharacterMovementComponent* Move = GetCharacterMovement())
+	{
+		Move->DisableMovement();
+		Move->StopMovementImmediately();
+	}
+	if (GetCapsuleComponent())
+	{
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	if (GetMesh() && GetMesh()->GetSkeletalMeshAsset())
+	{
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetMesh()->SetSimulatePhysics(true);
+	}
+	else
+	{
+		AddActorWorldRotation(FRotator(-78.f, 0.f, 12.f));
+	}
 }

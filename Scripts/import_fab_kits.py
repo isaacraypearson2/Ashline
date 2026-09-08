@@ -31,8 +31,13 @@ FOLDERS = [
     "/Game/Ashline/Weapons/Charms",
     "/Game/Ashline/Environments/Shared",
     "/Game/Ashline/Materials/PBR",
+    "/Game/Ashline/Materials/PBR/Masters",
+    "/Game/Ashline/Materials/PBR/Instances",
     "/Game/Ashline/Materials/Decals",
     "/Game/Ashline/Materials/Cosmetics",
+    "/Game/Ashline/Materials/Glass",
+    "/Game/Ashline/Materials/Skin",
+    "/Game/Ashline/Materials/Libraries",
     "/Game/Ashline/Audio/Weapons",
     "/Game/Ashline/Audio/Footsteps",
     "/Game/Ashline/Audio/Music",
@@ -120,24 +125,16 @@ SKINS = [
 ]
 
 FAB_LIST = """
-Ashline Fab / Bridge shopping list (license these yourself — not in git)
+Ashline Fab / Bridge evening install (license these yourself — not in git)
 ----------------------------------------------------------------------
-Characters : MetaHuman Creator body + face → /Game/Ashline/Characters/MetaHuman/
-Weapons    : modular military rifle / SMG / sniper / shotgun / pistol / DMR / LMG
-ASH-01     : Megascans dirt, concrete wall, chainlink, flood light
-ASH-02     : sand ground, adobe, market props
-ASH-03     : sandbags, desert ground, grass clumps
-ASH-04     : brick kiln, painted steel, night lights
-ASH-05     : asphalt, tanker, roadside rock
-ASH-06     : metal plate, crate, ocean water, crane
-ASH-07     : snow, pine, ice
-ASH-08     : brick, pipe, server rack
-ASH-09     : cliff rock, mountain grass, lattice tower
-ASH-10     : urban concrete, glass, signage
-ASH-11     : rail, gravel, train car
-ASH-12     : brutalist concrete, emissive trim
-Starter    : Add Content Pack → Starter Content (immediate PBR upgrade)
-FSR3       : AMD FidelityFX Super Resolution 3 plugin (optional; TSR works without it)
+0:00  Starter Content + import_fab_kits.py + create_master_materials.py + assign_interim_meshes.py
+0:25  MetaHuman Creator/Bridge → /Game/Ashline/Characters/MetaHuman/  + GASP 5.8 AnimBP
+1:20  Lyra (free) or Modern Firearms (paid) → SM_WPN_* + M_Weapon_Master skins
+2:10  Megascans ASH-01, 02, 07, 12 first, then glass (04/10), then the rest
+4:10  Audio/FX, AMD FSR 5.8, PIE all 12. Ultra pool 5600 / Deck pool 1600
+Masters : M_Env / M_Weapon / M_Character / M_Glass / M_Skin / M_Decal
+Fallback: Engine DefaultTexture/DefaultNormal — missing Quixel never breaks PIE
+Docs    : Docs/PHASE2_FAB.md (bible)  Docs/MATERIALS.md (parameter contract)
 """
 
 
@@ -194,6 +191,8 @@ def main():
             try:
                 asset.set_editor_property("kit_id", f"ASH{index:02d}")
                 asset.set_editor_property("fab_notes", notes)
+                glass_path = f"/Game/Ashline/Environments/ASH{index:02d}_{slug}/M_Glass_ASH{index:02d}_{slug}.M_Glass_ASH{index:02d}_{slug}"
+                asset.set_editor_property("glass_material", unreal.SoftObjectPath(glass_path))
             except Exception:
                 pass
 
@@ -250,14 +249,29 @@ def main():
 
     unreal.log(FAB_LIST)
     unreal.log("Ashline: kit / weapon / cosmetic / AI DataAsset stubs ready.")
-    unreal.log("Next: Scripts/assign_interim_meshes.py then Docs/PHASE2_FAB.md install order.")
+    try:
+        import importlib.util
+        import os
+
+        project_dir = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
+        script = os.path.join(project_dir, "Scripts", "create_master_materials.py")
+        spec = importlib.util.spec_from_file_location("ashline_masters", script)
+        if spec and spec.loader:
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            mod.main()
+        else:
+            unreal.log_warning("Ashline: create_master_materials.py not found — run it next.")
+    except Exception as nested:
+        unreal.log_warning(f"Ashline: create_master_materials.py skipped ({nested})")
+    unreal.log("Next: Scripts/assign_interim_meshes.py then Docs/PHASE2_FAB.md evening order.")
     unreal.log(UAshline_fallback())
 
 
 def UAshline_fallback():
     return (
-        "Fallback chain: DataAssets → /Game/StarterContent → Engine materials. "
-        "No Quixel binaries were downloaded."
+        "Fallback chain: Masters/MIs → DataAssets → /Game/StarterContent → Engine DefaultTexture/DefaultMaterial. "
+        "No Quixel binaries were downloaded. Missing Fab never breaks PIE/Shipping."
     )
 
 

@@ -12,6 +12,8 @@ CONTENT = ROOT / "Content" / "Ashline"
 BINDINGS = CONTENT / "Data" / "ContentBindings.json"
 META = CONTENT / "Data" / "Meta.json"
 MANIFEST = CONTENT / "Data" / "ContentManifest.json"
+MAT_BINDINGS = CONTENT / "Data" / "MaterialBindings.json"
+FAB_PLAN = CONTENT / "Data" / "FabInstallPlan.json"
 
 REQUIRED_DIRS = [
     "Characters/Hero",
@@ -30,7 +32,12 @@ REQUIRED_DIRS = [
     "Weapons/Charms",
     "Materials/Cosmetics",
     "Materials/PBR",
+    "Materials/PBR/Masters",
+    "Materials/PBR/Instances",
     "Materials/Decals",
+    "Materials/Glass",
+    "Materials/Skin",
+    "Materials/Libraries",
     "Environments/Shared",
     "Data/Kits",
     "FX/Muzzle",
@@ -70,6 +77,8 @@ def main() -> None:
     bindings = json.loads(BINDINGS.read_text(encoding="utf-8"))
     meta = json.loads(META.read_text(encoding="utf-8"))
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    mat_bindings = json.loads(MAT_BINDINGS.read_text(encoding="utf-8"))
+    fab_plan = json.loads(FAB_PLAN.read_text(encoding="utf-8"))
 
     cosmetic_ids = {c["id"] for c in meta["cosmetics"]}
     skin_ids = {s["id"] for s in meta["skins"]}
@@ -100,9 +109,22 @@ def main() -> None:
         if f"M_{item_id}" not in material:
             fail(f"skin material path must contain M_{item_id}: {material}")
 
+    required_masters = {"Environment", "Weapon", "Character", "Decal", "Glass", "Skin"}
+    if set(mat_bindings.get("masters", {})) != required_masters:
+        fail(f"MaterialBindings masters mismatch: {sorted(mat_bindings.get('masters', {}))}")
+    for key, path in mat_bindings["masters"].items():
+        if "M_" not in path or "Master" not in path:
+            fail(f"master path must be a Master asset: {key} {path}")
+    if "eveningHours" not in fab_plan or len(fab_plan["eveningHours"]) < 4:
+        fail("FabInstallPlan eveningHours incomplete")
+    for name in ("Ultra", "Balanced", "SteamDeck"):
+        if name not in fab_plan.get("streaming", {}):
+            fail(f"FabInstallPlan missing streaming.{name}")
+
     print(
         f"OK: layout + bindings ({len(cosmetic_ids)} cosmetics, "
-        f"{len(skin_ids)} skins, {len(KITS)} kits)"
+        f"{len(skin_ids)} skins, {len(KITS)} kits, "
+        f"{len(mat_bindings['masters'])} masters)"
     )
 
 
