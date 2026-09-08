@@ -242,6 +242,9 @@ void AAshlineGrayboxBuilder::BuildWireCut()
 	SpawnAI(FVector(14600.f, 280.f, 100.f), EAshlineAIArchetype::Scout);
 	SpawnAI(FVector(17000.f, 1800.f, 100.f), EAshlineAIArchetype::Heavy);
 	SpawnAI(FVector(-16000.f, 200.f, 100.f), EAshlineAIArchetype::Scout);
+	SpawnAI(FVector(-7200.f, -400.f, 100.f), EAshlineAIArchetype::CQBSpecialist);
+	SpawnAI(FVector(800.f, 1400.f, 100.f), EAshlineAIArchetype::RadioOp);
+	SpawnAI(FVector(6200.f, 400.f, 100.f), EAshlineAIArchetype::Grenadier);
 }
 
 void AAshlineGrayboxBuilder::BuildDustMarket()

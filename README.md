@@ -106,10 +106,10 @@ Locker / economy / prestige: `UAshlineMetaCatalog` + `Content/Ashline/Data/Meta.
 ## Systems
 
 - **FPS/TPS toggle** — first-person camera vs spring-arm third-person. Preference is saved.
-- **Weapons** — AR, SMG, sniper, shotgun, sidearm, DMR, LMG. Visual mesh + muzzle flash + impact decals + audio slots + **equipped skin tint** on `UAshlineWeaponComponent`.
-- **Operator locker** — clothing slots, camos, faces, voice packs, charms. Equipped ids tint the hero / blockout and hang a charm on the gun.
+- **Weapons** — 13 guns (AR/SMG/PDW/BR/DMR/LMG/shotgun/pistol), attachments including ammo types, skins, upgrade tiers, muzzle/reload FX slots, pellet traces on shotguns.
+- **Operator locker** — clothing slots (incl. headset/backpack), camos, faces, voice packs, charms. Equipped ids tint the hero / blockout and hang a charm on the gun.
 - **Economy / prestige** — credits from missions and rank-ups; spend on cosmetics, skins, weapon upgrades; prestige at rank 50 keeps the locker and grants gilt.
-- **AI** — eight archetypes, perception + push/hold, humanoid mesh when assigned.
+- **AI** — eleven archetypes (incl. grenadier / radio / CQB), perception + push/hold, humanoid mesh when assigned.
 - **Difficulty** — Recruit, Regular, Veteran, Extreme.
 - **Graphics** — `UAshlineGraphicsSettings` (Windows FSR3/TSR/RT; Steam Deck 800p profile; Apple MetalFX still gated). Auto-detect + F8 cycle.
 - **MonetizationHooks** — stub only. Ads stay off. No multiplayer.

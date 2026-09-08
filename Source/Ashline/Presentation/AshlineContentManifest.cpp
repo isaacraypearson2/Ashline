@@ -33,6 +33,9 @@ namespace AshlineManifest
 		case EAshlineAIArchetype::Scout: return TEXT("Scout");
 		case EAshlineAIArchetype::Heavy: return TEXT("Heavy");
 		case EAshlineAIArchetype::CivilianIrregular: return TEXT("Irregular");
+		case EAshlineAIArchetype::Grenadier: return TEXT("Grenadier");
+		case EAshlineAIArchetype::RadioOp: return TEXT("RadioOp");
+		case EAshlineAIArchetype::CQBSpecialist: return TEXT("CQB");
 		default: return TEXT("Rifleman");
 		}
 	}
@@ -213,6 +216,8 @@ FString UAshlineContentManifest::SlotFolderName(EAshlineCosmeticSlot Slot)
 	case EAshlineCosmeticSlot::Camo: return TEXT("Camo");
 	case EAshlineCosmeticSlot::Face: return TEXT("Face");
 	case EAshlineCosmeticSlot::Charm: return TEXT("Charm");
+	case EAshlineCosmeticSlot::Headset: return TEXT("Headset");
+	case EAshlineCosmeticSlot::Backpack: return TEXT("Backpack");
 	default: return TEXT("Other");
 	}
 }

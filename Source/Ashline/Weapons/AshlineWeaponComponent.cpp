@@ -120,6 +120,13 @@ void UAshlineWeaponComponent::Reload()
 	bWantsFire = false;
 	ReloadRemaining = Active.Stats.ReloadSeconds;
 	PlayReloadAudio();
+	if (UAshlineWeaponVisual* Visual = UAshlinePresentationLibrary::FindWeaponVisual(Active.Definition.WeaponId))
+	{
+		if (UNiagaraSystem* Niagara = AshlineLoad::Soft(Visual->ReloadFX))
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Niagara, GetOwner()->GetActorLocation(), GetAimRotation());
+		}
+	}
 }
 
 void UAshlineWeaponComponent::SwapWeapon()
@@ -168,24 +175,30 @@ void UAshlineWeaponComponent::FireShot()
 		return;
 	}
 
+	const int32 Pellets = FMath::Clamp(Active.Stats.PelletCount, 1, 12);
+	const float DamageEach = Active.Stats.Damage / static_cast<float>(Pellets);
 	const float Spread = bAiming ? Active.Stats.ADSSpread : Active.Stats.HipFireSpread;
-	FRotator Aim = GetAimRotation();
-	Aim.Yaw += FMath::FRandRange(-Spread, Spread);
-	Aim.Pitch += FMath::FRandRange(-Spread * 0.6f, Spread * 0.6f);
-
-	FHitResult Hit;
 	const FVector Start = GetMuzzleLocation();
-	const FVector End = Start + Aim.Vector() * TraceDistance;
-	FCollisionQueryParams Params(SCENE_QUERY_STAT(AshlineShot), false, Owner);
-	World->LineTraceSingleByChannel(Hit, Start, End, TraceChannel, Params);
 
-	if (Hit.bBlockingHit)
+	for (int32 i = 0; i < Pellets; ++i)
 	{
-		if (Hit.GetActor())
+		FRotator Aim = GetAimRotation();
+		Aim.Yaw += FMath::FRandRange(-Spread, Spread);
+		Aim.Pitch += FMath::FRandRange(-Spread * 0.6f, Spread * 0.6f);
+
+		FHitResult Hit;
+		const FVector End = Start + Aim.Vector() * TraceDistance;
+		FCollisionQueryParams Params(SCENE_QUERY_STAT(AshlineShot), false, Owner);
+		World->LineTraceSingleByChannel(Hit, Start, End, TraceChannel, Params);
+
+		if (Hit.bBlockingHit)
 		{
-			UGameplayStatics::ApplyDamage(Hit.GetActor(), Active.Stats.Damage, Owner->GetInstigatorController(), Owner, nullptr);
+			if (Hit.GetActor())
+			{
+				UGameplayStatics::ApplyDamage(Hit.GetActor(), DamageEach, Owner->GetInstigatorController(), Owner, nullptr);
+			}
+			SpawnImpact(Hit);
 		}
-		SpawnImpact(Hit);
 	}
 
 	SpawnMuzzleFX();
@@ -485,12 +498,12 @@ void UAshlineWeaponComponent::BuildCompoundPlaceholder()
 	FVector BarrelScale(0.08f, 0.08f, 0.42f);
 	FVector StockScale(0.18f, 0.07f, 0.08f);
 	FVector MagScale(0.08f, 0.05f, 0.14f);
-	if (Class == EAshlineWeaponClass::SMG)
+	if (Class == EAshlineWeaponClass::SMG || Class == EAshlineWeaponClass::PDW)
 	{
 		ReceiverScale = FVector(0.22f, 0.08f, 0.09f);
 		BarrelScale = FVector(0.06f, 0.06f, 0.28f);
 	}
-	else if (Class == EAshlineWeaponClass::Sniper || Class == EAshlineWeaponClass::DMR)
+	else if (Class == EAshlineWeaponClass::Sniper || Class == EAshlineWeaponClass::DMR || Class == EAshlineWeaponClass::BattleRifle)
 	{
 		ReceiverScale = FVector(0.34f, 0.08f, 0.09f);
 		BarrelScale = FVector(0.06f, 0.06f, 0.62f);

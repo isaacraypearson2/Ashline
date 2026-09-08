@@ -58,7 +58,9 @@ enum class EAshlineWeaponClass : uint8
 	Shotgun,
 	Sidearm,
 	DMR,
-	LMG
+	LMG,
+	BattleRifle,
+	PDW
 };
 
 UENUM(BlueprintType)
@@ -69,7 +71,8 @@ enum class EAshlineAttachmentSlot : uint8
 	Underbarrel,
 	Magazine,
 	Stock,
-	Laser
+	Laser,
+	Ammunition
 };
 
 UENUM(BlueprintType)
@@ -82,7 +85,10 @@ enum class EAshlineAIArchetype : uint8
 	Officer,
 	Scout,
 	Heavy,
-	CivilianIrregular
+	CivilianIrregular,
+	Grenadier,
+	RadioOp,
+	CQBSpecialist
 };
 
 UENUM(BlueprintType)
@@ -106,7 +112,9 @@ enum class EAshlineCosmeticSlot : uint8
 	Camo,
 	Face,
 	Voice,
-	Charm
+	Charm,
+	Headset,
+	Backpack
 };
 
 UENUM(BlueprintType)
@@ -281,6 +289,21 @@ struct FAshlineWeaponStats
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	bool bAutomatic = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	int32 PelletCount = 1;
+};
+
+UENUM(BlueprintType)
+enum class EAshlineAmmoType : uint8
+{
+	Standard = 0,
+	FMJ,
+	HollowPoint,
+	ArmorPiercing,
+	Tracer,
+	Subsonic,
+	Slug
 };
 
 USTRUCT(BlueprintType)
@@ -305,6 +328,12 @@ struct FAshlineWeaponDefinition
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	int32 UnlockLevel = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	EAshlineAmmoType DefaultAmmo = EAshlineAmmoType::Standard;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
+	int32 MaxUpgradeTier = 5;
 };
 
 USTRUCT(BlueprintType)

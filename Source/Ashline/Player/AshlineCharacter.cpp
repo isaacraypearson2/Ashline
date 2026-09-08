@@ -638,6 +638,8 @@ void AAshlineCharacter::ApplyOperatorLook()
 	const FName BootsId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Boots);
 	const FName FaceId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Face);
 	const FName CharmId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Charm);
+	const FName HeadsetId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Headset);
+	const FName BackpackId = UAshlineMetaCatalog::EquippedCosmeticId(Profile, EAshlineCosmeticSlot::Backpack);
 
 	const FLinearColor CamoTint = UAshlineMetaCatalog::CosmeticTint(CamoId, FLinearColor(0.18f, 0.24f, 0.16f));
 	const FLinearColor HelmetTint = UAshlineMetaCatalog::CosmeticTint(HelmetId, CamoTint * 0.65f);
@@ -687,6 +689,8 @@ void AAshlineCharacter::ApplyOperatorLook()
 	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Gloves, GlovesId, GlovesTint);
 	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Boots, BootsId, BootsTint);
 	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Face, FaceId, FaceTint);
+	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Headset, HeadsetId, HelmetTint);
+	UAshlinePresentationLibrary::ApplyClothingPart(this, EAshlineCosmeticSlot::Backpack, BackpackId, VestTint);
 
 	if (WeaponComponent)
 	{

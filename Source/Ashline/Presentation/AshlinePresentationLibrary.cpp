@@ -773,6 +773,8 @@ FName UAshlinePresentationLibrary::ClothingComponentName(EAshlineCosmeticSlot Sl
 	case EAshlineCosmeticSlot::Boots: return TEXT("AshlineCloth_Boots");
 	case EAshlineCosmeticSlot::Face: return TEXT("AshlineCloth_Face");
 	case EAshlineCosmeticSlot::Charm: return TEXT("AshlineCloth_Charm");
+	case EAshlineCosmeticSlot::Headset: return TEXT("AshlineCloth_Headset");
+	case EAshlineCosmeticSlot::Backpack: return TEXT("AshlineCloth_Backpack");
 	default: return TEXT("AshlineCloth_Other");
 	}
 }
@@ -868,6 +870,14 @@ void UAshlinePresentationLibrary::ApplyClothingPart(ACharacter* Character, EAshl
 	case EAshlineCosmeticSlot::Charm:
 		Rel = FVector(8.f, 6.f, 8.f);
 		Scale = FVector(0.06f, 0.06f, 0.08f);
+		break;
+	case EAshlineCosmeticSlot::Headset:
+		Rel = FVector(0.f, 8.f, 54.f);
+		Scale = FVector(0.28f, 0.22f, 0.12f);
+		break;
+	case EAshlineCosmeticSlot::Backpack:
+		Rel = FVector(-12.f, 0.f, 18.f);
+		Scale = FVector(0.28f, 0.22f, 0.4f);
 		break;
 	default:
 		break;
