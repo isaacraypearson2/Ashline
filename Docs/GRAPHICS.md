@@ -12,6 +12,7 @@ On **Apple** it still asks `IAshlineMetalFX` for MetalFX + RT and refuses to for
 | --- | --- | --- | --- | --- | --- |
 | `Ashline_PC_Ultra` | 9070 GRE @ 1440p high-refresh | 77 (FSR3) / 85 (TSR) | FSR3 → TSR | On if supported | Default on Windows. Streaming pool 5600. VSync off. `t.MaxFPS=0`. |
 | `Ashline_PC_Balanced` | Same PC, extra headroom | 59 / 70 | FSR3 Balanced → TSR | On if supported | Cheaper Lumen gather, pool 3800. |
+| `Ashline_SteamDeck` | Handheld 1280×800 | 67 (FSR3 Perf) / 77 (TSR) | FSR3 → TSR | **Off** | 60 fps cap, VSync on, pool 1800, large HUD/safe zone. `AshDeck`. Auto if `SteamDeck=1` or 1280×800. |
 | Epic / Cinematic | Generic | 100 | TSR | Off unless asked | Scalability 3 |
 | High / Medium / Low | Laptops / Mac | 100–67 | MetalFX or TSR | Off | Mac default is High |
 
@@ -20,6 +21,7 @@ Console:
 ```
 AshPCUltra
 AshPCBalanced
+AshDeck
 ```
 
 (or execs on the player controller with the same names)

@@ -126,6 +126,7 @@ void AAshlinePlayerController::BindMenuKeys()
 	BindPaused(EKeys::Gamepad_DPad_Left, &AAshlinePlayerController::MenuLeft);
 	BindPaused(EKeys::Gamepad_DPad_Right, &AAshlinePlayerController::MenuRight);
 	BindPaused(EKeys::Gamepad_Special_Right, &AAshlinePlayerController::MenuBack);
+	BindPaused(EKeys::Gamepad_FaceButton_Bottom, &AAshlinePlayerController::MenuConfirm);
 }
 
 void AAshlinePlayerController::MenuUp()
@@ -231,6 +232,17 @@ void AAshlinePlayerController::AshPCBalanced()
 		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
 		{
 			Graphics->ApplyPreset(EAshlineGraphicsPreset::PC_Balanced);
+		}
+	}
+}
+
+void AAshlinePlayerController::AshDeck()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UAshlineGraphicsSettings* Graphics = GI->GetSubsystem<UAshlineGraphicsSettings>())
+		{
+			Graphics->ApplyPreset(EAshlineGraphicsPreset::SteamDeck);
 		}
 	}
 }

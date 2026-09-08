@@ -41,6 +41,9 @@ public:
 	void AshPCBalanced();
 
 	UFUNCTION(Exec)
+	void AshDeck();
+
+	UFUNCTION(Exec)
 	void AshGrantCredits(int32 Amount);
 
 	UFUNCTION(Exec)

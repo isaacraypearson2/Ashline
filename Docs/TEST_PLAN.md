@@ -24,12 +24,17 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 ## Campaign loop (do not break)
 
 - [ ] PIE opens campaign select (not an empty void)
-- [ ] WASD / mouse / jump / crouch / fire / aim / reload / swap / V toggle
+- [ ] Enter on a READY mission opens **MISSION BRIEF**; Enter again deploys. Esc from brief returns to select
+- [ ] WASD / mouse / jump / crouch / fire / aim / reload / swap / V toggle / F interact
+- [ ] Combat HUD: weapon name + **AUTO/SEMI** + **skin display name** + mag/reserve; HP + armor bars; objective marker
+- [ ] Hit markers / kill confirm on AI; muzzle light + tracer streak; ADS FOV eases in
 - [ ] ASH-01 INFIL → CUT → EXFIL awards XP **and credits** and unlocks ASH-02
+- [ ] Esc pause → Settings (graphics preset incl. **Ashline_SteamDeck**) → Back → Resume; Esc on pause root aborts to select
+- [ ] `AshDeck` enlarges HUD / safe zone; `AshPCUltra` restores desktop
 - [ ] Frontend shows Rank / Prestige / Credits / equipped camo + primary skin
 - [ ] Difficulty Left/Right changes AI pressure (Veteran/Extreme extra bots)
 - [ ] Esc pause → Enter resume; Esc twice aborts to select
-- [ ] `AshUnlockAll` then `AshDeploy 12` reaches the finale
+- [ ] `AshUnlockAll` then `AshDeploy 12` reaches the finale (skips briefing)
 - [ ] After ASH-12, **ASHLINE CUT** and save slot `AshlineCampaign` persists
 - [ ] Ads stay off
 
@@ -51,9 +56,11 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 - [ ] Surfaces are not a single flat gray — materials tint / StarterContent / Engine PBR
 - [ ] Practical lights on objectives; fog + post-process visible
 - [ ] FPS weapon is a **compound rifle-like mesh**, not a lone cube
-- [ ] Firing shows a muzzle flash light; impacts spawn a decal when the engine decal material exists
+- [ ] Firing shows a muzzle flash light + tracer; impacts spawn a decal / sparks (blood tint on AI) when Engine/Starter assets exist
+- [ ] Death: vignette → KIA death cam → respawn with full HP/armor
 - [ ] AI is a humanoid mesh when a mannequin/MetaHuman path resolves; otherwise a tinted body (not an invisible capsule)
-- [ ] Audio is silent unless cues were imported — no crash when slots are empty
+- [ ] Audio is silent unless cues were imported — no crash when slots are empty. StarterContent `Explosion01` / `Fire01` play if the pack is added
+- [ ] 1280×800 or `AshDeck`: interact prompt readable, ammo large, HUD inside safe zone
 
 ## Plugins / input
 

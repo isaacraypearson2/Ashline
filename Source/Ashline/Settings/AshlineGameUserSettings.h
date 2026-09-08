@@ -31,4 +31,13 @@ public:
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category = "Ashline|Graphics")
 	int32 TargetResY = 1440;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category = "Ashline|Feel")
+	FAshlineFeelSettings Feel;
+
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Feel")
+	void ApplyFeelToAudio();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Feel")
+	static bool IsSteamDeckHardware();
 };

@@ -94,6 +94,9 @@ private:
 
 	void ApplyUltraPreset();
 	void ApplyBalancedPreset();
+	void ApplySteamDeckPreset();
+	void ApplyHandheldPreset();
+	static bool DetectSteamDeck();
 	void RegisterConsoleCommands();
 	void UnregisterConsoleCommands();
 

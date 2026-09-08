@@ -48,11 +48,12 @@ set PROJ=%CD%\Ashline.uproject
 ## Play the full campaign
 
 1. Click **Play** (PIE). You should see the **ASHLINE** campaign list.
-2. **Up/Down** highlight ASH-01 Wire Cut (READY). **Left/Right** set difficulty. **Enter** deploys.
+2. **Up/Down** highlight ASH-01 Wire Cut (READY). **Left/Right** set difficulty. **Enter** opens the **mission brief**; **Enter** again deploys. **Esc** opens Settings (graphics incl. Steam Deck, HUD scale, colorblind).
 3. In mission:
    - **WASD** move, **mouse** look, **Space** jump, **C** crouch
-   - **LMB** fire, **RMB** aim, **R** reload, **Q** swap, **V** FPS/TPS
-   - Walk into **glowing objective markers** to complete. The extract / last required volume finishes the mission.
+   - **LMB** fire, **RMB** aim, **R** reload, **Q** swap, **V** FPS/TPS, **F / E** interact
+   - COD-style HUD: ammo / firemode / skin, HP+armor, objective diamond, hit markers
+   - Walk into **glowing objective markers** (or press F when prompted). The extract / last required volume finishes the mission.
    - Hostiles use a **humanoid mesh when one can be resolved** (mannequin / MetaHuman / assigned DataAsset); otherwise a tinted blockout body.
 4. On **MISSION COMPLETE**, note XP / **credits** / crate tokens, press **Enter** to return to campaign select. ASH-02 is now READY. Frontend shows Rank / Prestige / Credits and the equipped camo + primary skin.
 5. Repeat through **ASH-12**. After the finale, **ASHLINE CUT** means the save unlocked the whole spine.
@@ -73,8 +74,9 @@ Ads stay off (`UAshlineMonetizationHooks`).
 | Compound weapon meshes + muzzle light + impact decals | Fab military weapon packs (soft-ref swap) |
 | Hero/AI skeletal hooks (MetaHuman / mannequin) | MetaHuman Creator characters + AnimBPs |
 | Audio **slots** (fire / reload / hit / footsteps / music) | Authored MetaSounds / Sound Cues |
-| SP meta: credits, rank 1–50, cosmetics, weapon skins, prestige | MetaHuman wardrobe + Fab skin materials |
-| `Ashline_PC_Ultra` / `Balanced` + DX12 config | Profile on the 9070 GRE and tune |
+| Credits, rank curve, cosmetics, weapon skins, prestige | MetaHuman wardrobe + Fab skin materials |
+| `Ashline_PC_Ultra` / `Balanced` / **`SteamDeck`** + DX12 config | Profile on the 9070 GRE and Deck |
+| COD-style SP HUD, brief/debrief, pause settings, tracers/muzzle/impacts | Authored Niagara + UMG locker |
 
 **This repo does not contain Quixel, Fab, or MetaHuman binary packs.** If those folders are empty, that is expected.
 

@@ -51,6 +51,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Kit")
 	TSoftObjectPtr<USoundBase> MusicBed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Kit")
+	TSoftObjectPtr<USoundBase> AmbienceBed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Kit")
+	TSoftObjectPtr<USoundBase> CombatStinger;
+
 	/** When true, builder uses Mood instead of the C++ MoodForMission baseline. Empty stubs stay false. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Kit")
 	bool bOverrideMood = false;
