@@ -22,6 +22,8 @@ If a dialog says `ASH_Playable` is missing, dismiss it. Play still hosts on `/En
 | `Config/Windows/WindowsEngine.ini` | DX12, SM6, Nanite, Lumen, VSM, HW RT, FSR3 CVars, 1440p streaming pool |
 | `Config/DefaultGameUserSettings.ini` | 2560×1440 fullscreen, VSync off, `Ashline_PC_Ultra` |
 | `Config/DefaultEngine.ini` | GameDefaultMap, `UAshlineGameUserSettings`, Nanite project flag |
+| `Config/DefaultDeviceProfiles.ini` | Named Ultra/High/Balanced/Perf/Laptop/SteamDeck profiles (parent to Windows or Linux — not to themselves) |
+| `Config/Linux/LinuxEngine.ini` | Proton / Deck cook defaults (800p, 40 fps, no RT) |
 | `Ashline.uproject` | `TargetPlatforms` starts with **Win64** |
 
 RHI: **DirectX 12**. Do not switch the project to Vulkan unless you are debugging.

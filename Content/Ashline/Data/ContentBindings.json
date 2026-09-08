@@ -21,7 +21,10 @@
     "Officer": "/Game/Ashline/Characters/AI/SK_AI_Officer.SK_AI_Officer",
     "Scout": "/Game/Ashline/Characters/AI/SK_AI_Scout.SK_AI_Scout",
     "Heavy": "/Game/Ashline/Characters/AI/SK_AI_Heavy.SK_AI_Heavy",
-    "Irregular": "/Game/Ashline/Characters/AI/SK_AI_Irregular.SK_AI_Irregular"
+    "Irregular": "/Game/Ashline/Characters/AI/SK_AI_Irregular.SK_AI_Irregular",
+    "Grenadier": "/Game/Ashline/Characters/AI/SK_AI_Grenadier.SK_AI_Grenadier",
+    "RadioOp": "/Game/Ashline/Characters/AI/SK_AI_RadioOp.SK_AI_RadioOp",
+    "CQB": "/Game/Ashline/Characters/AI/SK_AI_CQB.SK_AI_CQB"
   },
   "pathConventions": {
     "cosmeticSkeletal": "/Game/Ashline/Characters/Hero/Cosmetics/SK_{Id}.SK_{Id}",
@@ -36,7 +39,9 @@
     "kitGround": "/Game/Ashline/Environments/{Slug}/M_Ground_{Slug}.M_Ground_{Slug}",
     "kitWall": "/Game/Ashline/Environments/{Slug}/M_Wall_{Slug}.M_Wall_{Slug}",
     "kitTrim": "/Game/Ashline/Environments/{Slug}/M_Trim_{Slug}.M_Trim_{Slug}",
-    "kitDataAsset": "/Game/Ashline/Data/Kits/DA_Kit_ASH{NN}.DA_Kit_ASH{NN}"
+    "kitDataAsset": "/Game/Ashline/Data/Kits/DA_Kit_ASH{NN}.DA_Kit_ASH{NN}",
+    "masterMaterial": "/Game/Ashline/Materials/PBR/MI_Ashline{Surface}.MI_Ashline{Surface}",
+    "masterMaterialFallback": "/Game/Ashline/Materials/PBR/M_Ashline{Surface}.M_Ashline{Surface}"
   },
   "cosmetics": {
     "CAMO_FIELD": { "slot": "Camo", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_FIELD.SK_CAMO_FIELD", "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_FIELD.M_CAMO_FIELD" },

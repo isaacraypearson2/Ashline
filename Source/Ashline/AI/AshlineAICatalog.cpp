@@ -28,6 +28,9 @@ TArray<FAshlineAIArchetypeDef> UAshlineAICatalog::BuildArchetypes()
 	Add(EAshlineAIArchetype::Scout, TEXT("Scout"), TEXT("Recon screen. Wide perception, low health, disengages and reports."), 70.f, 0.50f, 0.28f, 5000.f, 470.f, TEXT("WPN_SMG_C9"), false, true);
 	Add(EAshlineAIArchetype::Heavy, TEXT("Heavy"), TEXT("Armored pusher. Slow, high HP, forces the player to commit explosives or DMR."), 180.f, 0.45f, 0.60f, 2800.f, 260.f, TEXT("WPN_LMG_M250"), false, false);
 	Add(EAshlineAIArchetype::CivilianIrregular, TEXT("Irregular"), TEXT("Poorly trained armed civilian. Erratic, low accuracy, high panic."), 80.f, 0.28f, 0.70f, 2200.f, 360.f, TEXT("WPN_PIS_M17A"), false, false);
+	Add(EAshlineAIArchetype::Grenadier, TEXT("Grenadier"), TEXT("GL specialist. Holds mid range, forces players out of cover."), 105.f, 0.46f, 0.52f, 3400.f, 360.f, TEXT("WPN_AR_M4C"), true, false);
+	Add(EAshlineAIArchetype::RadioOp, TEXT("Radio Op"), TEXT("Calls QRF. Low aggression until backup, then tightens the net."), 90.f, 0.50f, 0.38f, 4000.f, 400.f, TEXT("WPN_SMG_UMP"), false, true);
+	Add(EAshlineAIArchetype::CQBSpecialist, TEXT("CQB"), TEXT("Room clearer. SMG/shotgun, aggressive peek, poor long range."), 100.f, 0.50f, 0.26f, 1600.f, 450.f, TEXT("WPN_PDW_P90C"), false, true);
 
 	return List;
 }
