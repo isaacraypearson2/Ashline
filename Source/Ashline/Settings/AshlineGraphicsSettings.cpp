@@ -455,6 +455,7 @@ void UAshlineGraphicsSettings::ApplyCVars()
 		SetCVarInt(TEXT("r.Streaming.PoolSize"), Scalability >= 3 ? 3000 : 1800);
 		State.bHandheldLayout = false;
 		State.SafeZoneScale = 0.f;
+		ApplyTextureStreamingCVars(State.Preset);
 	}
 
 	ApplyRayTracingCVars();
@@ -490,6 +491,7 @@ void UAshlineGraphicsSettings::ApplyNamedMachinePreset(EAshlineGraphicsPreset Pr
 	SetCVarInt(TEXT("r.VT.MaxAnisotropy"), bUltra ? 8 : 4);
 	SetCVarInt(TEXT("r.Streaming.PoolSize"), bUltra ? 5600 : (bHigh ? 4200 : (bBalanced ? 3800 : (bDeck ? 1800 : 1400))));
 	SetCVarInt(TEXT("r.Streaming.LimitPoolSizeToVRAM"), 1);
+	ApplyTextureStreamingCVars(Preset);
 	SetCVarFloat(TEXT("r.ViewDistanceScale"), bUltra ? 1.15f : (bHigh ? 1.0f : (bBalanced ? 0.9f : (bDeck ? 0.65f : 0.7f))));
 	SetCVarFloat(TEXT("r.Shadow.DistanceScale"), bUltra ? 1.1f : (bHigh ? 0.95f : (bDeck ? 0.55f : 0.75f)));
 	SetCVarInt(TEXT("r.Shadow.Virtual.MaxQuality"), bUltra ? 3 : (bHigh ? 2 : 1));
@@ -525,6 +527,31 @@ void UAshlineGraphicsSettings::ApplyNamedMachinePreset(EAshlineGraphicsPreset Pr
 	}
 	SetCVarFloat(TEXT("r.ScreenPercentage"), ScreenPct);
 	(void)bPerf;
+}
+
+void UAshlineGraphicsSettings::ApplyTextureStreamingCVars(EAshlineGraphicsPreset Preset)
+{
+	const bool bUltra = Preset == EAshlineGraphicsPreset::PC_Ultra;
+	const bool bHigh = Preset == EAshlineGraphicsPreset::PC_High;
+	const bool bBalanced = Preset == EAshlineGraphicsPreset::PC_Balanced;
+	const bool bDeck = Preset == EAshlineGraphicsPreset::SteamDeck;
+	const bool bLaptop = Preset == EAshlineGraphicsPreset::Laptop;
+	const bool bPerf = Preset == EAshlineGraphicsPreset::PC_Performance;
+
+	SetCVarInt(TEXT("r.TextureStreaming"), 1);
+	SetCVarInt(TEXT("r.Streaming.LimitPoolSizeToVRAM"), 1);
+	SetCVarInt(TEXT("r.Streaming.UseAllMips"), 0);
+	SetCVarInt(TEXT("r.Streaming.AmortizeCPUToGPUCopy"), 1);
+	SetCVarInt(TEXT("r.Streaming.MaxNumTexturesToStreamPerFrame"), bDeck ? 8 : (bLaptop || bPerf ? 10 : 16));
+	SetCVarInt(TEXT("r.Streaming.FramesForFullUpdate"), bDeck ? 7 : (bLaptop ? 6 : 5));
+	SetCVarFloat(TEXT("r.Streaming.Boost"), bUltra ? 1.f : (bHigh ? 0.85f : 0.7f));
+	SetCVarFloat(TEXT("r.Streaming.MipBias"), bDeck ? 0.5f : (bLaptop || bPerf ? 0.25f : 0.f));
+	SetCVarInt(TEXT("r.VT.Enable"), 1);
+	SetCVarFloat(TEXT("r.VT.PoolSizeScale"), bUltra ? 1.15f : (bHigh ? 1.0f : (bBalanced ? 0.8f : (bDeck ? 0.45f : 0.55f))));
+	SetCVarInt(TEXT("r.VT.MaxUploadsPerFrame"), bUltra ? 24 : (bHigh ? 18 : (bDeck ? 8 : 12)));
+	SetCVarInt(TEXT("r.VT.MaxTilesProducedPerFrame"), bDeck ? 16 : (bUltra ? 48 : 32));
+	SetCVarFloat(TEXT("r.Streaming.HiddenPrimitiveScale"), bDeck ? 0.4f : 0.5f);
+	SetCVarInt(TEXT("r.Streaming.UseNewMetrics"), 1);
 }
 
 void UAshlineGraphicsSettings::ApplyUpscalerCVars()

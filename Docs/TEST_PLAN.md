@@ -21,7 +21,8 @@ This VM / CI environment does **not** run Unreal Editor. Execute this list on th
 - [ ] `AshSteamDeck` snaps 1280×800, 40 fps, safe-zone HUD; `AshPCUltra` returns to 1440p
 - [ ] `AshGfxAuto` re-detects; **F8** cycles named presets
 - [ ] Nanite/Lumen/VSM do not spam fatal logs
-- [ ] DLSS is **not** required; game looks correct with FSR3 or TSR only
+- [ ] After `create_master_materials.py`, Content Browser shows `MI_AshlineConcrete` (or PIE still quiet-falls back to Engine)
+- [ ] `stat streaming` on Ultra: pool ~5600; `AshSteamDeck`: pool 1800, `r.VT.PoolSizeScale` ~0.45
 
 ## Campaign loop (do not break)
 

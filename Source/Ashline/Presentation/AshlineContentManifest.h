@@ -101,4 +101,7 @@ public:
 	/** Authored master + MI. Missing packages fail quiet — Engine fallbacks remain valid. */
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
 	static TArray<FString> MasterMaterialCandidates(EAshlineSurface Surface);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString SurfaceInstancePath(EAshlineSurface Surface);
 };

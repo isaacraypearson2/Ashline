@@ -1,5 +1,6 @@
 #include "Player/AshlineCharacter.h"
 
+#include "Animation/AnimInstance.h"
 #include "AI/AshlineAICatalog.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -27,6 +28,7 @@
 #include "Presentation/AshlineAudioDirector.h"
 #include "Presentation/AshlineCharacterPresentation.h"
 #include "Presentation/AshlineLoad.h"
+#include "Presentation/AshlineMaterialFactory.h"
 #include "Presentation/AshlinePresentationLibrary.h"
 #include "Presentation/AshlinePresentationSettings.h"
 #include "Weapons/AshlineWeaponComponent.h"
@@ -123,9 +125,10 @@ void AAshlineCharacter::BeginPlay()
 void AAshlineCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	const float Target = bIsAiming ? 430.f * AimWalkMul : 430.f;
+	const float Target = bIsAiming ? 430.f * AimWalkMul : (bIsCrouched ? 220.f : 430.f);
 	GetCharacterMovement()->MaxWalkSpeed = Target;
 	TickFootsteps(DeltaSeconds);
+	TickCombatCamera(DeltaSeconds);
 }
 
 void AAshlineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -339,6 +342,9 @@ float AAshlineCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 	}
 
 	Health = FMath::Max(0.f, Health - Incoming);
+	HitFlinch = FMath::Min(1.f, HitFlinch + Incoming * 0.02f);
+	AddControllerPitchInput(FMath::FRandRange(-0.15f, 0.05f) * HitFlinch);
+	AddControllerYawInput(FMath::FRandRange(-0.12f, 0.12f) * HitFlinch);
 	if (Health <= 0.f)
 	{
 		Health = MaxHealth;
@@ -561,6 +567,40 @@ void AAshlineCharacter::ApplyPresentationMesh()
 		GetMesh()->SetRelativeScale3D(RelScale);
 		GetMesh()->SetVisibility(true);
 		GetMesh()->SetCastShadow(true);
+		if (UAshlineCharacterPresentation* Pres = UAshlinePresentationLibrary::FindCharacterPresentation(true, EAshlineAIArchetype::Rifleman))
+		{
+			if (!Pres->AnimClass.IsNull())
+			{
+				const FString AnimPath = Pres->AnimClass.ToSoftObjectPath().ToString();
+				if (AshlineLoad::CanAttemptLoad(AnimPath))
+				{
+					if (UClass* Anim = Pres->AnimClass.LoadSynchronous())
+					{
+						GetMesh()->SetAnimInstanceClass(Anim);
+					}
+				}
+			}
+			if (UMaterialInterface* BodyMat = AshlineLoad::Soft(Pres->BodyMaterialOverride))
+			{
+				GetMesh()->SetMaterial(0, BodyMat);
+			}
+			else if (UMaterialInterface* Skin = AshlineLoad::Soft(Pres->SkinMaterial))
+			{
+				GetMesh()->SetMaterial(0, Skin);
+			}
+			else if (Pres->TextureSet.HasAnyAuthoredTexture())
+			{
+				if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeSkinMaterial(this, FLinearColor(0.82f, 0.62f, 0.48f)))
+				{
+					UAshlineMaterialFactory::StampTextureSet(MID, Pres->TextureSet);
+					GetMesh()->SetMaterial(0, MID);
+				}
+			}
+			else if (UMaterialInstanceDynamic* MID = UAshlinePresentationLibrary::MakeCharacterMaterial(this, FLinearColor(0.18f, 0.2f, 0.16f)))
+			{
+				GetMesh()->SetMaterial(0, MID);
+			}
+		}
 		if (GrayboxBody)
 		{
 			GrayboxBody->SetVisibility(false);
@@ -587,6 +627,21 @@ void AAshlineCharacter::TickFootsteps(float DeltaSeconds)
 				Audio->PlayFootstep(this, GetActorLocation());
 			}
 		}
+	}
+}
+
+void AAshlineCharacter::TickCombatCamera(float DeltaSeconds)
+{
+	HitFlinch = FMath::FInterpTo(HitFlinch, 0.f, DeltaSeconds, 6.f);
+	const float TargetFOV = bIsAiming ? ADSFOV : HipFOV;
+	CurrentFOV = FMath::FInterpTo(CurrentFOV, TargetFOV, DeltaSeconds, 12.f);
+	if (FirstPersonCamera)
+	{
+		FirstPersonCamera->SetFieldOfView(CurrentFOV);
+	}
+	if (ThirdPersonCamera)
+	{
+		ThirdPersonCamera->SetFieldOfView(CurrentFOV * 0.92f);
 	}
 }
 

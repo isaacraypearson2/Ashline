@@ -31,6 +31,7 @@ REQUIRED_DIRS = [
     "Materials/Cosmetics",
     "Materials/PBR",
     "Materials/Decals",
+    "Materials/Libraries",
     "Environments/Shared",
     "Data/Kits",
     "FX/Muzzle",
@@ -99,6 +100,29 @@ def main() -> None:
         material = spec["material"]
         if f"M_{item_id}" not in material:
             fail(f"skin material path must contain M_{item_id}: {material}")
+
+    conv = bindings.get("pathConventions", {})
+    if "MI_Ashline{Surface}" not in conv.get("masterMaterial", ""):
+        fail("pathConventions.masterMaterial must be MI_Ashline{Surface}")
+    if "M_Ashline{Surface}" not in conv.get("masterMaterialFallback", ""):
+        fail("pathConventions.masterMaterialFallback must be M_Ashline{Surface}")
+
+    material_bindings = CONTENT / "Data" / "MaterialBindings.json"
+    if not material_bindings.is_file():
+        fail("missing Content/Ashline/Data/MaterialBindings.json")
+    mats = json.loads(material_bindings.read_text(encoding="utf-8"))
+    concrete = mats.get("instances", {}).get("Concrete", "")
+    if "MI_AshlineConcrete" not in concrete:
+        fail(f"MaterialBindings Concrete instance must be MI_AshlineConcrete, got {concrete}")
+
+    plan = CONTENT / "Data" / "FabInstallPlan.json"
+    if not plan.is_file():
+        fail("missing Content/Ashline/Data/FabInstallPlan.json")
+    evening = json.loads(plan.read_text(encoding="utf-8"))
+    if evening.get("streaming", {}).get("Ultra", {}).get("poolMB") != 5600:
+        fail("FabInstallPlan Ultra pool must stay 5600")
+    if evening.get("streaming", {}).get("SteamDeck", {}).get("poolMB") != 1800:
+        fail("FabInstallPlan SteamDeck pool must stay 1800")
 
     print(
         f"OK: layout + bindings ({len(cosmetic_ids)} cosmetics, "

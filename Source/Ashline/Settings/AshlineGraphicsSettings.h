@@ -126,6 +126,7 @@ private:
 	void ProbeCapabilities();
 	void ApplyCVars();
 	void ApplyNamedMachinePreset(EAshlineGraphicsPreset Preset);
+	void ApplyTextureStreamingCVars(EAshlineGraphicsPreset Preset);
 	void ApplyUpscalerCVars();
 	void ApplyRayTracingCVars();
 	void ApplyFrameTargetCVars();

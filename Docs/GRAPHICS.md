@@ -109,6 +109,20 @@ foliage.DensityScale=0.35
 HUD SafeZoneScale=0.07
 ```
 
+## Texture streaming / VT (Ultra vs Steam Deck)
+
+Named-preset **pools stay** (Ultra 5600, High 4200, Balanced 3800, Deck **1800**, Laptop 1400). `ApplyTextureStreamingCVars` adds VT and amortize on top — it does not rewrite pool size.
+
+| Preset | Pool (MB) | `r.VT.PoolSizeScale` | Mip bias | Uploads/frame | Aniso |
+| --- | --- | --- | --- | --- | --- |
+| Ultra | 5600 | 1.15 | 0 | 24 | 16 / VT 8 |
+| High | 4200 | 1.0 | 0 | 18 | 8 / VT 4 |
+| Balanced | 3800 | 0.8 | 0 | 12 | 8 / VT 4 |
+| Steam Deck | **1800** | 0.45 | 0.5 | 8 | 4 / VT 4 |
+| Laptop | 1400 | 0.55 | 0.25 | 10 | 4 |
+
+Also: `r.TextureStreaming=1`, `r.Streaming.LimitPoolSizeToVRAM=1`, `r.Streaming.AmortizeCPUToGPUCopy=1`, `r.VT.Enable=1`. After Megascans land, `stat streaming` then drop foliage density before touching pools.
+
 `UAshlineGraphicsSettings::SetFrameGeneration(true)` sets `r.FidelityFX.FI.Enabled=1` when that CVar exists.
 
 Phase 2 import + 1440p Ultra notes after Megascans/MetaHuman land: **`Docs/PHASE2_FAB.md`**.

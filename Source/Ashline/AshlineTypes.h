@@ -192,6 +192,17 @@ enum class EAshlineSurface : uint8
 	Skin
 };
 
+UENUM(BlueprintType)
+enum class EAshlineAICombatState : uint8
+{
+	Idle,
+	Investigate,
+	Engage,
+	TakeCover,
+	Flank,
+	Dead
+};
+
 USTRUCT(BlueprintType)
 struct FAshlineMissionObjective
 {

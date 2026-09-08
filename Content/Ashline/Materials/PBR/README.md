@@ -13,4 +13,6 @@ M_AshlineSkin     / MI_AshlineSkin
 M_AshlineWood, M_AshlineSnow, M_AshlineWater, M_AshlineEmissive, M_AshlinePlastic
 ```
 
-Runtime (`GetSurfaceMaterial`) tries `MI_Ashline{Slug}` then `M_Ashline{Slug}`, then Engine `BasicShapeMaterial` / `WorldGridMaterial` / `DefaultMaterial`, then Starter Content **only if that pack exists**. Missing paths fail quiet (`AshlineLoad`).
+Runtime (`GetSurfaceMaterial` / `UAshlineMaterialFactory`) tries `MI_Ashline{Slug}` then `M_Ashline{Slug}` then `M_{Slug}`, then Engine `BasicShapeMaterial` / `WorldGridMaterial` / `DefaultMaterial`, then Starter Content **only if that pack exists**. Missing paths fail quiet (`AshlineLoad`).
+
+Create the graphs in-editor: `Scripts/create_master_materials.py`. Parameter aliases: `Docs/MATERIALS.md`.

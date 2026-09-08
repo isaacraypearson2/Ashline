@@ -41,6 +41,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|AI")
 	TSoftObjectPtr<USkeletalMesh> BodyMeshOverride;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ashline|AI")
+	EAshlineAICombatState CombatState = EAshlineAICombatState::Idle;
+
 protected:
 	void ApplyPresentationMesh();
+	void ApplyDeathPose();
 };

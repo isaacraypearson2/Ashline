@@ -9,6 +9,15 @@ tree and empty DataAsset stubs so you can drop in licensed packs.
 """
 
 import unreal
+import sys
+from pathlib import Path
+
+try:
+    _SCRIPTS = Path(__file__).resolve().parent
+except NameError:
+    _SCRIPTS = Path(".")
+if str(_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS))
 
 
 KIT_ROOT = "/Game/Ashline/Data/Kits"
@@ -23,6 +32,8 @@ FOLDERS = [
     "/Game/Ashline/Characters/Hero/Parts/Boots",
     "/Game/Ashline/Characters/Hero/Parts/Face",
     "/Game/Ashline/Characters/Hero/Parts/Charm",
+    "/Game/Ashline/Characters/Hero/Parts/Headset",
+    "/Game/Ashline/Characters/Hero/Parts/Backpack",
     "/Game/Ashline/Characters/AI",
     "/Game/Ashline/Characters/MetaHuman",
     "/Game/Ashline/Weapons/Meshes",
@@ -33,6 +44,7 @@ FOLDERS = [
     "/Game/Ashline/Materials/PBR",
     "/Game/Ashline/Materials/Decals",
     "/Game/Ashline/Materials/Cosmetics",
+    "/Game/Ashline/Materials/Libraries",
     "/Game/Ashline/Audio/Weapons",
     "/Game/Ashline/Audio/Footsteps",
     "/Game/Ashline/Audio/Music",
@@ -77,6 +89,9 @@ AI_ARCHETYPES = (
     "Scout",
     "Heavy",
     "Irregular",
+    "Grenadier",
+    "RadioOp",
+    "CQB",
 )
 
 COSMETICS = [
@@ -137,6 +152,7 @@ ASH-10     : urban concrete, glass, signage
 ASH-11     : rail, gravel, train car
 ASH-12     : brutalist concrete, emissive trim
 Starter    : Add Content Pack → Starter Content (immediate PBR upgrade)
+Masters    : Scripts/create_master_materials.py → MI_AshlineConcrete / M_AshlineMetal / MI_AshlineGlass / MI_AshlineSkin
 FSR3       : AMD FidelityFX Super Resolution 3 plugin (optional; TSR works without it)
 """
 
@@ -194,6 +210,26 @@ def main():
             try:
                 asset.set_editor_property("kit_id", f"ASH{index:02d}")
                 asset.set_editor_property("fab_notes", notes)
+                asset.set_editor_property(
+                    "ground_material",
+                    unreal.SoftObjectPath("/Game/Ashline/Materials/PBR/MI_AshlineDirt.MI_AshlineDirt"),
+                )
+                asset.set_editor_property(
+                    "wall_material",
+                    unreal.SoftObjectPath("/Game/Ashline/Materials/PBR/MI_AshlineConcrete.MI_AshlineConcrete"),
+                )
+                asset.set_editor_property(
+                    "trim_material",
+                    unreal.SoftObjectPath("/Game/Ashline/Materials/PBR/MI_AshlineMetal.MI_AshlineMetal"),
+                )
+                asset.set_editor_property(
+                    "foliage_material",
+                    unreal.SoftObjectPath("/Game/Ashline/Materials/PBR/MI_AshlineFoliage.MI_AshlineFoliage"),
+                )
+                asset.set_editor_property(
+                    "glass_material",
+                    unreal.SoftObjectPath("/Game/Ashline/Materials/PBR/MI_AshlineGlass.MI_AshlineGlass"),
+                )
             except Exception:
                 pass
 
@@ -250,13 +286,18 @@ def main():
 
     unreal.log(FAB_LIST)
     unreal.log("Ashline: kit / weapon / cosmetic / AI DataAsset stubs ready.")
-    unreal.log("Next: Scripts/assign_interim_meshes.py then Docs/PHASE2_FAB.md install order.")
+    try:
+        import create_master_materials as masters
+        masters.main()
+    except Exception as exc:
+        unreal.log_warning(f"Ashline: create_master_materials skipped ({exc}). Run it next.")
+    unreal.log("Next: Scripts/assign_interim_meshes.py then Docs/PHASE2_FAB.md evening clock.")
     unreal.log(UAshline_fallback())
 
 
 def UAshline_fallback():
     return (
-        "Fallback chain: DataAssets → /Game/StarterContent → Engine materials. "
+        "Fallback chain: MI_Ashline{Slug} → M_Ashline{Slug} → M_{Slug} → Engine. "
         "No Quixel binaries were downloaded."
     )
 
