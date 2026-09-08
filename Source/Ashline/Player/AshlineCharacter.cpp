@@ -125,6 +125,18 @@ void AAshlineCharacter::Tick(float DeltaSeconds)
 	const float Target = bIsAiming ? 430.f * AimWalkMul : 430.f;
 	GetCharacterMovement()->MaxWalkSpeed = Target;
 	TickFootsteps(DeltaSeconds);
+
+	if (FirstPersonCamera && WeaponComponent)
+	{
+		const float AdsFov = WeaponComponent->GetActiveWeapon().Stats.ADSFov;
+		const float TargetFov = FMath::Lerp(HipFov, AdsFov, WeaponComponent->GetAdsAlpha());
+		FirstPersonCamera->SetFieldOfView(TargetFov);
+	}
+	if (ThirdPersonCamera && WeaponComponent)
+	{
+		const float AdsFov = WeaponComponent->GetActiveWeapon().Stats.ADSFov;
+		ThirdPersonCamera->SetFieldOfView(FMath::Lerp(HipFov + 8.f, AdsFov + 10.f, WeaponComponent->GetAdsAlpha()));
+	}
 }
 
 void AAshlineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -173,6 +185,10 @@ void AAshlineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		{
 			EIC->BindAction(CrouchAction, ETriggerEvent::Started, this, &AAshlineCharacter::StartCrouch);
 			EIC->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AAshlineCharacter::StopCrouch);
+		}
+		if (FireModeAction)
+		{
+			EIC->BindAction(FireModeAction, ETriggerEvent::Started, this, &AAshlineCharacter::CycleFireMode);
 		}
 	}
 	else
@@ -311,6 +327,14 @@ void AAshlineCharacter::StopAim()
 	SetAiming(false);
 }
 
+void AAshlineCharacter::CycleFireMode()
+{
+	if (WeaponComponent)
+	{
+		WeaponComponent->CycleFireMode();
+	}
+}
+
 void AAshlineCharacter::StartCrouch()
 {
 	Crouch();
@@ -399,6 +423,10 @@ void AAshlineCharacter::ApplyRuntimeInputActions()
 		{
 			CrouchAction = Input->Crouch;
 		}
+		if (!FireModeAction)
+		{
+			FireModeAction = Input->FireMode;
+		}
 	}
 }
 
@@ -430,6 +458,7 @@ void AAshlineCharacter::BindLegacyKeys(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::C, IE_Released, this, &AAshlineCharacter::StopCrouch);
 	PlayerInputComponent->BindKey(EKeys::LeftControl, IE_Pressed, this, &AAshlineCharacter::StartCrouch);
 	PlayerInputComponent->BindKey(EKeys::LeftControl, IE_Released, this, &AAshlineCharacter::StopCrouch);
+	PlayerInputComponent->BindKey(EKeys::B, IE_Pressed, this, &AAshlineCharacter::CycleFireMode);
 }
 
 void AAshlineCharacter::LegacyMoveForward(float Value)

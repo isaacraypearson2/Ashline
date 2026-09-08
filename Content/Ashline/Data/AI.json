@@ -1,0 +1,71 @@
+{
+  "note": "Designer mirror. Runtime source of truth is UAshlineAICatalog.",
+  "archetypes": [
+    {
+      "enum": "Rifleman",
+      "name": "Rifleman",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_Rifleman.DA_AI_Rifleman",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_Rifleman.SK_AI_Rifleman"
+    },
+    {
+      "enum": "Breacher",
+      "name": "Breacher",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_Breacher.DA_AI_Breacher",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_Breacher.SK_AI_Breacher"
+    },
+    {
+      "enum": "Marksman",
+      "name": "Marksman",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_Marksman.DA_AI_Marksman",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_Marksman.SK_AI_Marksman"
+    },
+    {
+      "enum": "MachineGunner",
+      "name": "Machine Gunner",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_Gunner.DA_AI_Gunner",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_Gunner.SK_AI_Gunner"
+    },
+    {
+      "enum": "Officer",
+      "name": "Officer",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_Officer.DA_AI_Officer",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_Officer.SK_AI_Officer"
+    },
+    {
+      "enum": "Scout",
+      "name": "Scout",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_Scout.DA_AI_Scout",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_Scout.SK_AI_Scout"
+    },
+    {
+      "enum": "Heavy",
+      "name": "Heavy",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_Heavy.DA_AI_Heavy",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_Heavy.SK_AI_Heavy"
+    },
+    {
+      "enum": "CivilianIrregular",
+      "name": "Irregular",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_Irregular.DA_AI_Irregular",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_Irregular.SK_AI_Irregular"
+    },
+    {
+      "enum": "Grenadier",
+      "name": "Grenadier",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_Grenadier.DA_AI_Grenadier",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_Grenadier.SK_AI_Grenadier"
+    },
+    {
+      "enum": "Elite",
+      "name": "Elite",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_Elite.DA_AI_Elite",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_Elite.SK_AI_Elite"
+    },
+    {
+      "enum": "Spotter",
+      "name": "Spotter",
+      "presentation": "/Game/Ashline/Data/Kits/DA_AI_Spotter.DA_AI_Spotter",
+      "mesh": "/Game/Ashline/Characters/AI/SK_AI_Spotter.SK_AI_Spotter"
+    }
+  ]
+}

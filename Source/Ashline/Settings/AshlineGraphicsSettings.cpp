@@ -58,16 +58,25 @@ void UAshlineGraphicsSettings::ApplySavedOrDetect()
 void UAshlineGraphicsSettings::ApplyPreset(EAshlineGraphicsPreset Preset)
 {
 	State.Preset = Preset;
-	if (Preset == EAshlineGraphicsPreset::PC_Ultra || Preset == EAshlineGraphicsPreset::PC_Balanced)
+	if (Preset == EAshlineGraphicsPreset::PC_Ultra || Preset == EAshlineGraphicsPreset::PC_Balanced || Preset == EAshlineGraphicsPreset::PC_Perf)
 	{
-		if (State.bHardwareRayTracingAvailable)
+		if (State.bHardwareRayTracingAvailable && Preset != EAshlineGraphicsPreset::PC_Perf)
 		{
 			State.bRayTracingEnabled = true;
+		}
+		if (Preset == EAshlineGraphicsPreset::PC_Perf)
+		{
+			State.bRayTracingEnabled = State.bHardwareRayTracingAvailable;
 		}
 		if (State.Upscaler == EAshlineUpscaler::Off || State.Upscaler == EAshlineUpscaler::MetalFXSpatial || State.Upscaler == EAshlineUpscaler::MetalFXTemporal)
 		{
 			State.Upscaler = State.bFSR3Available ? EAshlineUpscaler::FSR3 : EAshlineUpscaler::TSR;
 		}
+	}
+	if (Preset == EAshlineGraphicsPreset::SteamDeck || Preset == EAshlineGraphicsPreset::Low || Preset == EAshlineGraphicsPreset::Medium)
+	{
+		State.bRayTracingEnabled = false;
+		State.Upscaler = State.bFSR3Available ? EAshlineUpscaler::FSR3 : EAshlineUpscaler::TSR;
 	}
 	ApplyCVars();
 }
@@ -134,6 +143,8 @@ FString UAshlineGraphicsSettings::GetPresetDisplayName(EAshlineGraphicsPreset Pr
 	case EAshlineGraphicsPreset::Cinematic: return TEXT("Cinematic");
 	case EAshlineGraphicsPreset::PC_Balanced: return TEXT("Ashline_PC_Balanced");
 	case EAshlineGraphicsPreset::PC_Ultra: return TEXT("Ashline_PC_Ultra");
+	case EAshlineGraphicsPreset::PC_Perf: return TEXT("Ashline_PC_Perf");
+	case EAshlineGraphicsPreset::SteamDeck: return TEXT("Ashline_SteamDeck");
 	default: return TEXT("Unknown");
 	}
 }
@@ -199,6 +210,8 @@ void UAshlineGraphicsSettings::ApplyCVars()
 	case EAshlineGraphicsPreset::Cinematic: Scalability = 3; break;
 	case EAshlineGraphicsPreset::PC_Balanced: Scalability = 3; break;
 	case EAshlineGraphicsPreset::PC_Ultra: Scalability = 3; break;
+	case EAshlineGraphicsPreset::PC_Perf: Scalability = 2; break;
+	case EAshlineGraphicsPreset::SteamDeck: Scalability = 1; break;
 	}
 
 	SetCVarInt(TEXT("sg.ViewDistanceQuality"), Scalability);
@@ -220,19 +233,12 @@ void UAshlineGraphicsSettings::ApplyCVars()
 	SetCVarInt(TEXT("r.DynamicGlobalIlluminationMethod"), 1);
 	SetCVarInt(TEXT("r.ReflectionMethod"), 1);
 	SetCVarInt(TEXT("r.Lumen.DiffuseIndirect.Allow"), 1);
-	SetCVarInt(TEXT("r.Lumen.Reflections.Allow"), 1);
+	SetCVarInt(TEXT("r.Lumen.Reflections.Allow"), State.Preset == EAshlineGraphicsPreset::Low ? 0 : 1);
 	SetCVarInt(TEXT("r.DefaultFeature.AntiAliasing"), 4);
+	SetCVarInt(TEXT("r.SkinCache.CompileShaders"), 1);
+	SetCVarInt(TEXT("r.SkinCache.Mode"), State.Preset == EAshlineGraphicsPreset::Low ? 0 : 1);
 
-	if (State.Preset == EAshlineGraphicsPreset::PC_Ultra || State.Preset == EAshlineGraphicsPreset::PC_Balanced)
-	{
-		ApplyNamedPCPreset(State.Preset);
-	}
-	else
-	{
-		SetCVarInt(TEXT("r.VSync"), 1);
-		SetCVarFloat(TEXT("r.ScreenPercentage"), State.Preset == EAshlineGraphicsPreset::Low ? 67.f : 100.f);
-		SetCVarInt(TEXT("r.Streaming.PoolSize"), Scalability >= 3 ? 3000 : 1800);
-	}
+	ApplyNamedPCPreset(State.Preset);
 
 	ApplyRayTracingCVars();
 	ApplyUpscalerCVars();
@@ -254,46 +260,77 @@ void UAshlineGraphicsSettings::ApplyCVars()
 void UAshlineGraphicsSettings::ApplyNamedPCPreset(EAshlineGraphicsPreset Preset)
 {
 	const bool bUltra = Preset == EAshlineGraphicsPreset::PC_Ultra;
+	const bool bBalanced = Preset == EAshlineGraphicsPreset::PC_Balanced;
+	const bool bPerf = Preset == EAshlineGraphicsPreset::PC_Perf;
+	const bool bDeck = Preset == EAshlineGraphicsPreset::SteamDeck;
+	const bool bLow = Preset == EAshlineGraphicsPreset::Low;
+	const bool bMed = Preset == EAshlineGraphicsPreset::Medium;
+	const bool bHigh = Preset == EAshlineGraphicsPreset::High;
 
-	// 9070 GRE / 32 GB DDR5 / 1440p high-refresh.
-	SetCVarInt(TEXT("r.VSync"), 0);
-	SetCVarFloat(TEXT("t.MaxFPS"), 0.f);
-	SetCVarInt(TEXT("r.FinishCurrentFrame"), 0);
-	SetCVarInt(TEXT("r.MaxAnisotropy"), 16);
-	SetCVarInt(TEXT("r.VT.MaxAnisotropy"), 8);
-	SetCVarInt(TEXT("r.Streaming.PoolSize"), bUltra ? 5600 : 3800);
+	SetCVarInt(TEXT("r.VSync"), (bDeck || bLow) ? 1 : 0);
+	SetCVarFloat(TEXT("t.MaxFPS"), bDeck ? 60.f : (bLow ? 60.f : 0.f));
+	SetCVarInt(TEXT("r.FinishCurrentFrame"), bDeck ? 1 : 0);
+	SetCVarInt(TEXT("r.MaxAnisotropy"), bUltra ? 16 : (bLow || bDeck ? 4 : 8));
+	SetCVarInt(TEXT("r.VT.MaxAnisotropy"), bUltra ? 8 : 4);
+
+	int32 Pool = 2200;
+	if (bUltra) { Pool = 5600; }
+	else if (bBalanced) { Pool = 3800; }
+	else if (bPerf) { Pool = 3200; }
+	else if (bDeck) { Pool = 1800; }
+	else if (bLow) { Pool = 1400; }
+	else if (bMed) { Pool = 2200; }
+	else if (bHigh) { Pool = 2800; }
+	SetCVarInt(TEXT("r.Streaming.PoolSize"), Pool);
 	SetCVarInt(TEXT("r.Streaming.LimitPoolSizeToVRAM"), 1);
-	SetCVarFloat(TEXT("r.ViewDistanceScale"), bUltra ? 1.15f : 0.9f);
-	SetCVarFloat(TEXT("r.Shadow.DistanceScale"), bUltra ? 1.1f : 0.85f);
-	SetCVarInt(TEXT("r.Shadow.Virtual.MaxQuality"), bUltra ? 3 : 2);
-	SetCVarInt(TEXT("r.Shadow.Virtual.SMRT.RayCountDirectional"), bUltra ? 8 : 4);
-	SetCVarInt(TEXT("r.Lumen.ScreenProbeGather.RadianceCache.ProbeResolution"), bUltra ? 32 : 16);
-	SetCVarInt(TEXT("r.Lumen.ScreenProbeGather.DownsampleFactor"), bUltra ? 16 : 32);
+
+	SetCVarFloat(TEXT("r.ViewDistanceScale"), bUltra ? 1.15f : (bBalanced ? 0.9f : (bPerf ? 0.8f : (bDeck ? 0.7f : (bLow ? 0.6f : 0.85f)))));
+	SetCVarFloat(TEXT("r.Shadow.DistanceScale"), bUltra ? 1.1f : (bBalanced ? 0.85f : 0.7f));
+	SetCVarInt(TEXT("r.Shadow.Virtual.MaxQuality"), bUltra ? 3 : (bBalanced ? 2 : 1));
+	SetCVarInt(TEXT("r.Shadow.Virtual.SMRT.RayCountDirectional"), bUltra ? 8 : (bBalanced ? 4 : 2));
+	SetCVarInt(TEXT("r.Lumen.ScreenProbeGather.RadianceCache.ProbeResolution"), bUltra ? 32 : (bBalanced || bPerf ? 16 : 8));
+	SetCVarInt(TEXT("r.Lumen.ScreenProbeGather.DownsampleFactor"), bUltra ? 16 : (bBalanced ? 32 : 48));
 	SetCVarInt(TEXT("r.Lumen.Reflections.DownsampleFactor"), bUltra ? 1 : 2);
-	SetCVarInt(TEXT("r.Lumen.TraceMeshSDFs"), 1);
-	SetCVarInt(TEXT("r.AmbientOcclusionLevels"), bUltra ? 2 : 1);
-	SetCVarInt(TEXT("r.BloomQuality"), bUltra ? 5 : 4);
+	SetCVarInt(TEXT("r.Lumen.TraceMeshSDFs"), (bUltra || bBalanced) ? 1 : 0);
+	SetCVarInt(TEXT("r.Lumen.ScreenProbeGather.ScreenTraces"), 1);
+	SetCVarInt(TEXT("r.AmbientOcclusionLevels"), bUltra ? 2 : (bLow || bDeck ? 0 : 1));
+	SetCVarInt(TEXT("r.BloomQuality"), bUltra ? 5 : (bDeck || bLow ? 2 : 4));
 	SetCVarInt(TEXT("r.MotionBlurQuality"), 0);
 	SetCVarInt(TEXT("r.DepthOfFieldQuality"), bUltra ? 2 : 0);
-	SetCVarFloat(TEXT("foliage.DensityScale"), bUltra ? 1.f : 0.7f);
-	SetCVarFloat(TEXT("r.Tonemapper.Sharpen"), 0.45f);
+	SetCVarFloat(TEXT("foliage.DensityScale"), bUltra ? 1.f : (bBalanced ? 0.7f : (bPerf ? 0.55f : (bDeck ? 0.4f : 0.35f))));
+	SetCVarFloat(TEXT("r.Tonemapper.Sharpen"), bDeck ? 0.35f : 0.45f);
+	SetCVarInt(TEXT("r.Nanite.MaxPixelsPerEdge"), bUltra ? 1 : 2);
+	SetCVarInt(TEXT("r.RayTracing.SkyLight.SamplesPerPixel"), bUltra ? 2 : 1);
 
+	float ScreenPct = 100.f;
 	if (State.Upscaler == EAshlineUpscaler::FSR3)
 	{
-		SetCVarFloat(TEXT("r.ScreenPercentage"), bUltra ? 77.f : 59.f);
+		if (bUltra) { ScreenPct = 77.f; }
+		else if (bBalanced) { ScreenPct = 59.f; }
+		else if (bPerf) { ScreenPct = 50.f; }
+		else if (bDeck) { ScreenPct = 59.f; }
+		else if (bLow) { ScreenPct = 50.f; }
+		else if (bMed) { ScreenPct = 59.f; }
+		else { ScreenPct = 67.f; }
 	}
 	else if (State.Upscaler == EAshlineUpscaler::TSR)
 	{
-		SetCVarFloat(TEXT("r.ScreenPercentage"), bUltra ? 85.f : 70.f);
+		if (bUltra) { ScreenPct = 85.f; }
+		else if (bBalanced) { ScreenPct = 70.f; }
+		else if (bPerf) { ScreenPct = 59.f; }
+		else if (bDeck) { ScreenPct = 67.f; }
+		else if (bLow) { ScreenPct = 59.f; }
+		else { ScreenPct = 77.f; }
 	}
 	else if (State.Upscaler == EAshlineUpscaler::DLSS)
 	{
-		SetCVarFloat(TEXT("r.ScreenPercentage"), bUltra ? 67.f : 50.f);
+		ScreenPct = bUltra ? 67.f : 50.f;
 	}
 	else
 	{
-		SetCVarFloat(TEXT("r.ScreenPercentage"), bUltra ? 100.f : 80.f);
+		ScreenPct = bUltra ? 100.f : (bDeck ? 100.f : 80.f);
 	}
+	SetCVarFloat(TEXT("r.ScreenPercentage"), ScreenPct);
 }
 
 void UAshlineGraphicsSettings::ApplyUpscalerCVars()
@@ -329,7 +366,18 @@ void UAshlineGraphicsSettings::ApplyUpscalerCVars()
 	case EAshlineUpscaler::FSR3:
 		SetCVarInt(TEXT("r.FidelityFX.FSR3.Enabled"), 1);
 		SetCVarInt(TEXT("r.FidelityFX.FSR.Enabled"), 1);
-		SetCVarInt(TEXT("r.FidelityFX.FSR3.QualityMode"), State.Preset == EAshlineGraphicsPreset::PC_Balanced ? 2 : 1);
+		{
+			int32 Quality = 1;
+			if (State.Preset == EAshlineGraphicsPreset::PC_Balanced || State.Preset == EAshlineGraphicsPreset::SteamDeck || State.Preset == EAshlineGraphicsPreset::Medium)
+			{
+				Quality = 2;
+			}
+			else if (State.Preset == EAshlineGraphicsPreset::PC_Perf || State.Preset == EAshlineGraphicsPreset::Low)
+			{
+				Quality = 3;
+			}
+			SetCVarInt(TEXT("r.FidelityFX.FSR3.QualityMode"), Quality);
+		}
 		SetCVarInt(TEXT("r.FidelityFX.FI.Enabled"), bFrameGeneration ? 1 : 0);
 		break;
 	case EAshlineUpscaler::DLSS:
@@ -352,8 +400,16 @@ void UAshlineGraphicsSettings::ApplyRayTracingCVars()
 	SetCVarInt(TEXT("r.Lumen.HardwareRayTracing.LightingMode"), On ? 2 : 0);
 	if (On)
 	{
-		SetCVarInt(TEXT("r.RayTracing.Shadows"), State.Preset == EAshlineGraphicsPreset::PC_Ultra ? 1 : 0);
-		SetCVarInt(TEXT("r.RayTracing.Skylight"), 1);
+		const bool bUltra = State.Preset == EAshlineGraphicsPreset::PC_Ultra;
+		SetCVarInt(TEXT("r.RayTracing.Shadows"), bUltra ? 1 : 0);
+		SetCVarInt(TEXT("r.RayTracing.Skylight"), bUltra || State.Preset == EAshlineGraphicsPreset::PC_Balanced ? 1 : 0);
+		SetCVarInt(TEXT("r.RayTracing.Geometry.SkeletalMeshes"), bUltra ? 1 : 0);
+		SetCVarInt(TEXT("r.SkinCache.Mode"), 1);
+	}
+	else
+	{
+		SetCVarInt(TEXT("r.RayTracing.Shadows"), 0);
+		SetCVarInt(TEXT("r.RayTracing.Skylight"), 0);
 	}
 }
 
@@ -378,6 +434,33 @@ bool UAshlineGraphicsSettings::HasCVar(const TCHAR* Name)
 	return IConsoleManager::Get().FindConsoleVariable(Name) != nullptr;
 }
 
+void UAshlineGraphicsSettings::ApplyPerfPreset()
+{
+	ApplyPreset(EAshlineGraphicsPreset::PC_Perf);
+}
+
+void UAshlineGraphicsSettings::ApplySteamDeckPreset()
+{
+	ApplyPreset(EAshlineGraphicsPreset::SteamDeck);
+	if (UAshlineGameUserSettings* User = UAshlineGameUserSettings::GetAshlineSettings())
+	{
+		User->TargetResX = 1280;
+		User->TargetResY = 800;
+		User->SetVSyncEnabled(true);
+		User->SetFrameRateLimit(60.f);
+	}
+}
+
+void UAshlineGraphicsSettings::ApplyLowPreset()
+{
+	ApplyPreset(EAshlineGraphicsPreset::Low);
+}
+
+void UAshlineGraphicsSettings::ApplyMediumPreset()
+{
+	ApplyPreset(EAshlineGraphicsPreset::Medium);
+}
+
 void UAshlineGraphicsSettings::ApplyUltraPreset()
 {
 	ApplyPreset(EAshlineGraphicsPreset::PC_Ultra);
@@ -400,6 +483,26 @@ void UAshlineGraphicsSettings::RegisterConsoleCommands()
 		TEXT("AshPCBalanced"),
 		TEXT("Apply Ashline_PC_Balanced."),
 		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplyBalancedPreset),
+		ECVF_Default));
+	ConsoleObjects.Add(CM.RegisterConsoleCommand(
+		TEXT("AshPCPerf"),
+		TEXT("Apply Ashline_PC_Perf (9070 GRE / high-end fps)."),
+		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplyPerfPreset),
+		ECVF_Default));
+	ConsoleObjects.Add(CM.RegisterConsoleCommand(
+		TEXT("AshSteamDeck"),
+		TEXT("Apply Ashline_SteamDeck (1280x800, 60 fps, RT off)."),
+		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplySteamDeckPreset),
+		ECVF_Default));
+	ConsoleObjects.Add(CM.RegisterConsoleCommand(
+		TEXT("AshPCLow"),
+		TEXT("Apply Low PC preset."),
+		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplyLowPreset),
+		ECVF_Default));
+	ConsoleObjects.Add(CM.RegisterConsoleCommand(
+		TEXT("AshPCMed"),
+		TEXT("Apply Medium PC preset."),
+		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplyMediumPreset),
 		ECVF_Default));
 }
 

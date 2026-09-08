@@ -79,6 +79,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
 	void ApplyCharm(FName CharmId);
 
+	UFUNCTION(BlueprintCallable, Category = "Ashline|Weapons")
+	void CycleFireMode();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	EAshlineFireMode GetFireMode() const;
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	EAshlineAmmoType GetAmmoType() const;
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	bool IsAiming() const { return bAiming; }
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Weapons")
+	float GetAdsAlpha() const { return AdsAlpha; }
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ashline|Weapons")
 	float TraceDistance = 20000.f;
 
@@ -125,8 +140,20 @@ private:
 	void ApplyTintToWeaponMeshes(const FLinearColor& Tint, UMaterialInterface* Override);
 	void PlayFireAudio();
 	void PlayReloadAudio();
+	void TickGunfeel(float DeltaTime);
+	void ApplySwayAndAdsPose(float DeltaTime);
+	float CurrentSpread() const;
+	FAshlineRuntimeWeapon& MutableActive();
 
 	FName EquippedCharmId;
+	int32 ConsecutiveShots = 0;
+	int32 BurstRemaining = 0;
+	float RecoilPitchAccum = 0.f;
+	float RecoilYawAccum = 0.f;
+	float SwayTime = 0.f;
+	float AdsAlpha = 0.f;
+	FVector HipOffset = FVector(28.f, 14.f, -10.f);
+	FVector AdsOffset = FVector(22.f, 4.f, -6.f);
 
 	UPROPERTY()
 	FAshlineRuntimeWeapon PrimaryWeapon;

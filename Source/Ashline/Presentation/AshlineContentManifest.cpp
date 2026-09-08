@@ -33,6 +33,9 @@ namespace AshlineManifest
 		case EAshlineAIArchetype::Scout: return TEXT("Scout");
 		case EAshlineAIArchetype::Heavy: return TEXT("Heavy");
 		case EAshlineAIArchetype::CivilianIrregular: return TEXT("Irregular");
+		case EAshlineAIArchetype::Grenadier: return TEXT("Grenadier");
+		case EAshlineAIArchetype::Elite: return TEXT("Elite");
+		case EAshlineAIArchetype::Spotter: return TEXT("Spotter");
 		default: return TEXT("Rifleman");
 		}
 	}
@@ -145,6 +148,32 @@ FString UAshlineContentManifest::SkinMaterialPath(FName SkinId)
 		*SkinId.ToString(), *SkinId.ToString());
 }
 
+FString UAshlineContentManifest::SkinMeshPath(FName SkinId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Weapons/Meshes/SM_%s.SM_%s"),
+		*SkinId.ToString(), *SkinId.ToString());
+}
+
+FString UAshlineContentManifest::MasterWeaponMaterialPath()
+{
+	return TEXT("/Game/Ashline/Materials/PBR/M_WeaponMaster.M_WeaponMaster");
+}
+
+FString UAshlineContentManifest::MasterSkinMaterialPath()
+{
+	return TEXT("/Game/Ashline/Materials/PBR/M_SkinMaster.M_SkinMaster");
+}
+
+FString UAshlineContentManifest::MasterCharacterMaterialPath()
+{
+	return TEXT("/Game/Ashline/Materials/PBR/M_CharacterMaster.M_CharacterMaster");
+}
+
+FString UAshlineContentManifest::MasterEnvironmentMaterialPath()
+{
+	return TEXT("/Game/Ashline/Materials/PBR/M_EnvironmentMaster.M_EnvironmentMaster");
+}
+
 FString UAshlineContentManifest::SkinDataAssetPath(FName SkinId)
 {
 	return FString::Printf(TEXT("/Game/Ashline/Data/Kits/DA_SKIN_%s.DA_SKIN_%s"),
@@ -215,4 +244,22 @@ FString UAshlineContentManifest::SlotFolderName(EAshlineCosmeticSlot Slot)
 	case EAshlineCosmeticSlot::Charm: return TEXT("Charm");
 	default: return TEXT("Other");
 	}
+}
+
+FString UAshlineContentManifest::EquipmentMeshPath(FName EquipmentId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Weapons/Equipment/SM_%s.SM_%s"),
+		*EquipmentId.ToString(), *EquipmentId.ToString());
+}
+
+FString UAshlineContentManifest::EquipmentMaterialPath(FName EquipmentId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Weapons/Materials/M_%s.M_%s"),
+		*EquipmentId.ToString(), *EquipmentId.ToString());
+}
+
+FString UAshlineContentManifest::EquipmentDataAssetPath(FName EquipmentId)
+{
+	return FString::Printf(TEXT("/Game/Ashline/Data/Kits/DA_EQ_%s.DA_EQ_%s"),
+		*EquipmentId.ToString(), *EquipmentId.ToString());
 }

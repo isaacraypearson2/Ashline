@@ -1,17 +1,15 @@
 {
-  "note": "Canonical soft-ref map. C++ UAshlineContentManifest + UAshlineMetaCatalog bind the same paths. Binaries are not in git — drop Fab/MetaHuman/Megascans onto these names and MeshOverride/MaterialOverride resolve.",
+  "note": "Canonical soft-ref map. C++ UAshlineContentManifest + UAshlineMetaCatalog bind the same paths. Binaries are not in git \u2014 drop Fab/MetaHuman/Megascans onto these names and MeshOverride/MaterialOverride resolve.",
   "hero": {
     "body": "/Game/Ashline/Characters/Hero/SK_AshlineHero.SK_AshlineHero",
     "face": "/Game/Ashline/Characters/Hero/SK_AshlineHero_Face.SK_AshlineHero_Face",
     "presentation": "/Game/Ashline/Data/Kits/DA_Hero_Operator.DA_Hero_Operator",
-    "interimCandidates": [
-      "/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple",
-      "/Game/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny",
-      "/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple",
-      "/Game/GameAnimationSample/Characters/UEFN_Mannequin/Meshes/SKM_UEFN_Mannequin.SKM_UEFN_Mannequin",
-      "/Engine/EngineMeshes/SkeletalMesh/SK_Mannequin.SK_Mannequin",
-      "/Engine/EditorMeshes/AssetViewer/SkeletalMesh/DefaultSkeletalMesh.DefaultSkeletalMesh"
-    ]
+    "masters": {
+      "weapon": "/Game/Ashline/Materials/PBR/M_WeaponMaster.M_WeaponMaster",
+      "skin": "/Game/Ashline/Materials/PBR/M_SkinMaster.M_SkinMaster",
+      "character": "/Game/Ashline/Materials/PBR/M_CharacterMaster.M_CharacterMaster",
+      "environment": "/Game/Ashline/Materials/PBR/M_EnvironmentMaster.M_EnvironmentMaster"
+    }
   },
   "ai": {
     "Rifleman": "/Game/Ashline/Characters/AI/SK_AI_Rifleman.SK_AI_Rifleman",
@@ -21,7 +19,10 @@
     "Officer": "/Game/Ashline/Characters/AI/SK_AI_Officer.SK_AI_Officer",
     "Scout": "/Game/Ashline/Characters/AI/SK_AI_Scout.SK_AI_Scout",
     "Heavy": "/Game/Ashline/Characters/AI/SK_AI_Heavy.SK_AI_Heavy",
-    "Irregular": "/Game/Ashline/Characters/AI/SK_AI_Irregular.SK_AI_Irregular"
+    "Irregular": "/Game/Ashline/Characters/AI/SK_AI_Irregular.SK_AI_Irregular",
+    "Grenadier": "/Game/Ashline/Characters/AI/SK_AI_Grenadier.SK_AI_Grenadier",
+    "Elite": "/Game/Ashline/Characters/AI/SK_AI_Elite.SK_AI_Elite",
+    "Spotter": "/Game/Ashline/Characters/AI/SK_AI_Spotter.SK_AI_Spotter"
   },
   "pathConventions": {
     "cosmeticSkeletal": "/Game/Ashline/Characters/Hero/Cosmetics/SK_{Id}.SK_{Id}",
@@ -30,64 +31,895 @@
     "cosmeticMaterial": "/Game/Ashline/Materials/Cosmetics/M_{Id}.M_{Id}",
     "cosmeticDataAsset": "/Game/Ashline/Data/Kits/DA_COS_{Id}.DA_COS_{Id}",
     "skinMaterial": "/Game/Ashline/Weapons/Materials/M_{Id}.M_{Id}",
+    "skinMesh": "/Game/Ashline/Weapons/Meshes/SM_{Id}.SM_{Id}",
     "skinDataAsset": "/Game/Ashline/Data/Kits/DA_SKIN_{Id}.DA_SKIN_{Id}",
     "weaponMesh": "/Game/Ashline/Weapons/Meshes/SM_{Id}.SM_{Id}",
     "weaponDataAsset": "/Game/Ashline/Data/Kits/DA_WPN_{Id}.DA_WPN_{Id}",
+    "equipmentMesh": "/Game/Ashline/Weapons/Equipment/SM_{Id}.SM_{Id}",
+    "equipmentMaterial": "/Game/Ashline/Weapons/Materials/M_{Id}.M_{Id}",
+    "equipmentDataAsset": "/Game/Ashline/Data/Kits/DA_EQ_{Id}.DA_EQ_{Id}",
     "kitGround": "/Game/Ashline/Environments/{Slug}/M_Ground_{Slug}.M_Ground_{Slug}",
     "kitWall": "/Game/Ashline/Environments/{Slug}/M_Wall_{Slug}.M_Wall_{Slug}",
     "kitTrim": "/Game/Ashline/Environments/{Slug}/M_Trim_{Slug}.M_Trim_{Slug}",
     "kitDataAsset": "/Game/Ashline/Data/Kits/DA_Kit_ASH{NN}.DA_Kit_ASH{NN}"
   },
   "cosmetics": {
-    "CAMO_FIELD": { "slot": "Camo", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_FIELD.SK_CAMO_FIELD", "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_FIELD.M_CAMO_FIELD" },
-    "CAMO_NIGHT": { "slot": "Camo", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_NIGHT.SK_CAMO_NIGHT", "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_NIGHT.M_CAMO_NIGHT" },
-    "CAMO_DUST": { "slot": "Camo", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_DUST.SK_CAMO_DUST", "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_DUST.M_CAMO_DUST" },
-    "CAMO_WHITEOUT": { "slot": "Camo", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_WHITEOUT.SK_CAMO_WHITEOUT", "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_WHITEOUT.M_CAMO_WHITEOUT" },
-    "CAMO_ASHLINE": { "slot": "Camo", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_ASHLINE.SK_CAMO_ASHLINE", "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_ASHLINE.M_CAMO_ASHLINE" },
-    "CAMO_PRESTIGE": { "slot": "Camo", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_PRESTIGE.SK_CAMO_PRESTIGE", "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_PRESTIGE.M_CAMO_PRESTIGE" },
-    "HELM_PATROL": { "slot": "Helmet", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_PATROL.SK_HELM_PATROL", "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_PATROL.SM_HELM_PATROL", "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_PATROL.M_HELM_PATROL" },
-    "HELM_FAST": { "slot": "Helmet", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_FAST.SK_HELM_FAST", "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_FAST.SM_HELM_FAST", "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_FAST.M_HELM_FAST" },
-    "HELM_BOONIE": { "slot": "Helmet", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_BOONIE.SK_HELM_BOONIE", "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_BOONIE.SM_HELM_BOONIE", "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_BOONIE.M_HELM_BOONIE" },
-    "VEST_PLATE": { "slot": "Vest", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_PLATE.SK_VEST_PLATE", "part": "/Game/Ashline/Characters/Hero/Parts/Vest/SM_VEST_PLATE.SM_VEST_PLATE", "material": "/Game/Ashline/Materials/Cosmetics/M_VEST_PLATE.M_VEST_PLATE" },
-    "VEST_HEAVY": { "slot": "Vest", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_HEAVY.SK_VEST_HEAVY", "part": "/Game/Ashline/Characters/Hero/Parts/Vest/SM_VEST_HEAVY.SM_VEST_HEAVY", "material": "/Game/Ashline/Materials/Cosmetics/M_VEST_HEAVY.M_VEST_HEAVY" },
-    "VEST_RECON": { "slot": "Vest", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_RECON.SK_VEST_RECON", "part": "/Game/Ashline/Characters/Hero/Parts/Vest/SM_VEST_RECON.SM_VEST_RECON", "material": "/Game/Ashline/Materials/Cosmetics/M_VEST_RECON.M_VEST_RECON" },
-    "PANT_FATIGUE": { "slot": "Pants", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_PANT_FATIGUE.SK_PANT_FATIGUE", "part": "/Game/Ashline/Characters/Hero/Parts/Pants/SM_PANT_FATIGUE.SM_PANT_FATIGUE", "material": "/Game/Ashline/Materials/Cosmetics/M_PANT_FATIGUE.M_PANT_FATIGUE" },
-    "PANT_CRYE": { "slot": "Pants", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_PANT_CRYE.SK_PANT_CRYE", "part": "/Game/Ashline/Characters/Hero/Parts/Pants/SM_PANT_CRYE.SM_PANT_CRYE", "material": "/Game/Ashline/Materials/Cosmetics/M_PANT_CRYE.M_PANT_CRYE" },
-    "GLOVE_NOMEX": { "slot": "Gloves", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_GLOVE_NOMEX.SK_GLOVE_NOMEX", "part": "/Game/Ashline/Characters/Hero/Parts/Gloves/SM_GLOVE_NOMEX.SM_GLOVE_NOMEX", "material": "/Game/Ashline/Materials/Cosmetics/M_GLOVE_NOMEX.M_GLOVE_NOMEX" },
-    "GLOVE_WINTER": { "slot": "Gloves", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_GLOVE_WINTER.SK_GLOVE_WINTER", "part": "/Game/Ashline/Characters/Hero/Parts/Gloves/SM_GLOVE_WINTER.SM_GLOVE_WINTER", "material": "/Game/Ashline/Materials/Cosmetics/M_GLOVE_WINTER.M_GLOVE_WINTER" },
-    "BOOT_COMBAT": { "slot": "Boots", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_BOOT_COMBAT.SK_BOOT_COMBAT", "part": "/Game/Ashline/Characters/Hero/Parts/Boots/SM_BOOT_COMBAT.SM_BOOT_COMBAT", "material": "/Game/Ashline/Materials/Cosmetics/M_BOOT_COMBAT.M_BOOT_COMBAT" },
-    "BOOT_DESERT": { "slot": "Boots", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_BOOT_DESERT.SK_BOOT_DESERT", "part": "/Game/Ashline/Characters/Hero/Parts/Boots/SM_BOOT_DESERT.SM_BOOT_DESERT", "material": "/Game/Ashline/Materials/Cosmetics/M_BOOT_DESERT.M_BOOT_DESERT" },
-    "FACE_00": { "slot": "Face", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_FACE_00.SK_FACE_00", "material": "/Game/Ashline/Materials/Cosmetics/M_FACE_00.M_FACE_00" },
-    "FACE_01": { "slot": "Face", "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_FACE_01.SK_FACE_01", "material": "/Game/Ashline/Materials/Cosmetics/M_FACE_01.M_FACE_01" },
-    "VOICE_NEUTRAL": { "slot": "Voice", "mesh": "", "material": "" },
-    "VOICE_HOLDFAST": { "slot": "Voice", "mesh": "", "material": "" },
-    "VOICE_HARBOR": { "slot": "Voice", "mesh": "", "material": "" },
-    "CHARM_WIRE": { "slot": "Charm", "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_WIRE.SM_CHARM_WIRE", "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_WIRE.M_CHARM_WIRE" },
-    "CHARM_SPINE": { "slot": "Charm", "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_SPINE.SM_CHARM_SPINE", "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_SPINE.M_CHARM_SPINE" }
+    "CAMO_FIELD": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_FIELD.SK_CAMO_FIELD",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_FIELD.M_CAMO_FIELD"
+    },
+    "CAMO_NIGHT": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_NIGHT.SK_CAMO_NIGHT",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_NIGHT.M_CAMO_NIGHT"
+    },
+    "CAMO_DUST": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_DUST.SK_CAMO_DUST",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_DUST.M_CAMO_DUST"
+    },
+    "CAMO_WHITEOUT": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_WHITEOUT.SK_CAMO_WHITEOUT",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_WHITEOUT.M_CAMO_WHITEOUT"
+    },
+    "CAMO_ASHLINE": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_ASHLINE.SK_CAMO_ASHLINE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_ASHLINE.M_CAMO_ASHLINE"
+    },
+    "CAMO_PRESTIGE": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_PRESTIGE.SK_CAMO_PRESTIGE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_PRESTIGE.M_CAMO_PRESTIGE"
+    },
+    "CAMO_URBAN": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_URBAN.SK_CAMO_URBAN",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_URBAN.M_CAMO_URBAN"
+    },
+    "CAMO_WOODLAND": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_WOODLAND.SK_CAMO_WOODLAND",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_WOODLAND.M_CAMO_WOODLAND"
+    },
+    "CAMO_DIGITAL": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_DIGITAL.SK_CAMO_DIGITAL",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_DIGITAL.M_CAMO_DIGITAL"
+    },
+    "CAMO_HARBOR": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_HARBOR.SK_CAMO_HARBOR",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_HARBOR.M_CAMO_HARBOR"
+    },
+    "CAMO_CATACOMB": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_CATACOMB.SK_CAMO_CATACOMB",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_CATACOMB.M_CAMO_CATACOMB"
+    },
+    "CAMO_RIDGE": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_RIDGE.SK_CAMO_RIDGE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_RIDGE.M_CAMO_RIDGE"
+    },
+    "CAMO_CONVOY": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_CONVOY.SK_CAMO_CONVOY",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_CONVOY.M_CAMO_CONVOY"
+    },
+    "CAMO_TRAIN": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_TRAIN.SK_CAMO_TRAIN",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_TRAIN.M_CAMO_TRAIN"
+    },
+    "CAMO_MARITIME": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_MARITIME.SK_CAMO_MARITIME",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_MARITIME.M_CAMO_MARITIME"
+    },
+    "CAMO_ARID": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_ARID.SK_CAMO_ARID",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_ARID.M_CAMO_ARID"
+    },
+    "CAMO_FROST": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_FROST.SK_CAMO_FROST",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_FROST.M_CAMO_FROST"
+    },
+    "CAMO_GHOST": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_GHOST.SK_CAMO_GHOST",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_GHOST.M_CAMO_GHOST"
+    },
+    "CAMO_SPECTRE": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_SPECTRE.SK_CAMO_SPECTRE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_SPECTRE.M_CAMO_SPECTRE"
+    },
+    "CAMO_HOLDFAST": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_HOLDFAST.SK_CAMO_HOLDFAST",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_HOLDFAST.M_CAMO_HOLDFAST"
+    },
+    "CAMO_DIAMOND": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_DIAMOND.SK_CAMO_DIAMOND",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_DIAMOND.M_CAMO_DIAMOND"
+    },
+    "CAMO_MULTICAM": {
+      "slot": "Camo",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CAMO_MULTICAM.SK_CAMO_MULTICAM",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CAMO_MULTICAM.M_CAMO_MULTICAM"
+    },
+    "HELM_PATROL": {
+      "slot": "Helmet",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_PATROL.SK_HELM_PATROL",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_PATROL.M_HELM_PATROL",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_PATROL.SM_HELM_PATROL"
+    },
+    "HELM_FAST": {
+      "slot": "Helmet",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_FAST.SK_HELM_FAST",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_FAST.M_HELM_FAST",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_FAST.SM_HELM_FAST"
+    },
+    "HELM_BOONIE": {
+      "slot": "Helmet",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_BOONIE.SK_HELM_BOONIE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_BOONIE.M_HELM_BOONIE",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_BOONIE.SM_HELM_BOONIE"
+    },
+    "HELM_BERET": {
+      "slot": "Helmet",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_BERET.SK_HELM_BERET",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_BERET.M_HELM_BERET",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_BERET.SM_HELM_BERET"
+    },
+    "HELM_GAS": {
+      "slot": "Helmet",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_GAS.SK_HELM_GAS",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_GAS.M_HELM_GAS",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_GAS.SM_HELM_GAS"
+    },
+    "HELM_SHEMAGH": {
+      "slot": "Helmet",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_SHEMAGH.SK_HELM_SHEMAGH",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_SHEMAGH.M_HELM_SHEMAGH",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_SHEMAGH.SM_HELM_SHEMAGH"
+    },
+    "HELM_BALLISTIC": {
+      "slot": "Helmet",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_BALLISTIC.SK_HELM_BALLISTIC",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_BALLISTIC.M_HELM_BALLISTIC",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_BALLISTIC.SM_HELM_BALLISTIC"
+    },
+    "HELM_BEANIE": {
+      "slot": "Helmet",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_BEANIE.SK_HELM_BEANIE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_BEANIE.M_HELM_BEANIE",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_BEANIE.SM_HELM_BEANIE"
+    },
+    "HELM_NVG": {
+      "slot": "Helmet",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_NVG.SK_HELM_NVG",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_NVG.M_HELM_NVG",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_NVG.SM_HELM_NVG"
+    },
+    "HELM_CAP": {
+      "slot": "Helmet",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_CAP.SK_HELM_CAP",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_CAP.M_HELM_CAP",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_CAP.SM_HELM_CAP"
+    },
+    "HELM_MICH": {
+      "slot": "Helmet",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_MICH.SK_HELM_MICH",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_MICH.M_HELM_MICH",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_MICH.SM_HELM_MICH"
+    },
+    "HELM_PILOT": {
+      "slot": "Helmet",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_HELM_PILOT.SK_HELM_PILOT",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_HELM_PILOT.M_HELM_PILOT",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Helmet/SM_HELM_PILOT.SM_HELM_PILOT"
+    },
+    "VEST_PLATE": {
+      "slot": "Vest",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_PLATE.SK_VEST_PLATE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_VEST_PLATE.M_VEST_PLATE",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Vest/SM_VEST_PLATE.SM_VEST_PLATE"
+    },
+    "VEST_HEAVY": {
+      "slot": "Vest",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_HEAVY.SK_VEST_HEAVY",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_VEST_HEAVY.M_VEST_HEAVY",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Vest/SM_VEST_HEAVY.SM_VEST_HEAVY"
+    },
+    "VEST_RECON": {
+      "slot": "Vest",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_RECON.SK_VEST_RECON",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_VEST_RECON.M_VEST_RECON",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Vest/SM_VEST_RECON.SM_VEST_RECON"
+    },
+    "VEST_SLICK": {
+      "slot": "Vest",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_SLICK.SK_VEST_SLICK",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_VEST_SLICK.M_VEST_SLICK",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Vest/SM_VEST_SLICK.SM_VEST_SLICK"
+    },
+    "VEST_RAID": {
+      "slot": "Vest",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_RAID.SK_VEST_RAID",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_VEST_RAID.M_VEST_RAID",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Vest/SM_VEST_RAID.SM_VEST_RAID"
+    },
+    "VEST_CHEST": {
+      "slot": "Vest",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_CHEST.SK_VEST_CHEST",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_VEST_CHEST.M_VEST_CHEST",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Vest/SM_VEST_CHEST.SM_VEST_CHEST"
+    },
+    "VEST_AVIATOR": {
+      "slot": "Vest",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_AVIATOR.SK_VEST_AVIATOR",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_VEST_AVIATOR.M_VEST_AVIATOR",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Vest/SM_VEST_AVIATOR.SM_VEST_AVIATOR"
+    },
+    "VEST_RADIO": {
+      "slot": "Vest",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_RADIO.SK_VEST_RADIO",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_VEST_RADIO.M_VEST_RADIO",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Vest/SM_VEST_RADIO.SM_VEST_RADIO"
+    },
+    "VEST_JUMP": {
+      "slot": "Vest",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_VEST_JUMP.SK_VEST_JUMP",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_VEST_JUMP.M_VEST_JUMP",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Vest/SM_VEST_JUMP.SM_VEST_JUMP"
+    },
+    "PANT_FATIGUE": {
+      "slot": "Pants",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_PANT_FATIGUE.SK_PANT_FATIGUE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_PANT_FATIGUE.M_PANT_FATIGUE",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Pants/SM_PANT_FATIGUE.SM_PANT_FATIGUE"
+    },
+    "PANT_CRYE": {
+      "slot": "Pants",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_PANT_CRYE.SK_PANT_CRYE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_PANT_CRYE.M_PANT_CRYE",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Pants/SM_PANT_CRYE.SM_PANT_CRYE"
+    },
+    "PANT_CARGO": {
+      "slot": "Pants",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_PANT_CARGO.SK_PANT_CARGO",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_PANT_CARGO.M_PANT_CARGO",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Pants/SM_PANT_CARGO.SM_PANT_CARGO"
+    },
+    "PANT_ALPINE": {
+      "slot": "Pants",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_PANT_ALPINE.SK_PANT_ALPINE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_PANT_ALPINE.M_PANT_ALPINE",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Pants/SM_PANT_ALPINE.SM_PANT_ALPINE"
+    },
+    "PANT_URBAN": {
+      "slot": "Pants",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_PANT_URBAN.SK_PANT_URBAN",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_PANT_URBAN.M_PANT_URBAN",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Pants/SM_PANT_URBAN.SM_PANT_URBAN"
+    },
+    "PANT_G3": {
+      "slot": "Pants",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_PANT_G3.SK_PANT_G3",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_PANT_G3.M_PANT_G3",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Pants/SM_PANT_G3.SM_PANT_G3"
+    },
+    "PANT_JEANS": {
+      "slot": "Pants",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_PANT_JEANS.SK_PANT_JEANS",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_PANT_JEANS.M_PANT_JEANS",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Pants/SM_PANT_JEANS.SM_PANT_JEANS"
+    },
+    "GLOVE_NOMEX": {
+      "slot": "Gloves",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_GLOVE_NOMEX.SK_GLOVE_NOMEX",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_GLOVE_NOMEX.M_GLOVE_NOMEX",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Gloves/SM_GLOVE_NOMEX.SM_GLOVE_NOMEX"
+    },
+    "GLOVE_WINTER": {
+      "slot": "Gloves",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_GLOVE_WINTER.SK_GLOVE_WINTER",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_GLOVE_WINTER.M_GLOVE_WINTER",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Gloves/SM_GLOVE_WINTER.SM_GLOVE_WINTER"
+    },
+    "GLOVE_TACTICAL": {
+      "slot": "Gloves",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_GLOVE_TACTICAL.SK_GLOVE_TACTICAL",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_GLOVE_TACTICAL.M_GLOVE_TACTICAL",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Gloves/SM_GLOVE_TACTICAL.SM_GLOVE_TACTICAL"
+    },
+    "GLOVE_CUT": {
+      "slot": "Gloves",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_GLOVE_CUT.SK_GLOVE_CUT",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_GLOVE_CUT.M_GLOVE_CUT",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Gloves/SM_GLOVE_CUT.SM_GLOVE_CUT"
+    },
+    "GLOVE_WOOL": {
+      "slot": "Gloves",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_GLOVE_WOOL.SK_GLOVE_WOOL",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_GLOVE_WOOL.M_GLOVE_WOOL",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Gloves/SM_GLOVE_WOOL.SM_GLOVE_WOOL"
+    },
+    "GLOVE_HALF": {
+      "slot": "Gloves",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_GLOVE_HALF.SK_GLOVE_HALF",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_GLOVE_HALF.M_GLOVE_HALF",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Gloves/SM_GLOVE_HALF.SM_GLOVE_HALF"
+    },
+    "BOOT_COMBAT": {
+      "slot": "Boots",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_BOOT_COMBAT.SK_BOOT_COMBAT",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_BOOT_COMBAT.M_BOOT_COMBAT",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Boots/SM_BOOT_COMBAT.SM_BOOT_COMBAT"
+    },
+    "BOOT_DESERT": {
+      "slot": "Boots",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_BOOT_DESERT.SK_BOOT_DESERT",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_BOOT_DESERT.M_BOOT_DESERT",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Boots/SM_BOOT_DESERT.SM_BOOT_DESERT"
+    },
+    "BOOT_ALPINE": {
+      "slot": "Boots",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_BOOT_ALPINE.SK_BOOT_ALPINE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_BOOT_ALPINE.M_BOOT_ALPINE",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Boots/SM_BOOT_ALPINE.SM_BOOT_ALPINE"
+    },
+    "BOOT_MARITIME": {
+      "slot": "Boots",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_BOOT_MARITIME.SK_BOOT_MARITIME",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_BOOT_MARITIME.M_BOOT_MARITIME",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Boots/SM_BOOT_MARITIME.SM_BOOT_MARITIME"
+    },
+    "BOOT_HIKE": {
+      "slot": "Boots",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_BOOT_HIKE.SK_BOOT_HIKE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_BOOT_HIKE.M_BOOT_HIKE",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Boots/SM_BOOT_HIKE.SM_BOOT_HIKE"
+    },
+    "BOOT_TANKER": {
+      "slot": "Boots",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_BOOT_TANKER.SK_BOOT_TANKER",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_BOOT_TANKER.M_BOOT_TANKER",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Boots/SM_BOOT_TANKER.SM_BOOT_TANKER"
+    },
+    "FACE_00": {
+      "slot": "Face",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_FACE_00.SK_FACE_00",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_FACE_00.M_FACE_00",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Face/SM_FACE_00.SM_FACE_00"
+    },
+    "FACE_01": {
+      "slot": "Face",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_FACE_01.SK_FACE_01",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_FACE_01.M_FACE_01",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Face/SM_FACE_01.SM_FACE_01"
+    },
+    "FACE_02": {
+      "slot": "Face",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_FACE_02.SK_FACE_02",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_FACE_02.M_FACE_02",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Face/SM_FACE_02.SM_FACE_02"
+    },
+    "FACE_03": {
+      "slot": "Face",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_FACE_03.SK_FACE_03",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_FACE_03.M_FACE_03",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Face/SM_FACE_03.SM_FACE_03"
+    },
+    "FACE_04": {
+      "slot": "Face",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_FACE_04.SK_FACE_04",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_FACE_04.M_FACE_04",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Face/SM_FACE_04.SM_FACE_04"
+    },
+    "FACE_05": {
+      "slot": "Face",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_FACE_05.SK_FACE_05",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_FACE_05.M_FACE_05",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Face/SM_FACE_05.SM_FACE_05"
+    },
+    "FACE_06": {
+      "slot": "Face",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_FACE_06.SK_FACE_06",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_FACE_06.M_FACE_06",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Face/SM_FACE_06.SM_FACE_06"
+    },
+    "FACE_07": {
+      "slot": "Face",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_FACE_07.SK_FACE_07",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_FACE_07.M_FACE_07",
+      "part": "/Game/Ashline/Characters/Hero/Parts/Face/SM_FACE_07.SM_FACE_07"
+    },
+    "VOICE_NEUTRAL": {
+      "slot": "Voice",
+      "mesh": "",
+      "material": ""
+    },
+    "VOICE_HOLDFAST": {
+      "slot": "Voice",
+      "mesh": "",
+      "material": ""
+    },
+    "VOICE_HARBOR": {
+      "slot": "Voice",
+      "mesh": "",
+      "material": ""
+    },
+    "VOICE_RIDGE": {
+      "slot": "Voice",
+      "mesh": "",
+      "material": ""
+    },
+    "VOICE_WHITEOUT": {
+      "slot": "Voice",
+      "mesh": "",
+      "material": ""
+    },
+    "VOICE_NIGHT": {
+      "slot": "Voice",
+      "mesh": "",
+      "material": ""
+    },
+    "VOICE_RADIO": {
+      "slot": "Voice",
+      "mesh": "",
+      "material": ""
+    },
+    "VOICE_TERMINUS": {
+      "slot": "Voice",
+      "mesh": "",
+      "material": ""
+    },
+    "CHARM_WIRE": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_WIRE.SK_CHARM_WIRE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_WIRE.M_CHARM_WIRE",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_WIRE.SM_CHARM_WIRE"
+    },
+    "CHARM_SPINE": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_SPINE.SK_CHARM_SPINE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_SPINE.M_CHARM_SPINE",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_SPINE.SM_CHARM_SPINE"
+    },
+    "CHARM_DUST": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_DUST.SK_CHARM_DUST",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_DUST.M_CHARM_DUST",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_DUST.SM_CHARM_DUST"
+    },
+    "CHARM_HOLDFAST": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_HOLDFAST.SK_CHARM_HOLDFAST",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_HOLDFAST.M_CHARM_HOLDFAST",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_HOLDFAST.SM_CHARM_HOLDFAST"
+    },
+    "CHARM_GLASS": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_GLASS.SK_CHARM_GLASS",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_GLASS.M_CHARM_GLASS",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_GLASS.SM_CHARM_GLASS"
+    },
+    "CHARM_CONVOY": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_CONVOY.SK_CHARM_CONVOY",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_CONVOY.M_CHARM_CONVOY",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_CONVOY.SM_CHARM_CONVOY"
+    },
+    "CHARM_HARBOR": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_HARBOR.SK_CHARM_HARBOR",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_HARBOR.M_CHARM_HARBOR",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_HARBOR.SM_CHARM_HARBOR"
+    },
+    "CHARM_WHITEOUT": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_WHITEOUT.SK_CHARM_WHITEOUT",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_WHITEOUT.M_CHARM_WHITEOUT",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_WHITEOUT.SM_CHARM_WHITEOUT"
+    },
+    "CHARM_CATACOMB": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_CATACOMB.SK_CHARM_CATACOMB",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_CATACOMB.M_CHARM_CATACOMB",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_CATACOMB.SM_CHARM_CATACOMB"
+    },
+    "CHARM_RIDGE": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_RIDGE.SK_CHARM_RIDGE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_RIDGE.M_CHARM_RIDGE",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_RIDGE.SM_CHARM_RIDGE"
+    },
+    "CHARM_FLAG": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_FLAG.SK_CHARM_FLAG",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_FLAG.M_CHARM_FLAG",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_FLAG.SM_CHARM_FLAG"
+    },
+    "CHARM_TRAIN": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_TRAIN.SK_CHARM_TRAIN",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_TRAIN.M_CHARM_TRAIN",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_TRAIN.SM_CHARM_TRAIN"
+    },
+    "CHARM_TERMINUS": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_TERMINUS.SK_CHARM_TERMINUS",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_TERMINUS.M_CHARM_TERMINUS",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_TERMINUS.SM_CHARM_TERMINUS"
+    },
+    "CHARM_DOGTAG": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_DOGTAG.SK_CHARM_DOGTAG",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_DOGTAG.M_CHARM_DOGTAG",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_DOGTAG.SM_CHARM_DOGTAG"
+    },
+    "CHARM_CASING": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_CASING.SK_CHARM_CASING",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_CASING.M_CHARM_CASING",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_CASING.SM_CHARM_CASING"
+    },
+    "CHARM_KNIFE": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_KNIFE.SK_CHARM_KNIFE",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_KNIFE.M_CHARM_KNIFE",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_KNIFE.SM_CHARM_KNIFE"
+    },
+    "CHARM_DIAMOND": {
+      "slot": "Charm",
+      "mesh": "/Game/Ashline/Characters/Hero/Cosmetics/SK_CHARM_DIAMOND.SK_CHARM_DIAMOND",
+      "material": "/Game/Ashline/Materials/Cosmetics/M_CHARM_DIAMOND.M_CHARM_DIAMOND",
+      "part": "/Game/Ashline/Weapons/Charms/SM_CHARM_DIAMOND.SM_CHARM_DIAMOND"
+    }
   },
   "skins": {
-    "SKIN_FACTORY": { "material": "/Game/Ashline/Weapons/Materials/M_SKIN_FACTORY.M_SKIN_FACTORY" },
-    "SKIN_FDE": { "material": "/Game/Ashline/Weapons/Materials/M_SKIN_FDE.M_SKIN_FDE" },
-    "SKIN_OD": { "material": "/Game/Ashline/Weapons/Materials/M_SKIN_OD.M_SKIN_OD" },
-    "SKIN_SNOW": { "material": "/Game/Ashline/Weapons/Materials/M_SKIN_SNOW.M_SKIN_SNOW" },
-    "SKIN_GOLD": { "material": "/Game/Ashline/Weapons/Materials/M_SKIN_GOLD.M_SKIN_GOLD" },
-    "SKIN_ASH16_NIGHT": { "material": "/Game/Ashline/Weapons/Materials/M_SKIN_ASH16_NIGHT.M_SKIN_ASH16_NIGHT", "weapon": "WPN_AR_ASH16" },
-    "SKIN_C9_DUST": { "material": "/Game/Ashline/Weapons/Materials/M_SKIN_C9_DUST.M_SKIN_C9_DUST", "weapon": "WPN_SMG_C9" },
-    "SKIN_G28_GLASS": { "material": "/Game/Ashline/Weapons/Materials/M_SKIN_G28_GLASS.M_SKIN_G28_GLASS", "weapon": "WPN_SNP_G28L" },
-    "SKIN_M870_BREACH": { "material": "/Game/Ashline/Weapons/Materials/M_SKIN_M870_BREACH.M_SKIN_M870_BREACH", "weapon": "WPN_SHG_M870K" },
-    "SKIN_M17_SIDE": { "material": "/Game/Ashline/Weapons/Materials/M_SKIN_M17_SIDE.M_SKIN_M17_SIDE", "weapon": "WPN_PIS_M17A" },
-    "SKIN_SASS_MARK": { "material": "/Game/Ashline/Weapons/Materials/M_SKIN_SASS_MARK.M_SKIN_SASS_MARK", "weapon": "WPN_DMR_SASS" },
-    "SKIN_M250_SAW": { "material": "/Game/Ashline/Weapons/Materials/M_SKIN_M250_SAW.M_SKIN_M250_SAW", "weapon": "WPN_LMG_M250" }
+    "SKIN_FACTORY": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_FACTORY.M_SKIN_FACTORY"
+    },
+    "SKIN_FDE": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_FDE.M_SKIN_FDE"
+    },
+    "SKIN_OD": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_OD.M_SKIN_OD"
+    },
+    "SKIN_SNOW": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_SNOW.M_SKIN_SNOW"
+    },
+    "SKIN_GOLD": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_GOLD.M_SKIN_GOLD"
+    },
+    "SKIN_URBAN": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_URBAN.M_SKIN_URBAN"
+    },
+    "SKIN_RUST": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_RUST.M_SKIN_RUST"
+    },
+    "SKIN_DIGITAL": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_DIGITAL.M_SKIN_DIGITAL"
+    },
+    "SKIN_CHROME": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_CHROME.M_SKIN_CHROME"
+    },
+    "SKIN_NIGHTWIRE": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_NIGHTWIRE.M_SKIN_NIGHTWIRE"
+    },
+    "SKIN_BLOODLINE": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_BLOODLINE.M_SKIN_BLOODLINE"
+    },
+    "SKIN_GLACIER": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_GLACIER.M_SKIN_GLACIER"
+    },
+    "SKIN_COPPER": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_COPPER.M_SKIN_COPPER"
+    },
+    "SKIN_GHOST": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_GHOST.M_SKIN_GHOST"
+    },
+    "SKIN_CARBON": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_CARBON.M_SKIN_CARBON"
+    },
+    "SKIN_TIGER": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_TIGER.M_SKIN_TIGER"
+    },
+    "SKIN_HEX": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_HEX.M_SKIN_HEX"
+    },
+    "SKIN_VOID": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_VOID.M_SKIN_VOID"
+    },
+    "SKIN_WIRECUT": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_WIRECUT.M_SKIN_WIRECUT"
+    },
+    "SKIN_TERMINUS_SET": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_TERMINUS_SET.M_SKIN_TERMINUS_SET"
+    },
+    "SKIN_HARBOR_SET": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_HARBOR_SET.M_SKIN_HARBOR_SET"
+    },
+    "SKIN_WHITEOUT_SET": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_WHITEOUT_SET.M_SKIN_WHITEOUT_SET"
+    },
+    "SKIN_ASH16_NIGHT": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_ASH16_NIGHT.M_SKIN_ASH16_NIGHT",
+      "weapon": "WPN_AR_ASH16"
+    },
+    "SKIN_M4K_RANGER": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_M4K_RANGER.M_SKIN_M4K_RANGER",
+      "weapon": "WPN_AR_M4K"
+    },
+    "SKIN_AK74_BIRCH": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_AK74_BIRCH.M_SKIN_AK74_BIRCH",
+      "weapon": "WPN_AR_AK74"
+    },
+    "SKIN_SCARH_TAN": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_SCARH_TAN.M_SKIN_SCARH_TAN",
+      "weapon": "WPN_AR_SCARH"
+    },
+    "SKIN_416C_BLACK": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_416C_BLACK.M_SKIN_416C_BLACK",
+      "weapon": "WPN_AR_416C"
+    },
+    "SKIN_C9_DUST": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_C9_DUST.M_SKIN_C9_DUST",
+      "weapon": "WPN_SMG_C9"
+    },
+    "SKIN_MPX_GRAPHITE": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_MPX_GRAPHITE.M_SKIN_MPX_GRAPHITE",
+      "weapon": "WPN_SMG_MPX"
+    },
+    "SKIN_VEC_STRIPE": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_VEC_STRIPE.M_SKIN_VEC_STRIPE",
+      "weapon": "WPN_SMG_VEC"
+    },
+    "SKIN_P90_FROST": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_P90_FROST.M_SKIN_P90_FROST",
+      "weapon": "WPN_SMG_P90"
+    },
+    "SKIN_M870_BREACH": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_M870_BREACH.M_SKIN_M870_BREACH",
+      "weapon": "WPN_SHG_M870K"
+    },
+    "SKIN_M1014_MARINE": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_M1014_MARINE.M_SKIN_M1014_MARINE",
+      "weapon": "WPN_SHG_M1014"
+    },
+    "SKIN_AA12_DRUM": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_AA12_DRUM.M_SKIN_AA12_DRUM",
+      "weapon": "WPN_SHG_AA12"
+    },
+    "SKIN_G28_GLASS": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_G28_GLASS.M_SKIN_G28_GLASS",
+      "weapon": "WPN_SNP_G28L"
+    },
+    "SKIN_M2010_GHILLIE": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_M2010_GHILLIE.M_SKIN_M2010_GHILLIE",
+      "weapon": "WPN_SNP_M2010"
+    },
+    "SKIN_AWM_MAGNUM": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_AWM_MAGNUM.M_SKIN_AWM_MAGNUM",
+      "weapon": "WPN_SNP_AWM"
+    },
+    "SKIN_SASS_MARK": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_SASS_MARK.M_SKIN_SASS_MARK",
+      "weapon": "WPN_DMR_SASS"
+    },
+    "SKIN_MK14_WOOD": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_MK14_WOOD.M_SKIN_MK14_WOOD",
+      "weapon": "WPN_DMR_MK14"
+    },
+    "SKIN_SVD_DRAGON": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_SVD_DRAGON.M_SKIN_SVD_DRAGON",
+      "weapon": "WPN_DMR_SVD"
+    },
+    "SKIN_M250_SAW": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_M250_SAW.M_SKIN_M250_SAW",
+      "weapon": "WPN_LMG_M250"
+    },
+    "SKIN_M240_OLIVE": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_M240_OLIVE.M_SKIN_M240_OLIVE",
+      "weapon": "WPN_LMG_M240"
+    },
+    "SKIN_PKM_RUST": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_PKM_RUST.M_SKIN_PKM_RUST",
+      "weapon": "WPN_LMG_PKM"
+    },
+    "SKIN_M17_SIDE": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_M17_SIDE.M_SKIN_M17_SIDE",
+      "weapon": "WPN_PIS_M17A"
+    },
+    "SKIN_G19_URBAN": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_G19_URBAN.M_SKIN_G19_URBAN",
+      "weapon": "WPN_PIS_G19"
+    },
+    "SKIN_DEAG_GOLD": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_DEAG_GOLD.M_SKIN_DEAG_GOLD",
+      "weapon": "WPN_PIS_DEAG"
+    },
+    "SKIN_MP443_FIELD": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_MP443_FIELD.M_SKIN_MP443_FIELD",
+      "weapon": "WPN_PIS_MP443"
+    },
+    "SKIN_AUG_OD": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_AUG_OD.M_SKIN_AUG_OD",
+      "weapon": "WPN_AR_AUG"
+    },
+    "SKIN_FAMAS_TRI": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_FAMAS_TRI.M_SKIN_FAMAS_TRI",
+      "weapon": "WPN_AR_FAMAS"
+    },
+    "SKIN_UMP_TAN": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_UMP_TAN.M_SKIN_UMP_TAN",
+      "weapon": "WPN_SMG_UMP"
+    },
+    "SKIN_UZI_NIGHT": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_UZI_NIGHT.M_SKIN_UZI_NIGHT",
+      "weapon": "WPN_SMG_UZI"
+    },
+    "SKIN_SPAS_BREACH": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_SPAS_BREACH.M_SKIN_SPAS_BREACH",
+      "weapon": "WPN_SHG_SPAS"
+    },
+    "SKIN_1911_IVORY": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_1911_IVORY.M_SKIN_1911_IVORY",
+      "weapon": "WPN_PIS_1911"
+    },
+    "SKIN_REV_SNAKE": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_REV_SNAKE.M_SKIN_REV_SNAKE",
+      "weapon": "WPN_PIS_REV"
+    },
+    "SKIN_RPG_WOOD": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_RPG_WOOD.M_SKIN_RPG_WOOD",
+      "weapon": "WPN_LCH_RPG"
+    },
+    "SKIN_AT4_OD": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_AT4_OD.M_SKIN_AT4_OD",
+      "weapon": "WPN_LCH_AT4"
+    },
+    "SKIN_KNIFE_BLACK": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_KNIFE_BLACK.M_SKIN_KNIFE_BLACK",
+      "weapon": "WPN_MEL_KNIFE"
+    },
+    "SKIN_TOMA_RUST": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_TOMA_RUST.M_SKIN_TOMA_RUST",
+      "weapon": "WPN_MEL_TOMA"
+    },
+    "SKIN_DIAMOND": {
+      "material": "/Game/Ashline/Weapons/Materials/M_SKIN_DIAMOND.M_SKIN_DIAMOND"
+    }
   },
   "weapons": [
     "WPN_AR_ASH16",
+    "WPN_AR_M4K",
+    "WPN_AR_AK74",
+    "WPN_AR_SCARH",
+    "WPN_AR_416C",
     "WPN_SMG_C9",
-    "WPN_SNP_G28L",
+    "WPN_SMG_MPX",
+    "WPN_SMG_VEC",
+    "WPN_SMG_P90",
     "WPN_SHG_M870K",
-    "WPN_PIS_M17A",
+    "WPN_SHG_M1014",
+    "WPN_SHG_AA12",
+    "WPN_SNP_G28L",
+    "WPN_SNP_M2010",
+    "WPN_SNP_AWM",
     "WPN_DMR_SASS",
-    "WPN_LMG_M250"
+    "WPN_DMR_MK14",
+    "WPN_DMR_SVD",
+    "WPN_LMG_M250",
+    "WPN_LMG_M240",
+    "WPN_LMG_PKM",
+    "WPN_PIS_M17A",
+    "WPN_PIS_G19",
+    "WPN_PIS_DEAG",
+    "WPN_PIS_MP443",
+    "WPN_AR_AUG",
+    "WPN_AR_FAMAS",
+    "WPN_SMG_UMP",
+    "WPN_SMG_UZI",
+    "WPN_SHG_SPAS",
+    "WPN_PIS_1911",
+    "WPN_PIS_REV",
+    "WPN_LCH_RPG",
+    "WPN_LCH_AT4",
+    "WPN_MEL_KNIFE",
+    "WPN_MEL_TOMA"
   ],
+  "equipment": {
+    "EQ_FRAG": {
+      "slot": "Lethal",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_FRAG.SM_EQ_FRAG",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_FRAG.M_EQ_FRAG"
+    },
+    "EQ_SEMTEX": {
+      "slot": "Lethal",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_SEMTEX.SM_EQ_SEMTEX",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_SEMTEX.M_EQ_SEMTEX"
+    },
+    "EQ_TKNIFE": {
+      "slot": "Lethal",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_TKNIFE.SM_EQ_TKNIFE",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_TKNIFE.M_EQ_TKNIFE"
+    },
+    "EQ_C4": {
+      "slot": "Lethal",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_C4.SM_EQ_C4",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_C4.M_EQ_C4"
+    },
+    "EQ_CLAYMORE": {
+      "slot": "Lethal",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_CLAYMORE.SM_EQ_CLAYMORE",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_CLAYMORE.M_EQ_CLAYMORE"
+    },
+    "EQ_MOLOTOV": {
+      "slot": "Lethal",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_MOLOTOV.SM_EQ_MOLOTOV",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_MOLOTOV.M_EQ_MOLOTOV"
+    },
+    "EQ_FLASH": {
+      "slot": "Tactical",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_FLASH.SM_EQ_FLASH",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_FLASH.M_EQ_FLASH"
+    },
+    "EQ_STUN": {
+      "slot": "Tactical",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_STUN.SM_EQ_STUN",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_STUN.M_EQ_STUN"
+    },
+    "EQ_SMOKE": {
+      "slot": "Tactical",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_SMOKE.SM_EQ_SMOKE",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_SMOKE.M_EQ_SMOKE"
+    },
+    "EQ_STIM": {
+      "slot": "Tactical",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_STIM.SM_EQ_STIM",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_STIM.M_EQ_STIM"
+    },
+    "EQ_DECOY": {
+      "slot": "Tactical",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_DECOY.SM_EQ_DECOY",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_DECOY.M_EQ_DECOY"
+    },
+    "EQ_TROPHY": {
+      "slot": "Tactical",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_TROPHY.SM_EQ_TROPHY",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_TROPHY.M_EQ_TROPHY"
+    },
+    "EQ_AMMO": {
+      "slot": "Field",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_AMMO.SM_EQ_AMMO",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_AMMO.M_EQ_AMMO"
+    },
+    "EQ_PLATE": {
+      "slot": "Field",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_PLATE.SM_EQ_PLATE",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_PLATE.M_EQ_PLATE"
+    },
+    "EQ_COVER": {
+      "slot": "Field",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_COVER.SM_EQ_COVER",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_COVER.M_EQ_COVER"
+    },
+    "EQ_HEARTBEAT": {
+      "slot": "Field",
+      "mesh": "/Game/Ashline/Weapons/Equipment/SM_EQ_HEARTBEAT.SM_EQ_HEARTBEAT",
+      "material": "/Game/Ashline/Weapons/Materials/M_EQ_HEARTBEAT.M_EQ_HEARTBEAT"
+    }
+  },
   "kits": [
     "ASH01_WireCut",
     "ASH02_DustMarket",

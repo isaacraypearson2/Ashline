@@ -94,6 +94,10 @@ private:
 
 	void ApplyUltraPreset();
 	void ApplyBalancedPreset();
+	void ApplyPerfPreset();
+	void ApplySteamDeckPreset();
+	void ApplyLowPreset();
+	void ApplyMediumPreset();
 	void RegisterConsoleCommands();
 	void UnregisterConsoleCommands();
 

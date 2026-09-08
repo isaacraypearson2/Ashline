@@ -3,12 +3,41 @@
   "metaHumanRoot": "/Game/Ashline/Characters/MetaHuman",
   "weapons": [
     "WPN_AR_ASH16",
+    "WPN_AR_M4K",
+    "WPN_AR_AK74",
+    "WPN_AR_SCARH",
+    "WPN_AR_416C",
     "WPN_SMG_C9",
-    "WPN_SNP_G28L",
+    "WPN_SMG_MPX",
+    "WPN_SMG_VEC",
+    "WPN_SMG_P90",
     "WPN_SHG_M870K",
-    "WPN_PIS_M17A",
+    "WPN_SHG_M1014",
+    "WPN_SHG_AA12",
+    "WPN_SNP_G28L",
+    "WPN_SNP_M2010",
+    "WPN_SNP_AWM",
     "WPN_DMR_SASS",
-    "WPN_LMG_M250"
+    "WPN_DMR_MK14",
+    "WPN_DMR_SVD",
+    "WPN_LMG_M250",
+    "WPN_LMG_M240",
+    "WPN_LMG_PKM",
+    "WPN_PIS_M17A",
+    "WPN_PIS_G19",
+    "WPN_PIS_DEAG",
+    "WPN_PIS_MP443",
+    "WPN_AR_AUG",
+    "WPN_AR_FAMAS",
+    "WPN_SMG_UMP",
+    "WPN_SMG_UZI",
+    "WPN_SHG_SPAS",
+    "WPN_PIS_1911",
+    "WPN_PIS_REV",
+    "WPN_LCH_RPG",
+    "WPN_LCH_AT4",
+    "WPN_MEL_KNIFE",
+    "WPN_MEL_TOMA"
   ],
   "kits": [
     "ASH01_WireCut",
@@ -24,5 +53,11 @@
     "ASH11_LastTrain",
     "ASH12_Ashline"
   ],
-  "note": "Binaries are not in git. Paths are resolved by UAshlineContentManifest. Cosmetic/skin overrides: ContentBindings.json."
+  "note": "Binaries are not in git. Paths are resolved by UAshlineContentManifest. Cosmetic/skin overrides: ContentBindings.json.",
+  "masters": {
+    "weapon": "/Game/Ashline/Materials/PBR/M_WeaponMaster.M_WeaponMaster",
+    "skin": "/Game/Ashline/Materials/PBR/M_SkinMaster.M_SkinMaster",
+    "character": "/Game/Ashline/Materials/PBR/M_CharacterMaster.M_CharacterMaster",
+    "environment": "/Game/Ashline/Materials/PBR/M_EnvironmentMaster.M_EnvironmentMaster"
+  }
 }

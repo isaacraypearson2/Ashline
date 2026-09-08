@@ -19,7 +19,7 @@ This repository is a full C++ Unreal project: campaign loop, weapons, AI, progre
 | RT | Hardware ray tracing **ON when the RHI reports it** |
 | Upscaling | **FSR 3** (Temporal Upscale). TSR is the built-in fallback. DLSS is optional and never required. |
 
-Named presets: **`Ashline_PC_Ultra`** (default on Windows) and **`Ashline_PC_Balanced`**. Console: `AshPCUltra` / `AshPCBalanced`. CVars: `Docs/GRAPHICS.md`.
+Named presets: **`Ashline_PC_Ultra`** (default on Windows), **`Ashline_PC_Balanced`**, **`Ashline_PC_Perf`**, **`Ashline_SteamDeck`**. Console: `AshPCUltra` / `AshPCBalanced` / `AshPCPerf` / `AshSteamDeck`. CVars: `Docs/GRAPHICS.md`. Overnight armory: `Docs/PHASE_OVERNIGHT.md`.
 
 ## Open on Windows (UE 5.8.2)
 
@@ -51,7 +51,7 @@ set PROJ=%CD%\Ashline.uproject
 2. **Up/Down** highlight ASH-01 Wire Cut (READY). **Left/Right** set difficulty. **Enter** deploys.
 3. In mission:
    - **WASD** move, **mouse** look, **Space** jump, **C** crouch
-   - **LMB** fire, **RMB** aim, **R** reload, **Q** swap, **V** FPS/TPS
+   - **LMB** fire, **RMB** aim, **R** reload, **B** fire-mode, **Q** swap, **V** FPS/TPS
    - Walk into **glowing objective markers** to complete. The extract / last required volume finishes the mission.
    - Hostiles use a **humanoid mesh when one can be resolved** (mannequin / MetaHuman / assigned DataAsset); otherwise a tinted blockout body.
 4. On **MISSION COMPLETE**, note XP / **credits** / crate tokens, press **Enter** to return to campaign select. ASH-02 is now READY. Frontend shows Rank / Prestige / Credits and the equipped camo + primary skin.
@@ -70,16 +70,16 @@ Ads stay off (`UAshlineMonetizationHooks`).
 | Playable ASH-01…12 campaign loop | Quixel / Fab Megascans environment kits |
 | Themed lighting, fog, PP, decals, foliage blockout | Authored `.umap` art passes per mission |
 | PBR-tinted Engine/StarterContent materials | Unique scanned surfaces |
-| Compound weapon meshes + muzzle light + impact decals | Fab military weapon packs (soft-ref swap) |
+| Weapons — 36-gun armory + attachments + gunfeel + skin tints | Fab military weapon packs (soft-ref swap) |
 | Hero/AI skeletal hooks (MetaHuman / mannequin) | MetaHuman Creator characters + AnimBPs |
 | Audio **slots** (fire / reload / hit / footsteps / music) | Authored MetaSounds / Sound Cues |
-| SP meta: credits, rank 1–50, cosmetics, weapon skins, prestige | MetaHuman wardrobe + Fab skin materials |
-| `Ashline_PC_Ultra` / `Balanced` + DX12 config | Profile on the 9070 GRE and tune |
+| SP meta: credits, rank 1–50, cosmetics, skins, equipment, prestige 1–2 | MetaHuman wardrobe + Fab skin materials |
+| `Ashline_PC_Ultra` / `Balanced` / `Perf` / `SteamDeck` + DX12 config | Profile on the 9070 GRE and tune |
 
 **This repo does not contain Quixel, Fab, or MetaHuman binary packs.** If those folders are empty, that is expected.
 
 **Install next (exact names / URLs / 1440p notes):** `Docs/PHASE2_FAB.md`  
-Also: `Docs/FAB_PACKS.md`, `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Docs/TEST_PLAN.md`.
+Also: `Docs/FAB_PACKS.md`, `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Docs/GRAPHICS.md`, `Docs/PHASE_OVERNIGHT.md`, `Docs/TEST_PLAN.md`.
 
 ## Campaign
 
@@ -99,17 +99,17 @@ Also: `Docs/FAB_PACKS.md`, `Docs/CONTENT_PIPELINE.md`, `Docs/CHARACTERS.md`, `Do
 | ASH-12 | Ashline | Finale — red buried terminus |
 
 Briefings, XP, and crate tokens: `UAshlineMissionCatalog` + `Content/Ashline/Data/Campaign.json`.  
-Locker / economy / prestige: `UAshlineMetaCatalog` + `Content/Ashline/Data/Meta.json` (`Docs/META.md`). Save: `UAshlineProgressionSubsystem`.
+Locker / economy / prestige: `UAshlineMetaCatalog` + `Content/Ashline/Data/Meta.json` (`Docs/META.md`). Armory: `Docs/PHASE_OVERNIGHT.md`. Save: `UAshlineProgressionSubsystem`.
 
 ## Systems
 
 - **FPS/TPS toggle** — first-person camera vs spring-arm third-person. Preference is saved.
-- **Weapons** — AR, SMG, sniper, shotgun, sidearm, DMR, LMG. Visual mesh + muzzle flash + impact decals + audio slots + **equipped skin tint** on `UAshlineWeaponComponent`.
-- **Operator locker** — clothing slots, camos, faces, voice packs, charms. Equipped ids tint the hero / blockout and hang a charm on the gun.
-- **Economy / prestige** — credits from missions and rank-ups; spend on cosmetics, skins, weapon upgrades; prestige at rank 50 keeps the locker and grants gilt.
-- **AI** — eight archetypes, perception + push/hold, humanoid mesh when assigned.
+- **Weapons** — AR, SMG, sniper, shotgun, sidearm, DMR, LMG, launcher, melee. Compound mesh + muzzle + impacts + fire modes + recoil patterns + equipped skin tint on `UAshlineWeaponComponent`.
+- **Operator locker** — clothing slots, camos, faces, voice packs, charms, lethals/tacticals/field. Equipped ids tint the hero / blockout and hang a charm on the gun.
+- **Economy / prestige** — credits from missions and rank-ups; spend on cosmetics, skins, paid guns, attachments, equipment, weapon upgrades; prestige at rank 50 keeps the locker and grants gilt (prestige 2 diamond).
+- **AI** — eleven archetypes, perception + push/hold, humanoid mesh when assigned.
 - **Difficulty** — Recruit, Regular, Veteran, Extreme.
-- **Graphics** — `UAshlineGraphicsSettings` (Windows FSR3/TSR/RT; Apple MetalFX still gated).
+- **Graphics** — `UAshlineGraphicsSettings` (Windows FSR3/TSR/RT + Steam Deck / Perf; Apple MetalFX still gated).
 - **MonetizationHooks** — stub only. Ads stay off. No multiplayer.
 
 ## Source layout

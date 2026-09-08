@@ -14,6 +14,9 @@ AI/SK_AI_Officer
 AI/SK_AI_Scout
 AI/SK_AI_Heavy
 AI/SK_AI_Irregular
+AI/SK_AI_Grenadier
+AI/SK_AI_Elite
+AI/SK_AI_Spotter
 ```
 
 Until those exist, runtime uses GASP/TP mannequin paths if migrated, else a **humanoid blockout** (head/torso/limbs). Capsules are hidden. Clothing parts: `Hero/Parts/{Slot}/SM_{Id}`. Import: `Docs/PHASE2_FAB.md`.

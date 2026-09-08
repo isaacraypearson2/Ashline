@@ -1,12 +1,308 @@
 {
+  "note": "Designer mirror. Runtime source of truth is UAshlineWeaponCatalog.",
   "roster": [
-    { "id": "WPN_AR_ASH16", "name": "ASH-16 Service Rifle", "class": "AssaultRifle", "unlock": 1 },
-    { "id": "WPN_SMG_C9", "name": "C9 Compact", "class": "SMG", "unlock": 2 },
-    { "id": "WPN_SNP_G28L", "name": "G28-L Marksman", "class": "Sniper", "unlock": 8 },
-    { "id": "WPN_SHG_M870K", "name": "M870-K Breacher", "class": "Shotgun", "unlock": 4 },
-    { "id": "WPN_PIS_M17A", "name": "M17-A Sidearm", "class": "Sidearm", "unlock": 1 },
-    { "id": "WPN_DMR_SASS", "name": "SASS-7 DMR", "class": "DMR", "unlock": 6 },
-    { "id": "WPN_LMG_M250", "name": "M250 SAW", "class": "LMG", "unlock": 10 }
+    {
+      "id": "WPN_AR_ASH16",
+      "name": "ASH-16 Service Rifle",
+      "class": "AssaultRifle",
+      "unlock": 1
+    },
+    {
+      "id": "WPN_AR_M4K",
+      "name": "M4-K Carbine",
+      "class": "AssaultRifle",
+      "unlock": 3
+    },
+    {
+      "id": "WPN_AR_AK74",
+      "name": "AK-74M",
+      "class": "AssaultRifle",
+      "unlock": 5
+    },
+    {
+      "id": "WPN_AR_SCARH",
+      "name": "SCAR-H Battle",
+      "class": "AssaultRifle",
+      "unlock": 12
+    },
+    {
+      "id": "WPN_AR_416C",
+      "name": "416C Compact",
+      "class": "AssaultRifle",
+      "unlock": 8
+    },
+    {
+      "id": "WPN_SMG_C9",
+      "name": "C9 Compact",
+      "class": "SMG",
+      "unlock": 2
+    },
+    {
+      "id": "WPN_SMG_MPX",
+      "name": "MPX-9",
+      "class": "SMG",
+      "unlock": 6
+    },
+    {
+      "id": "WPN_SMG_VEC",
+      "name": "Vector .45",
+      "class": "SMG",
+      "unlock": 14
+    },
+    {
+      "id": "WPN_SMG_P90",
+      "name": "P90-N",
+      "class": "SMG",
+      "unlock": 10
+    },
+    {
+      "id": "WPN_SHG_M870K",
+      "name": "M870-K Breacher",
+      "class": "Shotgun",
+      "unlock": 4
+    },
+    {
+      "id": "WPN_SHG_M1014",
+      "name": "M1014 Semi",
+      "class": "Shotgun",
+      "unlock": 9
+    },
+    {
+      "id": "WPN_SHG_AA12",
+      "name": "AA-12 Auto",
+      "class": "Shotgun",
+      "unlock": 18
+    },
+    {
+      "id": "WPN_SNP_G28L",
+      "name": "G28-L Marksman",
+      "class": "Sniper",
+      "unlock": 8
+    },
+    {
+      "id": "WPN_SNP_M2010",
+      "name": "M2010 ESR",
+      "class": "Sniper",
+      "unlock": 16
+    },
+    {
+      "id": "WPN_SNP_AWM",
+      "name": "AWM-X",
+      "class": "Sniper",
+      "unlock": 22
+    },
+    {
+      "id": "WPN_DMR_SASS",
+      "name": "SASS-7 DMR",
+      "class": "DMR",
+      "unlock": 6
+    },
+    {
+      "id": "WPN_DMR_MK14",
+      "name": "MK14 EBR",
+      "class": "DMR",
+      "unlock": 15
+    },
+    {
+      "id": "WPN_DMR_SVD",
+      "name": "SVD-M",
+      "class": "DMR",
+      "unlock": 11
+    },
+    {
+      "id": "WPN_LMG_M250",
+      "name": "M250 SAW",
+      "class": "LMG",
+      "unlock": 10
+    },
+    {
+      "id": "WPN_LMG_M240",
+      "name": "M240B",
+      "class": "LMG",
+      "unlock": 17
+    },
+    {
+      "id": "WPN_LMG_PKM",
+      "name": "PKM-N",
+      "class": "LMG",
+      "unlock": 20
+    },
+    {
+      "id": "WPN_PIS_M17A",
+      "name": "M17-A Sidearm",
+      "class": "Sidearm",
+      "unlock": 1
+    },
+    {
+      "id": "WPN_PIS_G19",
+      "name": "G19-C",
+      "class": "Sidearm",
+      "unlock": 4
+    },
+    {
+      "id": "WPN_PIS_DEAG",
+      "name": "D50 Magnum",
+      "class": "Sidearm",
+      "unlock": 13
+    },
+    {
+      "id": "WPN_PIS_MP443",
+      "name": "MP-443",
+      "class": "Sidearm",
+      "unlock": 7
+    },
+    {
+      "id": "WPN_AR_AUG",
+      "name": "AUG-A3",
+      "class": "AssaultRifle",
+      "unlock": 11
+    },
+    {
+      "id": "WPN_AR_FAMAS",
+      "name": "FAMAS F1",
+      "class": "AssaultRifle",
+      "unlock": 13
+    },
+    {
+      "id": "WPN_SMG_UMP",
+      "name": "UMP-45",
+      "class": "SMG",
+      "unlock": 9
+    },
+    {
+      "id": "WPN_SMG_UZI",
+      "name": "UZI-M",
+      "class": "SMG",
+      "unlock": 5
+    },
+    {
+      "id": "WPN_SHG_SPAS",
+      "name": "SPAS-12",
+      "class": "Shotgun",
+      "unlock": 12
+    },
+    {
+      "id": "WPN_PIS_1911",
+      "name": "M1911-A",
+      "class": "Sidearm",
+      "unlock": 6
+    },
+    {
+      "id": "WPN_PIS_REV",
+      "name": "Revolver .357",
+      "class": "Sidearm",
+      "unlock": 15
+    },
+    {
+      "id": "WPN_LCH_RPG",
+      "name": "RPG-7V",
+      "class": "Launcher",
+      "unlock": 14
+    },
+    {
+      "id": "WPN_LCH_AT4",
+      "name": "AT4-CS",
+      "class": "Launcher",
+      "unlock": 19
+    },
+    {
+      "id": "WPN_MEL_KNIFE",
+      "name": "Combat knife",
+      "class": "Melee",
+      "unlock": 1
+    },
+    {
+      "id": "WPN_MEL_TOMA",
+      "name": "Tomahawk",
+      "class": "Melee",
+      "unlock": 21
+    }
   ],
-  "attachmentSlots": ["Optic", "Muzzle", "Underbarrel", "Magazine", "Stock", "Laser"]
+  "attachmentSlots": [
+    "Optic",
+    "Muzzle",
+    "Underbarrel",
+    "Magazine",
+    "Stock",
+    "Laser",
+    "Ammunition"
+  ],
+  "classes": [
+    "AssaultRifle",
+    "SMG",
+    "Sniper",
+    "Shotgun",
+    "Sidearm",
+    "DMR",
+    "LMG",
+    "Launcher",
+    "Melee"
+  ],
+  "attachments": [
+    "OPT_RED",
+    "OPT_HOLO",
+    "OPT_IRON",
+    "OPT_RMR",
+    "OPT_ACOG",
+    "OPT_4X",
+    "OPT_8X",
+    "OPT_12X",
+    "OPT_THERM",
+    "MUZ_SUP",
+    "MUZ_SUP_SN",
+    "MUZ_SUP_P",
+    "MUZ_COMP",
+    "MUZ_BRAKE",
+    "MUZ_FLASH",
+    "MUZ_CHOKE",
+    "MUZ_HEAVY",
+    "UB_GRIP",
+    "UB_ANGLED",
+    "UB_LITE",
+    "UB_BIPOD",
+    "UB_GL",
+    "MAG_60",
+    "MAG_EXT_SMG",
+    "MAG_EXT_P",
+    "MAG_DMR25",
+    "MAG_200",
+    "MAG_DRUM",
+    "MAG_FAST",
+    "MAG_SHORT",
+    "STK_SOPMOD",
+    "STK_WIRE",
+    "STK_PRECISION",
+    "STK_BREACH",
+    "STK_HEAVY",
+    "STK_NOSTOCK",
+    "LSR_PEQ",
+    "LSR_5MW",
+    "AMMO_FMJ",
+    "AMMO_AP",
+    "AMMO_HP",
+    "AMMO_TRACER",
+    "AMMO_SLUG",
+    "AMMO_BUCK",
+    "AMMO_HE"
+  ],
+  "gunfeel": {
+    "recoilPatterns": "Per-class TArray<FVector2D> on FAshlineWeaponStats.RecoilPattern",
+    "ads": "ADSTimeSeconds + ADSFov + hip/ADS spread + sway lerp",
+    "fireModes": "Semi / Burst / Auto via B / D-pad right",
+    "ammoTypes": [
+      "FMJ",
+      "AP",
+      "HP",
+      "Tracer",
+      "Slug",
+      "Buckshot",
+      "HE"
+    ],
+    "falloff": "DamageAtRange(FalloffStart/End, MinDamageMul)",
+    "reload": "EmptyReloadMul vs TacticalReloadMul"
+  },
+  "upgrade": {
+    "maxTier": 5,
+    "cost": "UAshlineWeaponCatalog::UpgradeCostForClass"
+  }
 }

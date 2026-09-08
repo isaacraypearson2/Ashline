@@ -28,6 +28,7 @@ REQUIRED_DIRS = [
     "Weapons/Meshes",
     "Weapons/Materials",
     "Weapons/Charms",
+    "Weapons/Equipment",
     "Materials/Cosmetics",
     "Materials/PBR",
     "Materials/Decals",
@@ -35,6 +36,8 @@ REQUIRED_DIRS = [
     "Data/Kits",
     "FX/Muzzle",
     "Audio/Weapons",
+    "UI/Icons",
+    "Weapons/Equipment",
 ]
 
 KITS = [

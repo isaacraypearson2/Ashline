@@ -10,19 +10,27 @@ On **Apple** it still asks `IAshlineMetalFX` for MetalFX + RT and refuses to for
 
 | Preset | Who it's for | Screen % | Upscaler | RT | Notes |
 | --- | --- | --- | --- | --- | --- |
-| `Ashline_PC_Ultra` | 9070 GRE @ 1440p high-refresh | 77 (FSR3) / 85 (TSR) | FSR3 → TSR | On if supported | Default on Windows. Streaming pool 5600. VSync off. `t.MaxFPS=0`. |
+| `Ashline_PC_Ultra` | 9070 GRE @ 1440p high-refresh | 77 (FSR3) / 85 (TSR) | FSR3 → TSR | On if supported | Default on Windows. Pool 5600. VSync off. `t.MaxFPS=0`. RT shadows + skylight + skeletal RT geo. |
 | `Ashline_PC_Balanced` | Same PC, extra headroom | 59 / 70 | FSR3 Balanced → TSR | On if supported | Cheaper Lumen gather, pool 3800. |
+| `Ashline_PC_Perf` | High-end max fps | 50 / 59 | FSR3 Performance → TSR | Lumen RT, **no RT shadows** | Pool 3200. Scalability High. |
+| `Ashline_SteamDeck` | Steam Deck / handheld | 59 / 67 | FSR3 Balanced → TSR | Off | 1280×800 intent, VSync on, 60 fps, pool 1800. |
 | Epic / Cinematic | Generic | 100 | TSR | Off unless asked | Scalability 3 |
-| High / Medium / Low | Laptops / Mac | 100–67 | MetalFX or TSR | Off | Mac default is High |
+| High / Medium / Low | Laptops / Mac / min-spec PC | 100–50 | MetalFX or TSR / FSR3 | Off | Mac default is High. `AshPCLow` / `AshPCMed`. Skin cache off on Low. |
 
 Console:
 
 ```
 AshPCUltra
 AshPCBalanced
+AshPCPerf
+AshSteamDeck
+AshPCLow
+AshPCMed
 ```
 
 (or execs on the player controller with the same names)
+
+Skin cache: `r.SkinCache.CompileShaders=1`, `r.SkinCache.Mode` 1 except Low (0).
 
 ## 9070 GRE CVar sheet (`Ashline_PC_Ultra`)
 

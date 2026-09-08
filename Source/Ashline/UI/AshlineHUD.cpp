@@ -9,6 +9,7 @@
 #include "Player/AshlineCharacter.h"
 #include "Progression/AshlineProgressionSubsystem.h"
 #include "Settings/AshlineGraphicsSettings.h"
+#include "Weapons/AshlineWeaponCatalog.h"
 #include "Weapons/AshlineWeaponComponent.h"
 
 namespace
@@ -128,10 +129,12 @@ void AAshlineHUD::DrawFrontend(AAshlineGameMode* GameMode, UAshlineSaveGame* Sav
 	DrawTextLine(FString::Printf(TEXT("Difficulty: < %s >     Rank %d  P%d  XP %d  Credits %d  Crates %d"),
 		DifficultyName(Difficulty), Rank, Prestige, XP, Credits, Tokens),
 		48.f, Canvas->SizeY - 112.f, FLinearColor(0.8f, 0.85f, 0.7f));
-	DrawTextLine(FString::Printf(TEXT("Operator %s   Camo %s   Primary skin %s"),
+	DrawTextLine(FString::Printf(TEXT("Operator %s   Camo %s   Primary skin %s   Lethal %s   Tactical %s"),
 		Save ? *Save->Operator.Callsign : TEXT("ASH-0"),
 		*CamoId.ToString(),
-		*SkinId.ToString()),
+		*SkinId.ToString(),
+		Save ? *Save->Operator.LethalId.ToString() : TEXT("EQ_FRAG"),
+		Save ? *Save->Operator.TacticalId.ToString() : TEXT("EQ_FLASH")),
 		48.f, Canvas->SizeY - 92.f, FLinearColor(0.65f, 0.7f, 0.58f));
 	DrawTextLine(TEXT("Up/Down select   Enter deploy   Left/Right difficulty   Esc unused here"), 48.f, Canvas->SizeY - 68.f, FLinearColor(0.65f, 0.65f, 0.6f));
 	FString PresetLine = TEXT("Graphics: Ashline_PC_Ultra (console: AshPCUltra / AshPCBalanced)");
@@ -148,7 +151,7 @@ void AAshlineHUD::DrawFrontend(AAshlineGameMode* GameMode, UAshlineSaveGame* Sav
 		}
 	}
 	DrawTextLine(PresetLine, 48.f, Canvas->SizeY - 44.f, FLinearColor(0.5f, 0.62f, 0.55f));
-	DrawTextLine(TEXT("Console: AshUnlockAll  AshUnlockMeta  AshGrantCredits  AshPrestige  AshBuySkin  AshPCUltra"), 48.f, Canvas->SizeY - 24.f, FLinearColor(0.45f, 0.5f, 0.45f));
+	DrawTextLine(TEXT("Console: AshUnlockAll  AshUnlockMeta  AshGrantCredits  AshPrestige  AshBuySkin  AshBuyWeapon  AshBuyEquipment  AshPCUltra / AshPCPerf / AshSteamDeck"), 48.f, Canvas->SizeY - 24.f, FLinearColor(0.45f, 0.5f, 0.45f));
 }
 
 void AAshlineHUD::DrawCombat(AAshlineGameMode* GameMode)
@@ -158,8 +161,10 @@ void AAshlineHUD::DrawCombat(AAshlineGameMode* GameMode)
 	{
 		const FAshlineRuntimeWeapon& Weapon = Character->WeaponComponent->GetActiveWeapon();
 		const FString WeaponLine = FString::Printf(
-			TEXT("%s  %d / %d  %s"),
+			TEXT("%s  %s/%s  %d / %d  %s"),
 			*Weapon.Definition.DisplayName.ToString(),
+			*UAshlineWeaponCatalog::FireModeName(Weapon.Stats.FireMode),
+			*UAshlineWeaponCatalog::AmmoTypeName(Weapon.Stats.AmmoType),
 			Weapon.AmmoInMag,
 			Weapon.Reserve,
 			*Weapon.SkinId.ToString());
@@ -184,7 +189,7 @@ void AAshlineHUD::DrawCombat(AAshlineGameMode* GameMode)
 		Y += 20.f;
 	}
 
-	DrawTextLine(TEXT("WASD move  Mouse look  LMB fire  RMB aim  R reload  Space jump  C crouch  V FPS/TPS  Q swap  Esc pause"),
+	DrawTextLine(TEXT("WASD move  Mouse look  LMB fire  RMB aim  R reload  B fire-mode  Space jump  C crouch  V FPS/TPS  Q swap  Esc pause"),
 		48.f, Canvas->SizeY - 36.f, FLinearColor(0.5f, 0.5f, 0.48f));
 
 	const float CX = Canvas->SizeX * 0.5f;

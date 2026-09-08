@@ -41,6 +41,18 @@ public:
 	void AshPCBalanced();
 
 	UFUNCTION(Exec)
+	void AshPCPerf();
+
+	UFUNCTION(Exec)
+	void AshSteamDeck();
+
+	UFUNCTION(Exec)
+	void AshPCLow();
+
+	UFUNCTION(Exec)
+	void AshPCMed();
+
+	UFUNCTION(Exec)
 	void AshGrantCredits(int32 Amount);
 
 	UFUNCTION(Exec)
@@ -69,6 +81,21 @@ public:
 
 	UFUNCTION(Exec)
 	void AshListMeta();
+
+	UFUNCTION(Exec)
+	void AshBuyWeapon(const FString& WeaponId);
+
+	UFUNCTION(Exec)
+	void AshBuyAttachment(const FString& WeaponId, const FString& AttachmentId);
+
+	UFUNCTION(Exec)
+	void AshBuyEquipment(const FString& EquipmentId);
+
+	UFUNCTION(Exec)
+	void AshEquipEquipment(const FString& SlotName, const FString& EquipmentId);
+
+	UFUNCTION(Exec)
+	void AshListArmory();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Input")
 	TObjectPtr<UInputMappingContext> KeyboardMouseContext;

@@ -69,6 +69,21 @@ public:
 	static FString SkinMaterialPath(FName SkinId);
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString SkinMeshPath(FName SkinId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString MasterWeaponMaterialPath();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString MasterSkinMaterialPath();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString MasterCharacterMaterialPath();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString MasterEnvironmentMaterialPath();
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
 	static FString SkinDataAssetPath(FName SkinId);
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
@@ -94,4 +109,13 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
 	static FString SlotFolderName(EAshlineCosmeticSlot Slot);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString EquipmentMeshPath(FName EquipmentId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString EquipmentMaterialPath(FName EquipmentId);
+
+	UFUNCTION(BlueprintPure, Category = "Ashline|Content")
+	static FString EquipmentDataAssetPath(FName EquipmentId);
 };
