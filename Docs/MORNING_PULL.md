@@ -10,7 +10,9 @@ Stack (merge order already applied):
 | 1 | **#14** | `cursor/fab-material-pipeline-97e3` | `MI_Ashline*` MaterialFactory, `create_master_materials.py`, PHASE2_FAB, streaming pools |
 | 2 | **#9** | `cursor/aaa-feel-layer-bb50` | HUD / VFX / audio / feel |
 | 3 | **#13** | `cursor/release-fold-fafe` | Shipping, cheat gating, quiet loads, sprint, `AshFSR` / `AshTSR` |
-| 4 | **#12** | `cursor/overnight-armory-production-fdb2` | Production SP armory (45 guns, attachments, fire modes, cosmetics, equipment) |
+| 4 | **#12** | `cursor/overnight-armory-production-fdb2` | Production SP armory: **45 weapons**, **64 attachments**, **153 cosmetics**, **140 skins**, 16 equipment, deep gunfeel |
+
+**#12 is folded.** Do not checkout `cursor/overnight-armory-production-fdb2` for morning PIE — this integrate already contains it.
 
 **Superseded — do not checkout:**
 - PR **#10** (`cursor/release-readiness-fafe`) — replaced by **#13** stacked on #9
@@ -75,5 +77,6 @@ Aliases that must also work: `AshDeck` (same as `AshSteamDeck`), `AshPCPerf` / `
 8. Editor / PIE must **not hang** on DeviceProfiles (no self-parent loops). Named presets from **#8**: `Ashline_PC_Ultra` / `Ashline_PC_High` / `Ashline_PC_Balanced` / `Ashline_PC_Performance` / `Ashline_SteamDeck` / `Ashline_Laptop`.
 9. **B** (gamepad D-pad right) cycles fire mode. HUD plate shows `AUTO` / `BURST` / `SEMI` plus ammo type.
 10. Optional armory cheats (no-ops in Shipping except graphics): `AshListArmory`, `AshBuyWeapon WPN_AR_M4K`, `AshBuyEquipment EQ_SEMTEX`, `AshEquipEquipment Lethal EQ_SEMTEX`.
+11. Frontend locker line should mention **Lethal / Tactical**. `AshListArmory` should print a 45-gun roster.
 
 Pass = playable morning branch. Full list: `Docs/TEST_PLAN.md`.
