@@ -35,6 +35,21 @@ public:
 	TSoftObjectPtr<UParticleSystem> MuzzleCascadeFX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	TSoftObjectPtr<UNiagaraSystem> TracerFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	TSoftObjectPtr<UNiagaraSystem> ImpactFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	TSoftObjectPtr<UNiagaraSystem> BloodFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	TSoftObjectPtr<UParticleSystem> SparksCascade;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
+	TSoftObjectPtr<UParticleSystem> ExplosionCascade;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")
 	TSoftObjectPtr<UMaterialInterface> ImpactDecal;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ashline|Weapon")

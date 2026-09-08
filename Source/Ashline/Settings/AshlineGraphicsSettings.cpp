@@ -25,16 +25,25 @@ void UAshlineGraphicsSettings::ApplySavedOrDetect()
 	ProbeCapabilities();
 
 #if PLATFORM_WINDOWS
-	State.Preset = EAshlineGraphicsPreset::PC_Ultra;
-	if (State.bFSR3Available)
+	if (DetectSteamDeck())
 	{
-		State.Upscaler = EAshlineUpscaler::FSR3;
+		State.Preset = EAshlineGraphicsPreset::SteamDeck;
+		State.Upscaler = State.bFSR3Available ? EAshlineUpscaler::FSR3 : EAshlineUpscaler::TSR;
+		State.bRayTracingEnabled = false;
 	}
 	else
 	{
-		State.Upscaler = EAshlineUpscaler::TSR;
+		State.Preset = EAshlineGraphicsPreset::PC_Ultra;
+		if (State.bFSR3Available)
+		{
+			State.Upscaler = EAshlineUpscaler::FSR3;
+		}
+		else
+		{
+			State.Upscaler = EAshlineUpscaler::TSR;
+		}
+		State.bRayTracingEnabled = State.bHardwareRayTracingAvailable;
 	}
-	State.bRayTracingEnabled = State.bHardwareRayTracingAvailable;
 #elif PLATFORM_MAC || PLATFORM_IOS || PLATFORM_TVOS
 	if (State.bMetalFXAvailable)
 	{
@@ -67,6 +76,17 @@ void UAshlineGraphicsSettings::ApplyPreset(EAshlineGraphicsPreset Preset)
 		if (State.Upscaler == EAshlineUpscaler::Off || State.Upscaler == EAshlineUpscaler::MetalFXSpatial || State.Upscaler == EAshlineUpscaler::MetalFXTemporal)
 		{
 			State.Upscaler = State.bFSR3Available ? EAshlineUpscaler::FSR3 : EAshlineUpscaler::TSR;
+		}
+	}
+	else if (Preset == EAshlineGraphicsPreset::SteamDeck)
+	{
+		State.bRayTracingEnabled = false;
+		State.Upscaler = State.bFSR3Available ? EAshlineUpscaler::FSR3 : EAshlineUpscaler::TSR;
+		if (UAshlineGameUserSettings* User = UAshlineGameUserSettings::GetAshlineSettings())
+		{
+			User->Feel.bForceHandheldHUD = true;
+			User->Feel.HUDScale = FMath::Max(User->Feel.HUDScale, 1.2f);
+			User->Feel.SafeZone = FMath::Max(User->Feel.SafeZone, 0.08f);
 		}
 	}
 	ApplyCVars();
@@ -134,6 +154,7 @@ FString UAshlineGraphicsSettings::GetPresetDisplayName(EAshlineGraphicsPreset Pr
 	case EAshlineGraphicsPreset::Cinematic: return TEXT("Cinematic");
 	case EAshlineGraphicsPreset::PC_Balanced: return TEXT("Ashline_PC_Balanced");
 	case EAshlineGraphicsPreset::PC_Ultra: return TEXT("Ashline_PC_Ultra");
+	case EAshlineGraphicsPreset::SteamDeck: return TEXT("Ashline_SteamDeck");
 	default: return TEXT("Unknown");
 	}
 }
@@ -199,6 +220,7 @@ void UAshlineGraphicsSettings::ApplyCVars()
 	case EAshlineGraphicsPreset::Cinematic: Scalability = 3; break;
 	case EAshlineGraphicsPreset::PC_Balanced: Scalability = 3; break;
 	case EAshlineGraphicsPreset::PC_Ultra: Scalability = 3; break;
+	case EAshlineGraphicsPreset::SteamDeck: Scalability = 2; break;
 	}
 
 	SetCVarInt(TEXT("sg.ViewDistanceQuality"), Scalability);
@@ -226,6 +248,10 @@ void UAshlineGraphicsSettings::ApplyCVars()
 	if (State.Preset == EAshlineGraphicsPreset::PC_Ultra || State.Preset == EAshlineGraphicsPreset::PC_Balanced)
 	{
 		ApplyNamedPCPreset(State.Preset);
+	}
+	else if (State.Preset == EAshlineGraphicsPreset::SteamDeck)
+	{
+		ApplyHandheldPreset();
 	}
 	else
 	{
@@ -329,7 +355,9 @@ void UAshlineGraphicsSettings::ApplyUpscalerCVars()
 	case EAshlineUpscaler::FSR3:
 		SetCVarInt(TEXT("r.FidelityFX.FSR3.Enabled"), 1);
 		SetCVarInt(TEXT("r.FidelityFX.FSR.Enabled"), 1);
-		SetCVarInt(TEXT("r.FidelityFX.FSR3.QualityMode"), State.Preset == EAshlineGraphicsPreset::PC_Balanced ? 2 : 1);
+		const int32 FSRQuality = (State.Preset == EAshlineGraphicsPreset::SteamDeck) ? 3
+			: (State.Preset == EAshlineGraphicsPreset::PC_Balanced ? 2 : 1);
+		SetCVarInt(TEXT("r.FidelityFX.FSR3.QualityMode"), FSRQuality);
 		SetCVarInt(TEXT("r.FidelityFX.FI.Enabled"), bFrameGeneration ? 1 : 0);
 		break;
 	case EAshlineUpscaler::DLSS:
@@ -352,7 +380,7 @@ void UAshlineGraphicsSettings::ApplyRayTracingCVars()
 	SetCVarInt(TEXT("r.Lumen.HardwareRayTracing.LightingMode"), On ? 2 : 0);
 	if (On)
 	{
-		SetCVarInt(TEXT("r.RayTracing.Shadows"), State.Preset == EAshlineGraphicsPreset::PC_Ultra ? 1 : 0);
+		SetCVarInt(TEXT("r.RayTracing.Shadows"), (State.Preset == EAshlineGraphicsPreset::PC_Ultra) ? 1 : 0);
 		SetCVarInt(TEXT("r.RayTracing.Skylight"), 1);
 	}
 }
@@ -388,6 +416,51 @@ void UAshlineGraphicsSettings::ApplyBalancedPreset()
 	ApplyPreset(EAshlineGraphicsPreset::PC_Balanced);
 }
 
+void UAshlineGraphicsSettings::ApplySteamDeckPreset()
+{
+	ApplyPreset(EAshlineGraphicsPreset::SteamDeck);
+}
+
+void UAshlineGraphicsSettings::ApplyHandheldPreset()
+{
+	State.bRayTracingEnabled = false;
+	SetCVarInt(TEXT("r.VSync"), 1);
+	SetCVarFloat(TEXT("t.MaxFPS"), 60.f);
+	SetCVarInt(TEXT("r.FinishCurrentFrame"), 0);
+	SetCVarInt(TEXT("r.MaxAnisotropy"), 8);
+	SetCVarInt(TEXT("r.Streaming.PoolSize"), 1800);
+	SetCVarInt(TEXT("r.Streaming.LimitPoolSizeToVRAM"), 1);
+	SetCVarFloat(TEXT("r.ViewDistanceScale"), 0.8f);
+	SetCVarFloat(TEXT("r.Shadow.DistanceScale"), 0.7f);
+	SetCVarInt(TEXT("r.Shadow.Virtual.MaxQuality"), 1);
+	SetCVarInt(TEXT("r.Shadow.Virtual.SMRT.RayCountDirectional"), 4);
+	SetCVarInt(TEXT("r.Lumen.ScreenProbeGather.RadianceCache.ProbeResolution"), 16);
+	SetCVarInt(TEXT("r.Lumen.ScreenProbeGather.DownsampleFactor"), 32);
+	SetCVarInt(TEXT("r.Lumen.Reflections.DownsampleFactor"), 2);
+	SetCVarInt(TEXT("r.Lumen.TraceMeshSDFs"), 0);
+	SetCVarInt(TEXT("r.AmbientOcclusionLevels"), 1);
+	SetCVarInt(TEXT("r.BloomQuality"), 3);
+	SetCVarInt(TEXT("r.MotionBlurQuality"), 0);
+	SetCVarInt(TEXT("r.DepthOfFieldQuality"), 0);
+	SetCVarFloat(TEXT("foliage.DensityScale"), 0.5f);
+	SetCVarFloat(TEXT("r.Tonemapper.Sharpen"), 0.35f);
+	SetCVarInt(TEXT("r.RayTracing"), 0);
+	SetCVarInt(TEXT("r.Lumen.HardwareRayTracing"), 0);
+	if (State.Upscaler == EAshlineUpscaler::FSR3)
+	{
+		SetCVarFloat(TEXT("r.ScreenPercentage"), 67.f);
+	}
+	else
+	{
+		SetCVarFloat(TEXT("r.ScreenPercentage"), 77.f);
+	}
+}
+
+bool UAshlineGraphicsSettings::DetectSteamDeck()
+{
+	return UAshlineGameUserSettings::IsSteamDeckHardware();
+}
+
 void UAshlineGraphicsSettings::RegisterConsoleCommands()
 {
 	IConsoleManager& CM = IConsoleManager::Get();
@@ -400,6 +473,11 @@ void UAshlineGraphicsSettings::RegisterConsoleCommands()
 		TEXT("AshPCBalanced"),
 		TEXT("Apply Ashline_PC_Balanced."),
 		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplyBalancedPreset),
+		ECVF_Default));
+	ConsoleObjects.Add(CM.RegisterConsoleCommand(
+		TEXT("AshDeck"),
+		TEXT("Apply Ashline_SteamDeck (1280x800 handheld HUD + 60 fps path)."),
+		FConsoleCommandDelegate::CreateUObject(this, &UAshlineGraphicsSettings::ApplySteamDeckPreset),
 		ECVF_Default));
 }
 
